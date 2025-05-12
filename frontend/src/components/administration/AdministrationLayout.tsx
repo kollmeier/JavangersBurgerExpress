@@ -1,4 +1,4 @@
-import {PageLayoutContextProvider} from "../context/PageLayoutContextProvider.tsx";
+import {PageLayoutContextProvider} from "../../context/PageLayoutContextProvider.tsx";
 import AdministrationHeader from "./AdministrationHeader.tsx";
 import AdministrationFooter from "./AdministrationFooter.tsx";
 
