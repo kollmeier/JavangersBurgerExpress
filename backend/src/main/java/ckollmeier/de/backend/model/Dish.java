@@ -42,9 +42,8 @@ public final class Dish {
     /**
      * Der Typ des Gerichts.
      */
-    @Builder.Default
     @NonNull
-    private final DishType type = DishType.MAIN;
+    private final DishType type;
     /**
      * Eine Liste mit zusätzlichen Informationen zum Gericht.
      * Kann z.B. Allergene oder Zusatzstoffe enthalten.
@@ -53,18 +52,4 @@ public final class Dish {
     @Builder.Default
     @NonNull
     private final Map<String, ? extends AdditionalInformation<?>> additionalInformation = new HashMap<>();
-
-    /**
-     * The URL of the image associated with the dish.
-     * This can be used to display a visual representation of the dish.
-     * Defaults to {@code null} if no image is specified.
-     */
-    @Builder.Default
-    private final String imageUrl = null;
-
-    /**
-     * Position in der Liste.
-     */
-    @Builder.Default
-    private final Integer position = 0;
 }

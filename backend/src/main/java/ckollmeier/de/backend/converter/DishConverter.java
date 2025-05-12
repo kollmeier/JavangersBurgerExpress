@@ -2,6 +2,7 @@ package ckollmeier.de.backend.converter;
 
 import ckollmeier.de.backend.dto.DishInputDTO;
 import ckollmeier.de.backend.model.Dish;
+import ckollmeier.de.backend.types.DishType;
 
 import java.math.BigDecimal;
 
@@ -25,6 +26,7 @@ public final class DishConverter {
     public static Dish convert(final DishInputDTO dish) {
 
         return Dish.builder()
+            .type(DishType.valueOf(dish.type().toUpperCase()))
             .name(dish.name())
             .price(new BigDecimal(dish.price()))
             .additionalInformation(AdditionalInformationConverter.convert(dish.additionalInformation()))
