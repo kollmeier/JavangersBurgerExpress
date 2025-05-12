@@ -52,4 +52,10 @@ public final class Dish {
     @Builder.Default
     @NonNull
     private final Map<String, ? extends AdditionalInformation<?>> additionalInformation = new HashMap<>();
+
+    /**
+     * Gibt die Position des Gerichts in einer sortierten Liste an.
+     */
+    @Builder.Default
+    private int position = 0;
 }

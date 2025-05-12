@@ -1,0 +1,144 @@
+package ckollmeier.de.backend.controller;
+
+import ckollmeier.de.backend.dto.DishInputDTO;
+import ckollmeier.de.backend.model.Dish;
+import ckollmeier.de.backend.model.SizeInLiterAdditionalInformation;
+import ckollmeier.de.backend.repository.DishRepository;
+import ckollmeier.de.backend.types.AdditionalInformationType;
+import ckollmeier.de.backend.types.DishType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest // Lädt den gesamten Spring-Kontext
+@AutoConfigureMockMvc // Konfiguriert MockMvc für HTTP-Anfragen
+class DishesControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc; // Zum Senden von HTTP-Anfragen
+
+    @Autowired
+    private DishRepository dishRepository; // Zum Vorbereiten/Überprüfen der DB
+
+    @Autowired
+    private ObjectMapper objectMapper; // Zum Konvertieren von Objekten in JSON
+
+    private Dish mainDish1;
+    private Dish mainDish2;
+    private Dish sideDish1;
+    private Dish beverageDish1;
+
+    @BeforeEach
+    void setUp() {
+        // Testdaten vor jedem Test erstellen und speichern
+        dishRepository.deleteAll(); // Sicherstellen, dass das Repository leer ist
+
+        mainDish1 = Dish.builder()
+                .id("m1")
+                .name("Classic Burger")
+                .price(new BigDecimal("8.99"))
+                .type(DishType.MAIN)
+                .build();
+
+        mainDish2 = Dish.builder()
+                .id("m2")
+                .name("Cheese Burger")
+                .price(new BigDecimal("9.50"))
+                .type(DishType.MAIN)
+                .build();
+
+        sideDish1 = Dish.builder()
+                .id("s1")
+                .name("Fries")
+                .price(new BigDecimal("3.50"))
+                .type(DishType.SIDE)
+                .build();
+
+        beverageDish1 = Dish.builder()
+                .id("b1")
+                .name("Cola")
+                .price(new BigDecimal("2.50"))
+                .type(DishType.BEVERAGE)
+                .additionalInformation(Map.of(AdditionalInformationType.SIZE_IN_LITER.name(), new SizeInLiterAdditionalInformation(new BigDecimal("0.5"))))
+                .build();
+
+        dishRepository.saveAll(List.of(mainDish1, mainDish2, sideDish1, beverageDish1));
+    }
+
+    @AfterEach
+    void tearDown() {
+        // Nach jedem Test aufräumen (optional, aber gute Praxis)
+        dishRepository.deleteAll();
+    }
+
+    // --- Tests für /api/dishes ---
+    @Test
+    @DisplayName("GET /api/dishes should return all dishes")
+    void getAllDishes_shouldReturnAllDishes() throws Exception {
+        // Given: Daten sind in setUp gespeichert
+
+        // When & Then
+        mockMvc.perform(get("/api/dishes"))
+                .andExpect(status().isOk()) // HTTP 200
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(4))) // Erwarte 4 Gerichte insgesamt
+                .andExpect(jsonPath("$[0].id").value(mainDish1.getId()))
+                .andExpect(jsonPath("$[1].id").value(mainDish2.getId()))
+                .andExpect(jsonPath("$[2].id").value(sideDish1.getId()))
+                .andExpect(jsonPath("$[3].id").value(beverageDish1.getId()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"main", "side", "beverage"})
+    @DisplayName("POST /api/dishes should add a new dish and return it")
+    void addDish_shouldAddDishAndReturnIt(final String typeAsString) throws Exception {
+        // Given
+        DishType type = DishType.valueOf(typeAsString.toUpperCase());
+        DishInputDTO newDishInput = new DishInputDTO(typeAsString,"Veggie Burger", "10.99", Map.of());
+        String newDishJson = objectMapper.writeValueAsString(newDishInput);
+
+        long initialCount = dishRepository.count();
+
+        // When
+        MvcResult result = mockMvc.perform(post("/api/dishes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newDishJson))
+                // Then
+                .andExpect(status().isCreated()) // HTTP 201
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").isNotEmpty()) // ID sollte generiert worden sein
+                .andExpect(jsonPath("$.name", is("Veggie Burger")))
+                .andExpect(jsonPath("$.price", is("10.99")))
+                .andReturn();
+
+        // Verify Database state
+        assertThat(dishRepository.count()).isEqualTo(initialCount + 1);
+        // Extrahiere die ID aus der Antwort, um das erstellte Objekt zu überprüfen
+        String responseBody = result.getResponse().getContentAsString();
+        String createdId = objectMapper.readTree(responseBody).get("id").asText();
+        Dish savedDish = dishRepository.findById(createdId).orElseThrow();
+        assertThat(savedDish.getName()).isEqualTo("Veggie Burger");
+        assertThat(savedDish.getPrice()).isEqualTo(new BigDecimal("10.99"));
+        assertThat(savedDish.getType()).isEqualTo(type);
+    }
+}

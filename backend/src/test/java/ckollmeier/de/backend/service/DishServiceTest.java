@@ -116,7 +116,7 @@ class DishServiceTest {
         Dish convertedDish = Dish.builder()
                 .name("Cola")
                 .price(new BigDecimal("2.20"))
-                .type(DishType.MAIN)
+                .type(DishType.BEVERAGE)
                 .additionalInformation(Collections.emptyMap())
                 .build();
         Dish withType = convertedDish.withType(type);
@@ -133,7 +133,7 @@ class DishServiceTest {
             dishOutputConverterMock.when(() -> DishOutputDTOConverter.convert(savedDish)).thenReturn(expectedDTO);
 
             // When
-            DishOutputDTO result = dishService.addDish(inputDTO, type);
+            DishOutputDTO result = dishService.addDish(inputDTO);
 
             // Then
             verify(dishRepository).save(argThat(d -> d.getType() == type && d.getName().equals("Cola")));
@@ -148,7 +148,6 @@ class DishServiceTest {
     void addDishByDTOAndType_emptyName_throwsException() {
         // Given
         DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "", "8.40", Collections.emptyMap());
-        DishType type = DishType.MAIN;
 
         Dish convertedDish = Dish.builder()
                 .name("")
@@ -161,7 +160,7 @@ class DishServiceTest {
             dishConverterMock.when(() -> DishConverter.convert(inputDTO)).thenReturn(convertedDish);
 
             // When / Then
-            assertThatThrownBy(() -> dishService.addDish(inputDTO, type))
+            assertThatThrownBy(() -> dishService.addDish(inputDTO))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Dish name cannot be empty");
             verifyNoInteractions(dishRepository);

@@ -6,7 +6,6 @@ import ckollmeier.de.backend.dto.DishInputDTO;
 import ckollmeier.de.backend.dto.DishOutputDTO;
 import ckollmeier.de.backend.model.Dish;
 import ckollmeier.de.backend.repository.DishRepository;
-import ckollmeier.de.backend.types.DishType;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,10 +49,9 @@ public class DishService {
      * Adds a new dish with the specified type.
      *
      * @param dish The dish to add.
-     * @param type The type of the dish.
      * @return The added dish as a DishOutputDTO.
      */
-    public DishOutputDTO addDish(final @NonNull DishInputDTO dish, final DishType type) {
-        return addDish(DishConverter.convert(dish).withType(type));
+    public DishOutputDTO addDish(final @NonNull DishInputDTO dish) {
+        return addDish(DishConverter.convert(dish));
     }
 }
