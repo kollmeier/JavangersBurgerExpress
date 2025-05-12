@@ -1,0 +1,70 @@
+package ckollmeier.de.backend.model;
+
+import ckollmeier.de.backend.interfaces.AdditionalInformation;
+import ckollmeier.de.backend.types.DishType;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.With;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+@Builder
+@With
+@Document(collection = "burger-express-dishes")
+@TypeAlias("burger-express-dish")
+@Getter
+@ToString
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public final class Dish {
+    /**
+     * Die eindeutige ID des Gerichts.
+     */
+    private final String id;
+    /**
+     * Der Name des Gerichts.
+     */
+    @NonNull
+    private final String name;
+    /**
+     * Der Preis des Gerichts.
+     */
+    @NonNull
+    private final BigDecimal price;
+    /**
+     * Der Typ des Gerichts.
+     */
+    @Builder.Default
+    @NonNull
+    private final DishType type = DishType.MAIN;
+    /**
+     * Eine Liste mit zusätzlichen Informationen zum Gericht.
+     * Kann z.B. Allergene oder Zusatzstoffe enthalten.
+     * Bei Getränken z.B. die Größe in Milliliter
+     */
+    @Builder.Default
+    @NonNull
+    private final Map<String, ? extends AdditionalInformation<?>> additionalInformation = new HashMap<>();
+
+    /**
+     * The URL of the image associated with the dish.
+     * This can be used to display a visual representation of the dish.
+     * Defaults to {@code null} if no image is specified.
+     */
+    @Builder.Default
+    private final String imageUrl = null;
+
+    /**
+     * Position in der Liste.
+     */
+    @Builder.Default
+    private final Integer position = 0;
+}
