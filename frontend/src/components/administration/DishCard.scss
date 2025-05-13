@@ -18,6 +18,11 @@ li.dish-card {
   .dish-actions {
     @extend %entity-card-actions-base;
     border-top-color: settings.$color-light-card-border; // Heller Rand
+    grid-column-start: first;
+    grid-column-end: span 3;
+    grid-row-start: foot;
+    grid-row-end: span 1;
+    place-self: end start;
     a, button {
       @extend %button-base; // Basis-Chip-Style
       @extend %button-primary; // Standardfarbe für Aktionen (kann überschrieben werden)
@@ -94,11 +99,4 @@ li.dish-card {
     }
   }
 
-  .dish-actions {
-    grid-column-start: first;
-    grid-column-end: span 3;
-    grid-row-start: foot;
-    grid-row-end: span 1;
-    place-self: end start;
-  }
 }
