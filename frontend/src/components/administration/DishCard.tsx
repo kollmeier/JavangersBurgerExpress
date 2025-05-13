@@ -1,8 +1,9 @@
 import type {DishOutputDTO} from "../../types/DishOutputDTO.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBowlFood, faBurger, faGlassWater, faUtensils} from "@fortawesome/free-solid-svg-icons";
+import {faBowlFood, faBurger, faEdit, faGlassWater, faUtensils} from "@fortawesome/free-solid-svg-icons";
 
 import "./DishCard.scss";
+import {Link, useNavigate} from "react-router-dom";
 
 const dishIcon = (type: string) => {
     switch (type) {
@@ -26,6 +27,16 @@ type CardProps = {
 }
 
 const DishCard = ({dish}: CardProps) => {
+
+    const navigate = useNavigate();
+    /**
+     * Wird aufgerufen, wenn der Bearbeiten-Button geklickt wird.
+     */
+    const handleEdit = () => {
+        navigate(`/manage/dishes/${dish.id}/edit`);
+    }
+
+
     return (
         <div>
             <span className="dish-type" ><FontAwesomeIcon icon={dishIcon(dish.type)}/></span>
@@ -47,6 +58,8 @@ const DishCard = ({dish}: CardProps) => {
             ) : null}
             <span className="dish-price">€{dish.price}</span>
             <span className="dish-actions">
+                <Link className="button" to={`/manage/dishes/${dish.id}/edit`}
+                      onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</Link>
             </span>
         </div>
     );

@@ -14,6 +14,7 @@ import org.mockito.MockedStatic;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -166,5 +167,100 @@ class DishServiceTest {
             verifyNoInteractions(dishRepository);
             dishConverterMock.verify(() -> DishConverter.convert(inputDTO));
         }
+    }
+
+    @Test
+    @DisplayName("Aktualisiert existierendes Dish und gibt aktualisiertes DishOutputDTO zurück")
+    void updateDish_updatesExistingDishAndReturnsDTO() {
+        // Given
+        Dish existingDish = Dish.builder().id("dish-123").name("Burger").price(new BigDecimal("6.00")).type(DishType.MAIN).additionalInformation(Collections.emptyMap()).build();
+        Dish updatedDish = existingDish.withName("Vegan Burger").withPrice(new BigDecimal("7.00"));
+
+        when(dishRepository.existsById("dish-123")).thenReturn(true);
+        when(dishRepository.save(updatedDish)).thenReturn(updatedDish);
+
+        DishOutputDTO expectedDTO = new DishOutputDTO("dish-123", "Vegan Burger", "7,00", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap());
+
+        try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
+            converterMock.when(() -> DishOutputDTOConverter.convert(updatedDish)).thenReturn(expectedDTO);
+
+            // When
+            DishOutputDTO result = dishService.updateDish(updatedDish);
+
+            // Then
+            verify(dishRepository).existsById("dish-123");
+            verify(dishRepository).save(updatedDish);
+            assertThat(result).isEqualTo(expectedDTO);
+            converterMock.verify(() -> DishOutputDTOConverter.convert(updatedDish));
+        }
+    }
+
+    @Test
+    @DisplayName("Wirft Exception, wenn Dish zu aktualisieren nicht existiert")
+    void updateDish_nonexistentDish_throwsException() {
+        // Given
+        Dish nonExistingDish = Dish.builder().id("notfound-001").name("Rice").price(new BigDecimal("2.00")).type(DishType.SIDE).additionalInformation(Collections.emptyMap()).build();
+
+        when(dishRepository.existsById("notfound-001")).thenReturn(false);
+
+        // When / Then
+        assertThatThrownBy(() -> dishService.updateDish(nonExistingDish))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Dish not found");
+        verify(dishRepository).existsById("notfound-001");
+        verify(dishRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Aktualisiert Dish anhand ID und DishInputDTO und gibt DishOutputDTO zurück")
+    void updateDishByIdAndInputDto_updatesAndReturnsDTO() {
+        // Given
+        String id = "test-4711";
+        DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "Wrap", "9.95", Collections.emptyMap());
+        Dish convertedDish = Dish.builder()
+                .id(id)
+                .name("Wrap")
+                .price(new BigDecimal("9.95"))
+                .type(DishType.MAIN)
+                .additionalInformation(Collections.emptyMap())
+                .build();
+
+        when(dishRepository.findById(id)).thenReturn(Optional.of(convertedDish));
+        when(dishRepository.existsById(id)).thenReturn(true);
+        when(dishRepository.save(convertedDish)).thenReturn(convertedDish);
+
+        DishOutputDTO expectedDTO = new DishOutputDTO(id, "Wrap", "9,95", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap());
+
+        try (
+                MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)
+        ) {
+            converterMock.when(() -> DishOutputDTOConverter.convert(convertedDish)).thenReturn(expectedDTO);
+
+            // When
+            DishOutputDTO result = dishService.updateDish(id, inputDTO);
+
+            // Then
+            verify(dishRepository).findById(id);
+            verify(dishRepository).save(convertedDish);
+            assertThat(result).isEqualTo(expectedDTO);
+            converterMock.verify(() -> DishOutputDTOConverter.convert(convertedDish));
+        }
+    }
+
+    @Test
+    @DisplayName("Wirft Exception, wenn zu aktualisierendes Dish anhand ID und DTO nicht existiert")
+    void updateDishByIdAndInputDto_nonexistent_throwsException() {
+        // Given
+        String id = "notexists-789";
+        DishInputDTO inputDTO = new DishInputDTO(DishType.SIDE.name(), "Pommes", "3.90", Collections.emptyMap());
+
+        when(dishRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThatThrownBy(() -> dishService.updateDish(id, inputDTO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Dish not found");
+        verify(dishRepository).findById(id);
+        verify(dishRepository, never()).save(any());
     }
 }

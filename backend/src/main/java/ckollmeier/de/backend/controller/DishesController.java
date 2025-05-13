@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +47,20 @@ public class DishesController {
         return new ResponseEntity<>(
                 dishService.addDish(dish),
                 HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * Updated ein Gericht.
+     * @param dishId die ID des Gerichtes
+     * @param dish das neue Gericht
+     * @return das neue Gericht
+     */
+    @PutMapping("/{dishId}")
+    public ResponseEntity<DishOutputDTO> updateDish(final @PathVariable String dishId, final @RequestBody DishInputDTO dish) {
+        return new ResponseEntity<>(
+                dishService.updateDish(dishId, dish),
+                HttpStatus.OK
         );
     }
 }
