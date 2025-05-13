@@ -1,0 +1,12 @@
+// --- Centered Utility ---
+%centered {
+  margin: auto;
+  width: 50%;
+  padding: 10px; // Variable? $padding-centered: 10px;
+  text-align: center;
+  display: block;
+}
+
+.centered {
+  @extend %centered;
+}
