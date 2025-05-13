@@ -56,6 +56,19 @@ public class DishService {
     public DishOutputDTO addDish(final @NonNull DishInputDTO dish) {
         return addDish(DishConverter.convert(dish));
     }
+
+    /**
+     * Removes a dish.
+     * @param id The ID of the dish to remove.
+     */
+    public void removeDish(final @NonNull String id) {
+        if (!dishRepository.existsById(id)) {
+            throw new IllegalArgumentException("Dish not found");
+        }
+
+        dishRepository.deleteById(id);
+    }
+
     /**
      * Updates an existing dish.
      *
