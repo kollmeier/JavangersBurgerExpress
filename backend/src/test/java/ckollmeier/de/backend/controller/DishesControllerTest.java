@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,36 +52,30 @@ class DishesControllerTest {
         // Testdaten vor jedem Test erstellen und speichern
         dishRepository.deleteAll(); // Sicherstellen, dass das Repository leer ist
 
-        mainDish1 = Dish.builder()
-                .id("m1")
+        mainDish1 = dishRepository.save(Dish.builder()
                 .name("Classic Burger")
                 .price(new BigDecimal("8.99"))
                 .type(DishType.MAIN)
-                .build();
+                .build());
 
-        mainDish2 = Dish.builder()
-                .id("m2")
+        mainDish2 = dishRepository.save(Dish.builder()
                 .name("Cheese Burger")
                 .price(new BigDecimal("9.50"))
                 .type(DishType.MAIN)
-                .build();
+                .build());
 
-        sideDish1 = Dish.builder()
-                .id("s1")
+        sideDish1 = dishRepository.save(Dish.builder()
                 .name("Fries")
                 .price(new BigDecimal("3.50"))
                 .type(DishType.SIDE)
-                .build();
+                .build());
 
-        beverageDish1 = Dish.builder()
-                .id("b1")
+        beverageDish1 = dishRepository.save(Dish.builder()
                 .name("Cola")
                 .price(new BigDecimal("2.50"))
                 .type(DishType.BEVERAGE)
                 .additionalInformation(Map.of(AdditionalInformationType.SIZE_IN_LITER.name(), new SizeInLiterAdditionalInformation(new BigDecimal("0.5"))))
-                .build();
-
-        dishRepository.saveAll(List.of(mainDish1, mainDish2, sideDish1, beverageDish1));
+                .build());
     }
 
     @AfterEach
@@ -141,4 +134,50 @@ class DishesControllerTest {
         assertThat(savedDish.getPrice()).isEqualTo(new BigDecimal("10.99"));
         assertThat(savedDish.getType()).isEqualTo(type);
     }
+
+    @Test
+    @DisplayName("PUT /{dishId} aktualisiert ein Gericht und gibt aktualisiertes DishOutputDTO zurück")
+    void updateDish_putEndpoint_returnsUpdatedDish() throws Exception {
+        // Erstellt zuerst ein Gericht oder stelle sicher, dass ein bekanntes Gericht existiert
+        String dishId = mainDish1.getId();
+        DishInputDTO inputDTO = new DishInputDTO(
+                DishType.MAIN.name(),
+                "Integration Pasta",
+                "9.99",
+                Map.of()
+        );
+
+        String requestBody = objectMapper.writeValueAsString(inputDTO);
+
+        // PUT-Request
+        mockMvc.perform(put("/api/dishes/" + dishId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(dishId))
+                .andExpect(jsonPath("$.name").value("Integration Pasta"))
+                .andExpect(jsonPath("$.price").value("9.99"))
+                .andExpect(jsonPath("$.type").value(DishType.MAIN.toString().toLowerCase()));
+    }
+
+    @Test
+    @DisplayName("PUT /{dishId} gibt 400 zurück wenn das Gericht nicht existiert")
+    void updateDish_putEndpoint_returns400IfNotFound() throws Exception {
+        String unknownDishId = "nicht-existierend-4711";
+        DishInputDTO inputDTO = new DishInputDTO(
+                DishType.SIDE.name(),
+                "NonExistent",
+                "3.00",
+                Map.of()
+        );
+
+        String requestBody = objectMapper.writeValueAsString(inputDTO);
+
+        mockMvc.perform(put("/api/dishes/" + unknownDishId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
 }
