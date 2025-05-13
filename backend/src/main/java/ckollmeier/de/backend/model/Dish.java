@@ -2,13 +2,7 @@ package ckollmeier.de.backend.model;
 
 import ckollmeier.de.backend.interfaces.AdditionalInformation;
 import ckollmeier.de.backend.types.DishType;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.With;
+import lombok.*;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -49,13 +43,13 @@ public final class Dish {
      * Kann z.B. Allergene oder Zusatzstoffe enthalten.
      * Bei Getränken z.B. die Größe in Milliliter
      */
-    @Builder.Default
     @NonNull
-    private final Map<String, ? extends AdditionalInformation<?>> additionalInformation = new HashMap<>();
+    @Builder.Default
+    private final Map<String, AdditionalInformation<?>> additionalInformation = new HashMap<>();
 
     /**
      * Gibt die Position des Gerichts in einer sortierten Liste an.
      */
     @Builder.Default
-    private int position = 0;
+    private final int position = 0;
 }
