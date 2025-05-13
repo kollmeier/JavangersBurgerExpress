@@ -11,7 +11,7 @@ type Props = {
     onSubmit?: (event: React.FormEvent<HTMLFormElement>, submittedDish: DishInputDTO, dishId: string) => void;
     onCancel?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
-function DishItem(props: Props) {
+function DishItem(props: Readonly<Props>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     /**
