@@ -92,7 +92,7 @@ a.close-button {
 .circle-button {
   color: inherit;
   &:hover {
-    color: inherit;;
+    color: inherit;
   }
   > *:first-child {
     @extend %button-primary;

@@ -7,7 +7,7 @@ function CustomerLayout() {
         header={<CustomerHeader />}
         footer={<CustomerFooter />}
     >
-        <>Bald mehr Inhalt</>
+        Bald mehr Inhalt
     </PageLayoutContextProvider>);
 }
 

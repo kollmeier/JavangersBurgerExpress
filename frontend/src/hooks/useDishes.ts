@@ -50,7 +50,7 @@ export default function useDishes() {
                     return savedDish;
                 }
                 setError("Ungültige Antwort beim Speichern des Gerichts")
-                throw "Ungültige Antwort beim Speichern des Gerichts";
+                throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
             })
             .catch(e => {
                 setError(e.message);
@@ -70,7 +70,7 @@ export default function useDishes() {
                     return updatedDish;
                 }
                 setError("Ungültige Antwort beim Speichern des Gerichts")
-                throw "Ungültige Antwort beim Speichern des Gerichts";
+                throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
             })
             .catch(e => {
                 setError(e.message);

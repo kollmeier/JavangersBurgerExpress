@@ -27,7 +27,7 @@ export const DishesApi = {
                 return [];
             }
         }
-        throw "Ungültige Antwort beim Laden der Gerichtliste";
+        throw new TypeError("Ungültige Antwort beim Laden der Gerichtliste");
     },
 
     async saveDish(submittedDish: DishInputDTO): Promise<DishOutputDTO | null> {
@@ -46,7 +46,7 @@ export const DishesApi = {
                 return null;
             }
         }
-        throw "Ungültige Antwort beim Speichern des Gerichts";
+        throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
     },
 
     async updateDish(submittedDish: DishInputDTO, dishId: string): Promise<DishOutputDTO | null> {
@@ -65,6 +65,6 @@ export const DishesApi = {
                 return null;
             }
         }
-        throw "Ungültige Antwort beim Speichern des Gerichts";
+        throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
     },
 }

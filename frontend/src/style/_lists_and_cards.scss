@@ -53,8 +53,6 @@ $circle-price-size: (settings.$position-card-price-circle + settings.$size-card-
 %entity-card-detail-base {
   display: block;
   line-height: 1rem;
-  //overflow: clip;
-  //padding: 1.2rem 0 0.15rem; // Variables? settings.$detail-padding-top: 1.2rem; settings.$detail-padding-bottom: 0.15rem;
   border: 1px transparent solid;
   font-size: 1rem;
   text-wrap: wrap;
