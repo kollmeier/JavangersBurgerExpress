@@ -1,4 +1,4 @@
-@import 'settings';
+@use 'settings';
 
 // --- Forms ---
 form {
@@ -7,8 +7,8 @@ form {
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  row-gap: $gap-list; // Use list gap?
-  column-gap: $gap-card-inner; // Use card inner gap?
+  row-gap: settings.$gap-list; // Use list gap?
+  column-gap: settings.$gap-card-inner; // Use card inner gap?
 
   > .input-widget {
     flex-grow: 1;
@@ -35,7 +35,7 @@ form {
 
   button {
     // Use specific action padding for form buttons
-    padding: $padding-button-action-vertical $padding-button-horizontal;
+    padding: settings.$padding-button-action-vertical settings.$padding-button-horizontal;
   }
 
   // React Select Overrides (nested within form)
@@ -69,20 +69,20 @@ form {
       padding: 0;
       width: 100%;
       svg {
-        margin-top: $padding-input-vertical * 2;
+        margin-top: settings.$padding-input-vertical * 2;
         width: 100%;
         height: 100%;
       }
     }
 
     &__menu {
-      margin: 0.2rem (-$padding-input-horizontal) 0 (-$padding-input-horizontal);
-      width: calc(100% + 2 * #{$padding-input-horizontal});
+      margin: 0.2rem (-#{settings.$padding-input-horizontal}) 0 (-#{settings.$padding-input-horizontal});
+      width: calc(100% + 2 * #{settings.$padding-input-horizontal});
       border-radius: 0;
-      box-shadow: 0 0 0 1px $color-light-neutral-border; // Randfarbe Light
+      box-shadow: 0 0 0 1px settings.$color-light-neutral-border; // Randfarbe Light
       border-top: 0 solid transparent;
-      background-color: $color-light-bg; // Haupt-Hintergrund Light
-      color: $color-light-text;
+      background-color: settings.$color-light-bg; // Haupt-Hintergrund Light
+      color: settings.$color-light-text;
     }
   }
 }
@@ -92,13 +92,13 @@ form {
   display: grid;
   grid-template-columns: minmax(max-content, 80%) minmax(max-content, 20%);
   grid-template-rows: 1rem 1rem;
-  padding: $padding-input-vertical $padding-input-horizontal;
+  padding: settings.$padding-input-vertical settings.$padding-input-horizontal;
   border-radius: 0.3rem;
-  box-shadow: inset 2px 2px 3px -3px $color-light-neutral-border;
+  box-shadow: inset 2px 2px 3px -3px settings.$color-light-neutral-border;
   line-height: 1rem; // Added from form context
-  border: 1px solid $color-light-neutral-border;
-  background-color: $color-light-neutral-bg;
-  color: $color-light-neutral-text; // Textfarbe im Input
+  border: 1px solid settings.$color-light-neutral-border;
+  background-color: settings.$color-light-neutral-bg;
+  color: settings.$color-light-neutral-text; // Textfarbe im Input
 
   input, &.input-image p {
     outline: none;
@@ -161,13 +161,13 @@ form {
       grid-row-start: 1;
       grid-row-end: span 2;
       text-wrap: nowrap;
-      margin-top: calc( -1px - $padding-input-vertical);
-      margin-right: calc( -1px - $padding-input-horizontal);
-      margin-bottom: calc( -1px - $padding-input-vertical);
+      margin-top: calc( -1px - #{settings.$padding-input-vertical});
+      margin-right: calc(-1px - #{settings.$padding-input-horizontal});
+      margin-bottom: calc( -1px - #{settings.$padding-input-vertical});
       height: auto;
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
-      border: 1px solid $color-light-neutral-border;
+      border: 1px solid settings.$color-light-neutral-border;
       position: relative;
     }
   }
@@ -187,6 +187,6 @@ form {
     display: block;
     font-size: 0.8rem;
     padding: 0;
-    color: $color-light-text-muted; // Gedämpfte Farbe für Label
+    color: settings.$color-light-text-muted; // Gedämpfte Farbe für Label
   }
 }

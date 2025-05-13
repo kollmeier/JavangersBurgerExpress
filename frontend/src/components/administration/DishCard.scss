@@ -1,7 +1,7 @@
-@import "../../style/settings";
-@import "../../style/lists_and_cards";
-@import "../../style/dot";
-@import "../../style/buttons";
+@use "../../style/settings";
+@use "../../style/lists_and_cards";
+@use "../../style/dot";
+@use "../../style/buttons";
 
 li.dish-card {
   line-height: 1.5;
@@ -12,12 +12,12 @@ li.dish-card {
     position: relative;
     justify-content: center;
     align-items: center;
-    color: $color-light-text; // Dunkler Text
+    color: settings.$color-light-text; // Dunkler Text
   }
 
   .dish-actions {
     @extend %entity-card-actions-base;
-    border-top-color: $color-light-card-border; // Heller Rand
+    border-top-color: settings.$color-light-card-border; // Heller Rand
     a, button {
       @extend %button-base; // Basis-Chip-Style
       @extend %button-primary; // Standardfarbe für Aktionen (kann überschrieben werden)
@@ -35,18 +35,18 @@ li.dish-card {
   }
 
   .dish-type {
-    height: $size-card-type-circle;
-    width: $size-card-type-circle;
-    padding: $padding-card-type-circle;
-    margin-top: $position-card-type-circle - $padding-card-type-circle * 2 - $gap-card-inner * 3;
-    margin-left: $position-card-type-circle  - $padding-card-type-circle * 2 - $gap-card-inner * 3;
+    height: settings.$size-card-type-circle;
+    width: settings.$size-card-type-circle;
+    padding: settings.$padding-card-type-circle;
+    margin-top: settings.$position-card-type-circle - settings.$padding-card-type-circle * 2 - settings.$gap-card-inner * 3;
+    margin-left: settings.$position-card-type-circle  - settings.$padding-card-type-circle * 2 - settings.$gap-card-inner * 3;
   }
 
   .dish-price {
-    height: $size-card-price-circle;
-    width: $size-card-price-circle;
-    margin-bottom: $position-card-price-circle;
-    margin-right: $position-card-price-circle;
+    height: settings.$size-card-price-circle;
+    width: settings.$size-card-price-circle;
+    margin-bottom: settings.$position-card-price-circle;
+    margin-right: settings.$position-card-price-circle;
     font-size: 110%;
     font-weight: bold;
     flex-direction: column;

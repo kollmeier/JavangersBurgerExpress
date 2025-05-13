@@ -1,3 +1,4 @@
+@use "sass:color";
 .page-layout {
   display: flex;
   flex-direction: column;
@@ -24,7 +25,7 @@
       li {
         a, button {
           color: #292c36;
-          background: adjust-color(#ececec, $lightness: 3%);
+          background: color.adjust(#ececec, $lightness: 3%);
           border: none;
           font: inherit;
           cursor: pointer;
@@ -35,7 +36,7 @@
           &.active {
             color: #fff;
             background: #292c36;
-            border-bottom: 3px solid adjust-color(#292c36, $lightness: 30%);
+            border-bottom: 3px solid color.adjust(#292c36, $lightness: 30%);
           }
 
           &:hover {

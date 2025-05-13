@@ -1,3 +1,4 @@
+@use "sass:color";
 // --- Variables ---
 $enable-dark-theme: false;
 $font-stack: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -17,9 +18,9 @@ $color-light-primary-hover:#7ec0f4;  // Helleres Blau für Hover
 
 $color-light-secondary:    #e5c07b;  // Sanftes Gold/Gelb (Sekundärer Akzent)
 
-$color-light-neutral-bg:     adjust-color($color-light-bg, $lightness: 1%);  // Etwas helleres Dunkelgrau (für Inputs, Buttons)
+$color-light-neutral-bg:     color.adjust($color-light-bg, $lightness: 1%);  // Etwas helleres Dunkelgrau (für Inputs, Buttons)
 $color-light-neutral-text:   #3b4048;  // Helles Grau für Text auf neutralem BG
-$color-light-neutral-border: adjust-color(#4b515c, $lightness: 30%); // Randfarbe für neutrale Elemente
+$color-light-neutral-border: color.adjust(#4b515c, $lightness: 30%); // Randfarbe für neutrale Elemente
 
 // Card Backgrounds (Light Theme) - NEUE DEFINITIONEN
 $color-light-card-bg:          #ffffff; // Basis-Kartenhintergrund (jetzt Weiß statt Grau)
@@ -67,7 +68,7 @@ $card-radius-bottom-left: 1.5rem;
 $card-radius-bottom-right: 2.4rem;
 // card-circle-areas
 $padding-card-type-circle: 0.3rem;
-$position-card-type-circle: -($card-radius-top-left / 2);
+$position-card-type-circle: -($card-radius-top-left * 0.5);
 $size-card-type-circle: ($card-radius-top-left * 2) - ($position-card-type-circle * 4) - $padding-card-type-circle;
 $padding-card-price-circle: 0.3rem;
 $position-card-price-circle: 0;

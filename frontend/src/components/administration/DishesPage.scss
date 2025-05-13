@@ -1,8 +1,10 @@
-@import '../../style/lists_and_cards';
-@import '../../style/settings';
-@import '../../style/dot';
-@import '../../style/buttons';
-@import '../../style/centered';
+@use 'sass:color';
+
+@use '../../style/lists_and_cards';
+@use '../../style/settings';
+@use '../../style/dot';
+@use '../../style/buttons';
+@use '../../style/centered';
 
 ul.dish-list {
   @extend %entity-list-base;
@@ -12,27 +14,27 @@ ul.dish-list {
 }
 
 li.dish-card {
-  color: $color-light-text;
+  color: settings.$color-light-text;
   // Colors - Verwenden die NEUEN hellen Variablen
   &.dish-card__main {
-    background-color: $color-light-card-main-bg; // Sehr helles Orange
+    background-color: settings.$color-light-card-main-bg; // Sehr helles Orange
     // Kreise: Etwas dunklerer Ton der Kartenfarbe für Kontrast
     .dish-type, .dish-price {
-      background-color: darken($color-light-card-main-bg, 5%);
+      background-color: color.adjust(settings.$color-light-card-main-bg, $lightness: -5%);
     }
   }
 
   &.dish-card__side {
-    background-color: $color-light-card-side-bg; // Sehr helles Grün
+    background-color: settings.$color-light-card-side-bg; // Sehr helles Grün
     .dish-type, .dish-price {
-      background-color: darken($color-light-card-side-bg, 5%);
+      background-color: color.adjust(settings.$color-light-card-side-bg, $lightness: -5%);
     }
   }
 
   &.dish-card__beverage {
-    background-color: $color-light-card-beverage-bg; // Sehr helles Gelb
+    background-color: settings.$color-light-card-beverage-bg; // Sehr helles Gelb
     .dish-type, .dish-price {
-      background-color: darken($color-light-card-beverage-bg, 5%);
+      background-color: color.adjust(settings.$color-light-card-beverage-bg, $lightness: -5%);
     }
   }
 
