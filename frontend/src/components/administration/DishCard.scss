@@ -40,6 +40,11 @@ li.dish-card {
     padding: settings.$padding-card-type-circle;
     margin-top: settings.$position-card-type-circle - settings.$padding-card-type-circle * 2 - settings.$gap-card-inner * 3;
     margin-left: settings.$position-card-type-circle  - settings.$padding-card-type-circle * 2 - settings.$gap-card-inner * 3;
+    grid-column-start: first;
+    grid-column-end: span 1;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end;
   }
 
   .dish-price {
@@ -50,17 +55,6 @@ li.dish-card {
     font-size: 110%;
     font-weight: bold;
     flex-direction: column;
-  }
-
-  .dish-type {
-    grid-column-start: first;
-    grid-column-end: span 1;
-    grid-row-start: head;
-    grid-row-end: span 2;
-    place-self: end;
-  }
-
-  .dish-price {
     grid-column-start: last;
     grid-column-end: span 1;
     grid-row-start: foot;
