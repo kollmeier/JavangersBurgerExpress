@@ -52,37 +52,35 @@ const DishesPage: React.FC = () => {
     }
 
     return (
-        <>
-            <ul className="dish-list">
-                <li className="dish-card dish-card__main">
-                    {dishId !== 'add-main' ? (
-                        <Link to="/manage/dishes/add-main" className="centered circle-button"><FontAwesomeIcon icon={faPlus}/><div>Hauptgericht hinzufügen</div></Link>
-                    ) : (
-                        <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="main"/>
-                    )}
-                </li>
-                <li className="dish-card dish-card__side">
-                    {dishId !== 'add-side' ? (
-                        <Link to="/manage/dishes/add-side" className="centered circle-button"><FontAwesomeIcon icon={faPlus}/><div>Beilage hinzufügen</div></Link>
-                    ) : (
-                        <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="side"/>
-                    )}
-                </li>
-                <li className="dish-card dish-card__beverage" >
-                    {dishId !== 'add-beverage' ? (
-                        <Link to="/manage/dishes/add-beverage" className="centered circle-button"><FontAwesomeIcon icon={faPlus}/><div>Getränk hinzufügen</div></Link>
-                    ) : (
-                        <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="beverage"/>
-                    )}
-                </li>
-                {dishes
-                    .map((dish) => <DishItem key={dish.id}
-                                                    id={dish.id}
-                                                    dish={dish}
-                                                    onSubmit={handleSubmitUpdateDish}
-                                                    onCancel={handleCancel}/>)}
-            </ul>
-        </>
+        <ul className="dish-list">
+            <li className="dish-card dish-card__main">
+                {dishId !== 'add-main' ? (
+                    <Link to="/manage/dishes/add-main" className="centered circle-button"><FontAwesomeIcon icon={faPlus}/><div>Hauptgericht hinzufügen</div></Link>
+                ) : (
+                    <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="main"/>
+                )}
+            </li>
+            <li className="dish-card dish-card__side">
+                {dishId !== 'add-side' ? (
+                    <Link to="/manage/dishes/add-side" className="centered circle-button"><FontAwesomeIcon icon={faPlus}/><div>Beilage hinzufügen</div></Link>
+                ) : (
+                    <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="side"/>
+                )}
+            </li>
+            <li className="dish-card dish-card__beverage" >
+                {dishId !== 'add-beverage' ? (
+                    <Link to="/manage/dishes/add-beverage" className="centered circle-button"><FontAwesomeIcon icon={faPlus}/><div>Getränk hinzufügen</div></Link>
+                ) : (
+                    <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="beverage"/>
+                )}
+            </li>
+            {dishes
+                .map((dish) => <DishItem key={dish.id}
+                                                id={dish.id}
+                                                dish={dish}
+                                                onSubmit={handleSubmitUpdateDish}
+                                                onCancel={handleCancel}/>)}
+        </ul>
     );
 };
 
