@@ -16,7 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class DishServiceTest {
@@ -262,5 +263,36 @@ class DishServiceTest {
                 .hasMessage("Dish not found");
         verify(dishRepository).findById(id);
         verify(dishRepository, never()).save(any());
+    }
+
+
+    @Test
+    @DisplayName("Entfernt ein existierendes Dish erfolgreich")
+    void removeDish_shouldRemoveDish_whenDishExists() {
+        // Given
+        String id = "existing-dish-id";
+        when(dishRepository.existsById(id)).thenReturn(true);
+
+        // When
+        dishService.removeDish(id);
+
+        // Then
+        verify(dishRepository).existsById(id);
+        verify(dishRepository).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Wirft Exception, wenn zu löschendes Dish nicht existiert")
+    void removeDish_shouldThrowException_whenDishDoesNotExist() {
+        // Given
+        String id = "nonexistent-dish-id";
+        when(dishRepository.existsById(id)).thenReturn(false);
+
+        // When / Then
+        assertThatThrownBy(() -> dishService.removeDish(id))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Dish not found");
+        verify(dishRepository).existsById(id);
+        verify(dishRepository, never()).deleteById(any());
     }
 }

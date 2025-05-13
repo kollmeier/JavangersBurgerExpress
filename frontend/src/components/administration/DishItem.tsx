@@ -9,6 +9,7 @@ type Props = {
     id: string;
     dish: DishOutputDTO;
     onSubmit?: (event: React.FormEvent<HTMLFormElement>, submittedDish: DishInputDTO, dishId: string) => void;
+    onDelete?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>, id: string) => void;
     onCancel?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
 function DishItem(props: Readonly<Props>) {
@@ -36,6 +37,15 @@ function DishItem(props: Readonly<Props>) {
         setIsEditing(false);
     }
 
+    /**
+     *
+     */
+    const handleDelete = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+        event.preventDefault();
+        if (props.onDelete) {
+            props.onDelete(event, props.dish.id);
+        }
+    }
     const dishId = useParams().dishId;
 
     useEffect(() => {
@@ -46,7 +56,7 @@ function DishItem(props: Readonly<Props>) {
     return (
         <li className={"dish-card dish-card__" + props.dish.type} id={props.id}>
             {!isEditing ? (
-                <DishCard dish={props.dish}/>
+                <DishCard dish={props.dish} onDelete={handleDelete}/>
             ) : (
                 <DishEdit dish={props.dish}
                           onSubmit={handleSubmit}

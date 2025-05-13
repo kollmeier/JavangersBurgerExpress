@@ -1,9 +1,10 @@
 import type {DishOutputDTO} from "../../types/DishOutputDTO.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBowlFood, faBurger, faEdit, faGlassWater, faUtensils} from "@fortawesome/free-solid-svg-icons";
+import {faBowlFood, faBurger, faEdit, faGlassWater, faRemove, faUtensils} from "@fortawesome/free-solid-svg-icons";
 
 import "./DishCard.scss";
 import {Link, useNavigate} from "react-router-dom";
+import React from "react";
 
 const dishIcon = (type: string) => {
     switch (type) {
@@ -24,9 +25,10 @@ const dishIcon = (type: string) => {
 
 type CardProps = {
     dish: DishOutputDTO;
+    onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
 
-const DishCard = ({dish}: CardProps) => {
+const DishCard = ({dish, onDelete}: CardProps) => {
 
     const navigate = useNavigate();
     /**
@@ -35,7 +37,6 @@ const DishCard = ({dish}: CardProps) => {
     const handleEdit = () => {
         navigate(`/manage/dishes/${dish.id}/edit`);
     }
-
 
     return (
         <div>
@@ -60,6 +61,7 @@ const DishCard = ({dish}: CardProps) => {
             <span className="dish-actions">
                 <Link className="button" to={`/manage/dishes/${dish.id}/edit`}
                       onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</Link>
+                <Link to="#" className="button button--danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</Link>
             </span>
         </div>
     );
