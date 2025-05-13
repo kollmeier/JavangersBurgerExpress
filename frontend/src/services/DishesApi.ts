@@ -47,5 +47,24 @@ export const DishesApi = {
             }
         }
         throw "Ungültige Antwort beim Speichern des Gerichts";
-    }
+    },
+
+    async updateDish(submittedDish: DishInputDTO, dishId: string): Promise<DishOutputDTO | null> {
+        this.cancelableUpdateDishRef[dishId]?.abort();
+        this.cancelableUpdateDishRef[dishId] = new AbortController();
+
+        try {
+            const response = await axios.put('/api/dishes/' + dishId, submittedDish, {
+                signal: this.cancelableUpdateDishRef[dishId]?.signal
+            });
+            if (isDishOutputDTO(response.data)) {
+                return response.data
+            }
+        } catch (error) {
+            if (axios.isCancel(error)) {
+                return null;
+            }
+        }
+        throw "Ungültige Antwort beim Speichern des Gerichts";
+    },
 }

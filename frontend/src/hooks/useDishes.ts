@@ -59,10 +59,31 @@ export default function useDishes() {
             .finally(() => setLoading(false));
     }
 
+    const updateDish = (newDish: DishInputDTO, dishId: string) => {
+        setLoading(true);
+        setError(null);
+        return DishesApi.updateDish(newDish, dishId)
+            .then((updatedDish) => {
+                if (updatedDish && isDishOutputDTO(updatedDish)) {
+                    const newDishes = [...state.dishes, updatedDish]
+                    setDishes(newDishes);
+                    return updatedDish;
+                }
+                setError("Ungültige Antwort beim Speichern des Gerichts")
+                throw "Ungültige Antwort beim Speichern des Gerichts";
+            })
+            .catch(e => {
+                setError(e.message);
+                throw e;
+            })
+            .finally(() => setLoading(false));
+    }
+
     return {
         dishes: state.dishes,
         loading: state.loading,
         error: state.error,
-        addDish
+        addDish,
+        updateDish
     };
 }
