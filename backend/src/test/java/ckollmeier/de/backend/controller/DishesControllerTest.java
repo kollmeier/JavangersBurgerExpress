@@ -7,10 +7,7 @@ import ckollmeier.de.backend.repository.DishRepository;
 import ckollmeier.de.backend.types.AdditionalInformationType;
 import ckollmeier.de.backend.types.DishType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,6 +158,38 @@ class DishesControllerTest {
                 .andExpect(jsonPath("$.type").value(DishType.MAIN.toString().toLowerCase()));
     }
 
+    @Nested
+    @DisplayName("DELETE /{dishId}")
+    class DeleteDishTests {
+
+        @Test
+        @DisplayName("DELETE /{dishId} sollte ein Gericht löschen und HTTP 204 zurückgeben")
+        void deleteDish_shouldRemoveDish_whenDishExists() throws Exception {
+            // Given
+            String dishIdToDelete = mainDish1.getId();
+            long initialCount = dishRepository.count();
+
+            // When & Then
+            mockMvc.perform(delete("/api/dishes/" + dishIdToDelete))
+                    .andExpect(status().isNoContent()); // HTTP 204
+
+            // Verify database state
+            assertThat(dishRepository.count()).isEqualTo(initialCount - 1);
+            assertThat(dishRepository.findById(dishIdToDelete)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("DELETE /{dishId} sollte HTTP 400 zurückgeben, wenn das Gericht nicht existiert")
+        void deleteDish_shouldReturn404_whenDishDoesNotExist() throws Exception {
+            // Given
+            String nonExistentDishId = "non-existent-12345";
+
+            // When & Then
+            mockMvc.perform(delete("/api/dishes/" + nonExistentDishId))
+                    .andExpect(status().isBadRequest()); // HTTP 400
+        }
+    }
+
     @Test
     @DisplayName("PUT /{dishId} gibt 400 zurück wenn das Gericht nicht existiert")
     void updateDish_putEndpoint_returns400IfNotFound() throws Exception {
@@ -179,5 +208,6 @@ class DishesControllerTest {
                         .content(requestBody))
                 .andExpect(status().isBadRequest());
     }
+
 
 }
