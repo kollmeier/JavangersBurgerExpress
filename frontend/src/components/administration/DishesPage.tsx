@@ -12,7 +12,7 @@ import "./DishesPage.scss";
 import {useDishesContext} from "../../context/DishesContext.ts";
 
 const DishesPage: React.FC = () => {
-    const {dishes, addDish, updateDish} = useDishesContext();
+    const {dishes, addDish, updateDish, deleteDish} = useDishesContext();
 
     const dishId = useParams().dishId;
 
@@ -47,6 +47,21 @@ const DishesPage: React.FC = () => {
         navigate("/manage/dishes");
     };
 
+    const handleDelete = async (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>, id: string) => {
+        event.preventDefault();
+        if (!confirm("Sind Sie sicher, dass Sie dieses Gericht löschen möchten?")) {
+            return;
+        }
+        await toast.promise(
+            deleteDish(id),
+            {
+                pending: 'Gericht wird gelöscht...',
+                success: 'Gericht erfolgreich gelöscht',
+                error: 'Fehler beim Löschen des Gerichts'
+            });
+        navigate("/manage/dishes");
+    }
+
     const handleCancel = () => {
         navigate("/manage/dishes");
     }
@@ -79,6 +94,7 @@ const DishesPage: React.FC = () => {
                                                 id={dish.id}
                                                 dish={dish}
                                                 onSubmit={handleSubmitUpdateDish}
+                                                onDelete={handleDelete}
                                                 onCancel={handleCancel}/>)}
         </ul>
     );
