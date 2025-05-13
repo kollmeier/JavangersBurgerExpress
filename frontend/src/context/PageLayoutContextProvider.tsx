@@ -1,7 +1,7 @@
-import React, {type PropsWithChildren, useEffect, useRef} from "react";
+import React, {type PropsWithChildren, useEffect} from "react";
 import PageLayoutContext from "./PageLayoutContext.ts";
 import {type PageLayoutProps} from "../components/PageLayout.tsx";
-import usePageLayout, {type PageLayoutApi} from "../hooks/usePageLayout.tsx";
+import usePageLayout from "../hooks/usePageLayout.tsx";
 
 type PageLayoutContextProps = PropsWithChildren<PageLayoutProps>;
 
@@ -15,35 +15,21 @@ export const PageLayoutContextProvider: React.FC<PageLayoutContextProps> = ({
     const pageLayout = usePageLayout();
     const { setHeader, setSubHeader, setMainNav, setFooter, render} = pageLayout
 
-    const wrappers = useRef<Partial<PageLayoutApi>>({});
-
     useEffect(() => {
-        wrappers.current = {setHeader, setSubHeader, setFooter, setMainNav}; // wrap to aviod render loops
-    }, [setFooter, setHeader, setMainNav, setSubHeader]);
-
-    useEffect(() => {
-        if (header && wrappers.current?.setHeader) {
-            wrappers.current.setHeader(header);
+        if (header) {
+            setHeader(header);
         }
-    }, [header, wrappers]);
-
-    useEffect(() => {
-        if (subHeader && wrappers.current?.setSubHeader) {
-            wrappers.current.setSubHeader(subHeader);
+        if (subHeader) {
+            setSubHeader(subHeader);
         }
-    }, [subHeader, wrappers]);
-
-    useEffect(() => {
-        if (mainNav && wrappers.current?.setMainNav) {
-            wrappers.current.setMainNav(mainNav);
+        if (mainNav) {
+            setMainNav(mainNav);
         }
-    }, [mainNav, wrappers]);
-
-    useEffect(() => {
-        if (footer && wrappers.current?.setFooter) {
-            wrappers.current.setFooter(footer);
+        if (footer) {
+            setFooter(footer);
         }
-    }, [footer, wrappers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return(
         <PageLayoutContext.Provider value={pageLayout}>

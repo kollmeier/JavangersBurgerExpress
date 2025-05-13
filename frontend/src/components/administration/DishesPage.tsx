@@ -4,15 +4,15 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DishAdd from "./DishAdd.tsx";
 import {toast} from "react-toastify";
-import useDishes from "../../hooks/useDishes.ts";
 import {usePageLayoutContext} from "../../context/PageLayoutContext.ts";
 import DishItem from "./DishItem.tsx";
 import type {DishInputDTO} from "../../types/DishInputDTO.ts";
 
 import "./DishesPage.scss";
+import {useDishesContext} from "../../context/DishesContext.ts";
 
 const DishesPage: React.FC = () => {
-    const {dishes, addDish} = useDishes();
+    const {dishes, addDish} = useDishesContext();
 
     const dishId = useParams().dishId;
 

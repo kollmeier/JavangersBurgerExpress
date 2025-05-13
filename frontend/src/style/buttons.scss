@@ -1,49 +1,48 @@
-@import './dot';
-@import './chips';
-@import 'settings';
+@use 'sass:color';
+@use 'settings';
+
+@use 'dot';
+@use 'chips';
 
 // --- Buttons & Links styled as Buttons ---
 %button-base {
   @extend %chip-base;
   cursor: pointer;
-  text-decoration: none; // Sicherstellen, dass Links nicht unterstrichen sind
-  border: 1px solid transparent; // Erlaube Border, standardmäßig transparent
-  transition: filter 0.2s ease-out; // Für Hover-Effekt
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: filter 0.2s ease-out;
+
+  // Basis-Variablen für Button-Design
+  --button-focus-outline: 4px auto -webkit-focus-ring-color;
+  --button-focus-outline-offset: 2px;
+  --button-hover-brightness: 90%;
 
   &:focus,
   &:focus-visible,
   &.active {
-    // Keep vendor prefix for focus ring color for now
-    outline: 4px auto -webkit-focus-ring-color;
-    outline-offset: 2px; // Etwas Abstand für den Fokusring
+    outline: var(--button-focus-outline);
+    outline-offset: var(--button-focus-outline-offset);
   }
 
-  // Standard-Hover: Leicht abdunkeln
   &:hover {
-    filter: brightness(90%);
+    filter: brightness(var(--button-hover-brightness));
   }
-
-  // Entferne alte Farb/Rand-Definitionen von hier
-  // background-color: $color-light-neutral-bg; // Entfernt
-  // color: $color-light-neutral-text; // Entfernt
-  // border: 1px solid $color-light-neutral-border; // Entfernt
-  // &:hover { border-color: $color-light-primary; } // Entfernt
 }
 
 // Placeholder für Farbvarianten
 %button-primary {
-  background-color: $color-light-primary;
-  color: $color-primary-text; // Dunkler Text auf hellem Blau
+  background-color: settings.$color-light-primary;
+  color: settings.$color-primary-text; // Dunkler Text auf hellem Blau
 }
 
 %button-secondary {
-  background-color: $color-light-secondary;
-  color: $color-primary-text; // Dunkler Text auf hellem Gold/Gelb
+  background-color: settings.$color-light-secondary;
+  color: settings.$color-primary-text; // Dunkler Text auf hellem Gold/Gelb
 }
 
 %button-danger {
-  background-color: $color-danger;
-  color: $color-danger-text; // Heller Text auf Rot
+  background-color: settings.$color-danger;
+  color: settings.$color-danger-text; // Heller Text auf Rot
 }
 
 // Placeholder für Farbvarianten
@@ -51,13 +50,13 @@
 
 %button-neutral {
   background-color: transparent; // Kein Hintergrund
-  color: $color-light-text-muted; // Textfarbe in gedämpftem Grau
-  border-color: $color-light-text-muted; // Rand in der gleichen Farbe
+  color: settings.$color-light-text-muted; // Textfarbe in gedämpftem Grau
+  border-color: settings.$color-light-text-muted; // Rand in der gleichen Farbe
 
   &:hover {
     filter: none; // Standard-Filter entfernen
-    background-color: rgba($color-light-text-muted, 0.1); // Leichter Hintergrund bei Hover
-    border-color: darken($color-light-text-muted, 10%);
+    background-color: rgba(settings.$color-light-text-muted, 0.1); // Leichter Hintergrund bei Hover
+    border-color: color.adjust(settings.$color-light-text-muted, $lightness: -10%);
   }
 }
 
@@ -84,9 +83,9 @@ button, .button {
 // --- Utility Buttons ---
 a.close-button {
   position: absolute;
-  top: $padding-base;
+  top: settings.$padding-base;
   font-size: 1.5em;
-  right: $padding-base;
+  right: settings.$padding-base;
   color: darkred;
 }
 
