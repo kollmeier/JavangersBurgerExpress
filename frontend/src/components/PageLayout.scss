@@ -4,19 +4,60 @@
   min-height: 100vh;
 
   .pl-header, .pl-footer {
+    text-align: center;
     background: #292c36;
     color: #fff;
     padding: 1rem 2rem;
   }
 
+  .pl-nav {
+    background: #ececec;
+    padding: 0.5rem 2rem;
+
+    ul {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        a, button {
+          color: #292c36;
+          background: adjust-color(#ececec, $lightness: 3%);
+          border: none;
+          font: inherit;
+          cursor: pointer;
+          text-decoration: none;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+
+          &.active {
+            color: #fff;
+            background: #292c36;
+            border-bottom: 3px solid adjust-color(#292c36, $lightness: 30%);
+          }
+
+          &:hover {
+            background: #dbdbdb;
+          }
+        }
+      }
+    }
+  }
+
   .pl-content-area {
     flex: 1 1 0;
     display: flex;
+    justify-content: center;
+    align-items: stretch;
+
     background: #f7f7f9;
 
     .pl-main {
+      max-width: 1378px;
       flex: 1 1 0;
-      padding: 2rem;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
 
@@ -24,7 +65,7 @@
         flex: 1 1 0;
         background: #fff;
         border-radius: 10px;
-        padding: 2rem;
+        padding: 1rem;
         box-shadow: 0 2px 8px rgba(80,90,110,0.04);
       }
     }

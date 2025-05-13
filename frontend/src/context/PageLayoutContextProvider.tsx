@@ -8,17 +8,18 @@ type PageLayoutContextProps = PropsWithChildren<PageLayoutProps>;
 export const PageLayoutContextProvider: React.FC<PageLayoutContextProps> = ({
     header,
     subHeader,
+    mainNav,
     footer,
     children
 }) => {
     const pageLayout = usePageLayout();
-    const { setHeader, setSubHeader, setFooter, render} = pageLayout
+    const { setHeader, setSubHeader, setMainNav, setFooter, render} = pageLayout
 
     const wrappers = useRef<Partial<PageLayoutApi>>({});
 
     useEffect(() => {
-        wrappers.current = {setHeader, setSubHeader, setFooter}; // wrap to aviod render loops
-    }, []);
+        wrappers.current = {setHeader, setSubHeader, setFooter, setMainNav}; // wrap to aviod render loops
+    }, [setFooter, setHeader, setMainNav, setSubHeader]);
 
     useEffect(() => {
         if (header && wrappers.current?.setHeader) {
@@ -31,6 +32,12 @@ export const PageLayoutContextProvider: React.FC<PageLayoutContextProps> = ({
             wrappers.current.setSubHeader(subHeader);
         }
     }, [subHeader, wrappers]);
+
+    useEffect(() => {
+        if (mainNav && wrappers.current?.setMainNav) {
+            wrappers.current.setMainNav(mainNav);
+        }
+    }, [mainNav, wrappers]);
 
     useEffect(() => {
         if (footer && wrappers.current?.setFooter) {
