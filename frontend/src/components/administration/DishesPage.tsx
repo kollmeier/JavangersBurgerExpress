@@ -12,7 +12,7 @@ import "./DishesPage.scss";
 import {useDishesContext} from "../../context/DishesContext.ts";
 
 const DishesPage: React.FC = () => {
-    const {dishes, addDish} = useDishesContext();
+    const {dishes, addDish, updateDish} = useDishesContext();
 
     const dishId = useParams().dishId;
 
@@ -28,6 +28,17 @@ const DishesPage: React.FC = () => {
     const handleSubmitAddDish = async (_event: React.FormEvent, submittedDish: DishInputDTO) => {
         await toast.promise(
             addDish(submittedDish),
+            {
+                pending: 'Gericht wird gespeichert...',
+                success: 'Gericht erfolgreich gespeichert',
+                error: 'Fehler beim Speichern des Gerichts'
+            });
+        navigate("/manage/dishes");
+    };
+
+    const handleSubmitUpdateDish = async (_event: React.FormEvent, submittedDish: DishInputDTO, dishId: string) => {
+        await toast.promise(
+            updateDish(submittedDish, dishId),
             {
                 pending: 'Gericht wird gespeichert...',
                 success: 'Gericht erfolgreich gespeichert',
@@ -66,8 +77,10 @@ const DishesPage: React.FC = () => {
                 </li>
                 {dishes
                     .map((dish) => <DishItem key={dish.id}
-                                             id={dish.id}
-                                             dish={dish}/>)}
+                                                    id={dish.id}
+                                                    dish={dish}
+                                                    onSubmit={handleSubmitUpdateDish}
+                                                    onCancel={handleCancel}/>)}
             </ul>
         </>
     );

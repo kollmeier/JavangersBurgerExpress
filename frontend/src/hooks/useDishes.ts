@@ -65,7 +65,7 @@ export default function useDishes() {
         return DishesApi.updateDish(newDish, dishId)
             .then((updatedDish) => {
                 if (updatedDish && isDishOutputDTO(updatedDish)) {
-                    const newDishes = [...state.dishes, updatedDish]
+                    const newDishes = state.dishes.map(m => m.id === updatedDish.id ? updatedDish : m);
                     setDishes(newDishes);
                     return updatedDish;
                 }
