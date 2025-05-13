@@ -24,9 +24,6 @@ jobs:
         run: echo "Working directory set"
         working-directory: backend
 
-      - name: Build with Maven
-        run: mvn -f backend/pom.xml -B package
-
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
