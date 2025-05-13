@@ -67,4 +67,21 @@ export const DishesApi = {
         }
         throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
     },
+
+    async deleteDish(dishId: string): Promise<void> {
+        this.cancelableDeleteDishRef[dishId]?.abort();
+        this.cancelableDeleteDishRef[dishId] = new AbortController();
+
+        try {
+            await axios.delete('/api/dishes/' + dishId, {
+                signal: this.cancelableDeleteDishRef[dishId]?.signal
+            });
+            return;
+        } catch (error) {
+            if (axios.isCancel(error)) {
+                return;
+            }
+        }
+        throw new TypeError("Ungültige Antwort beim Löschen des Gerichts");
+    }
 }

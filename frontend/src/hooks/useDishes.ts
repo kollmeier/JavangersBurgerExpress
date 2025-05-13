@@ -18,8 +18,12 @@ export default function useDishes() {
         error: null
     });
 
-    function setDishes(dishes: DishOutputDTO[]) {
-        setState(prev => ({ ...prev, dishes }));
+    function setDishes(dishesOrSetter: DishOutputDTO[] | ((prev: DishOutputDTO[]) => DishOutputDTO[])) {
+        if (Array.isArray(dishesOrSetter)) {
+            setState(prev => ({ ...prev, dishes: dishesOrSetter }));
+            return
+        }
+        setState(prev => ({ ...prev, dishes: dishesOrSetter(prev.dishes) }));
     }
 
     function setError(error: string | null) {
@@ -44,9 +48,7 @@ export default function useDishes() {
         return DishesApi.saveDish(newDish)
             .then((savedDish) => {
                 if (savedDish && isDishOutputDTO(savedDish)) {
-                    const newDishes = state.dishes.filter(m => m.id !== savedDish.id);
-                    newDishes.unshift(savedDish);
-                    setDishes(newDishes);
+                    setDishes(prev => [savedDish, ...prev.filter(d => d.id !== savedDish.id)]);
                     return savedDish;
                 }
                 setError("Ungültige Antwort beim Speichern des Gerichts")
@@ -65,8 +67,7 @@ export default function useDishes() {
         return DishesApi.updateDish(newDish, dishId)
             .then((updatedDish) => {
                 if (updatedDish && isDishOutputDTO(updatedDish)) {
-                    const newDishes = state.dishes.map(m => m.id === updatedDish.id ? updatedDish : m);
-                    setDishes(newDishes);
+                    setDishes(prev => prev.map(m => m.id === updatedDish.id ? updatedDish : m));
                     return updatedDish;
                 }
                 setError("Ungültige Antwort beim Speichern des Gerichts")
@@ -79,11 +80,27 @@ export default function useDishes() {
             .finally(() => setLoading(false));
     }
 
+    const deleteDish = (dishId: string) => {
+        setLoading(true);
+        setError(null);
+        return DishesApi.deleteDish(dishId)
+            .then(() => {
+                setDishes(prev => prev.filter(d => d.id !== dishId));
+            })
+            .catch(e => {
+                setError(e.message);
+                throw e;
+            })
+            .finally(() => setLoading(false));
+    }
+
+
     return {
         dishes: state.dishes,
         loading: state.loading,
         error: state.error,
         addDish,
-        updateDish
+        updateDish,
+        deleteDish
     };
 }
