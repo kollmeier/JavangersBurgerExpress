@@ -39,3 +39,6 @@ build/
 .mvn/
 mvnw
 mvnw.cmd
+
+### Local Configuration ###
+src/main/resources/.env
