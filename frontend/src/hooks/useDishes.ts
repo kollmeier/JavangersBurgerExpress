@@ -42,13 +42,25 @@ export default function useDishes() {
             .finally(() => setLoading(false));
     }, []);
 
+    const withAddedDishAtFirst = (dishes: DishOutputDTO[], dish: DishOutputDTO) => {
+        return [dish, ...dishes.filter(d => d.id !== dish.id)];
+    }
+
+    const withUpdatedDish = (dishes: DishOutputDTO[], dish: DishOutputDTO) => {
+        return dishes.map(d => d.id === dish.id ? dish : d);
+    }
+
+    const withRemovedDish = (dishes: DishOutputDTO[], dishId: string) => {
+        return dishes.filter(d => d.id !== dishId);
+    }
+
     const addDish = (newDish: DishInputDTO) => {
         setLoading(true);
         setError(null);
         return DishesApi.saveDish(newDish)
             .then((savedDish) => {
                 if (savedDish && isDishOutputDTO(savedDish)) {
-                    setDishes(prev => [savedDish, ...prev.filter(d => d.id !== savedDish.id)]);
+                    setDishes(prev => withAddedDishAtFirst(prev, savedDish));
                     return savedDish;
                 }
                 setError("Ungültige Antwort beim Speichern des Gerichts")
@@ -67,7 +79,7 @@ export default function useDishes() {
         return DishesApi.updateDish(newDish, dishId)
             .then((updatedDish) => {
                 if (updatedDish && isDishOutputDTO(updatedDish)) {
-                    setDishes(prev => prev.map(m => m.id === updatedDish.id ? updatedDish : m));
+                    setDishes(prev => withUpdatedDish(prev, updatedDish));
                     return updatedDish;
                 }
                 setError("Ungültige Antwort beim Speichern des Gerichts")
@@ -85,7 +97,7 @@ export default function useDishes() {
         setError(null);
         return DishesApi.deleteDish(dishId)
             .then(() => {
-                setDishes(prev => prev.filter(d => d.id !== dishId));
+                setDishes(prev => withRemovedDish(prev, dishId));
             })
             .catch(e => {
                 setError(e.message);
