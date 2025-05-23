@@ -1,4 +1,3 @@
-import './App.css'
 import CustomerLayout from "./components/CustomerLayout.tsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import AdministrationLayout from "./components/administration/AdministrationLayout.tsx";
