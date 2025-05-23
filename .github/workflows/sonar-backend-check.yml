@@ -20,13 +20,6 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Download Frontend-Build
-        uses: actions/download-artifact@v4
-        with:
-          name: 'frontend-build'
-          run-id: ${{ github.event.workflow_run.id }}
-          path: 'backend/src/main/resources/static'
-
       - name: Change to backend-directory
         run: echo "Working directory set"
         working-directory: backend
