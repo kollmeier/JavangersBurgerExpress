@@ -7,10 +7,6 @@ on:
     types:
       - completed
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   push-to-docker-hub:
     runs-on: ubuntu-latest
@@ -22,6 +18,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-jar      # so hast du das Artefakt beim Build benannt
+          run-id: ${{ github.event.workflow_run.id }}
           path: backend/target/
 
       - name: Login to Docker Hub
