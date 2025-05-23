@@ -38,6 +38,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: 'frontend-build'
+          run-id: ${{ github.event.workflow_run.id }}
           path: 'backend/src/main/resources/static'
 
       - name: Change to backend-directory
