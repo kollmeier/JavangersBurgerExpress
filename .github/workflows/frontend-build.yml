@@ -4,6 +4,7 @@ on:
     workflows: ["Frontend Check"]
     branches:
       - development
+      - ma
     types:
       - completed
 
