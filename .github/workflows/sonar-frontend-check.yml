@@ -1,11 +1,8 @@
-name: Frontend Checks
+name: Frontend Check
 on:
-  push:
-    branches:
-      - master
-      - development
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   sonarqube:
     name: SonarQube
