@@ -1,10 +1,22 @@
-name: Backend Checks
+name: Backend Build and Check
 
 on:
+  workflow_run:
+    workflows: ["Frontend Build"]
+    branches:
+      - development
+    types:
+      - completed
+
   push:
-    branches: [ master, development ]
+    branches: [ master ]
+
   pull_request:
     types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -22,6 +34,12 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      - name: Download Frontend-Build
+        uses: actions/download-artifact@v4
+        with:
+          name: 'frontend-build'
+          path: 'backend/src/main/resources/static'
+
       - name: Change to backend-directory
         run: echo "Working directory set"
         working-directory: backend
@@ -32,13 +50,21 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -f backend/pom.xml -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kollmeier_fullstack_backend
+
+      - name: Upload App.jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'app-jar'
+          path: 'backend/target/burger-express-app.jar'

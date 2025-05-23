@@ -1,4 +1,4 @@
-name: Frontend Checks
+name: Frontend Check
 on:
   push:
     branches:
@@ -6,6 +6,11 @@ on:
       - development
   pull_request:
     types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   sonarqube:
     name: SonarQube
