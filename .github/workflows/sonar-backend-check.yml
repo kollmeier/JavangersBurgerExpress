@@ -1,16 +1,6 @@
 name: Backend Build and Check
 
 on:
-  workflow_run:
-    workflows: ["Frontend Build"]
-    branches:
-      - development
-    types:
-      - completed
-
-  push:
-    branches: [ master ]
-
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -59,9 +49,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -f backend/pom.xml -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kollmeier_fullstack_backend
-
-      - name: Upload App.jar
-        uses: actions/upload-artifact@v4
-        with:
-          name: 'app-jar'
-          path: 'backend/target/burger-express-app.jar'

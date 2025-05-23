@@ -1,9 +1,5 @@
 name: Frontend Check
 on:
-  push:
-    branches:
-      - master
-      - development
   pull_request:
     types: [opened, synchronize, reopened]
 
