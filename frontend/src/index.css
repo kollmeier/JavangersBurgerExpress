@@ -17,10 +17,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    margin: 0 auto;
-    padding: 0;
-    width: 100%;
-    }
+  }
 
   body {
     margin: 0;
@@ -28,6 +25,12 @@
     place-items: center;
     min-width: 320px;
     min-height: 100vh;
+  }
+
+  #root {
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
   }
 
   h1, h2 {
