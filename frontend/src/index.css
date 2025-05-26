@@ -1,68 +1,102 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@config "../tailwind.config.ts";
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+@theme {
+  --spacing-circle-lg: calc(var(--spacing) * 24);
+  --spacing-circle-md: calc(var(--spacing) * 16);
+  --spacing-circle-offset-lg: calc(var(--spacing) * 0);
+  --spacing-circle-offset-md: calc(var(--spacing) * -2);
+  --spacing-circle-column-lg: calc(var(--spacing-circle-lg) + var(--spacing-circle-offset-lg));
+  --spacing-circle-column-md: calc(var(--spacing-circle-md) + var(--spacing-circle-offset-md));
+  --radius-rounded-lg: calc(var(--spacing-circle-lg) / 2);
+  --radius-rounded-md: calc(var(--spacing-circle-md) / 2);
+  --radius-circle-lg: calc(var(--radius-rounded-lg) - var(--spacing-circle-offset-lg));
+  --radius-circle-md: calc(var(--radius-rounded-md) - var(--spacing-circle-offset-md));
+  --text-pc: calc(var(--spacing-circle-lg) / 4);
+  --text-tc: calc(var(--spacing-circle-md) / 1.5);
+  --color-primary: var(--color-amber-200);
+  --color-secondary: var(--color-teal-300);
+  --color-normal: var(--color-indigo-300);
+  --color-danger: var(--color-red-300);
+  --color-primary-text: var(--color-amber-700);
+  --color-secondary-text: var(--color-teal-800);
+  --color-normal-text: var(--color-indigo-50);
+  --color-danger-text: var(--color-red-600);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+@layer base {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-size: 16px;
+
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #242424;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
   }
-  a:hover {
-    color: #747bff;
+
+  body {
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-width: 320px;
+    min-height: 100vh;
   }
-  button {
-    background-color: #f9f9f9;
+
+  #root {
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+  }
+
+  h1, h2 {
+    font-size: 3.2em;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  h3 {
+    font-size: 3em;
+    line-height: 1.1;
+  }
+
+  h4 {
+    font-size: 2.8em;
+    line-height: 1.1;
+  }
+
+  h5, h6 {
+    font-size: 2.4em;
+  }
+
+  button, a {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .btn {
+    @apply rounded-full h-8 px-4 py-1 shadow-xs hover:shadow-sm
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-text
+  }
+  .btn-secondary {
+    @apply bg-secondary text-secondary-text
+  }
+  .btn-normal {
+    @apply bg-normal text-normal-text
+  }
+  .btn-danger {
+    @apply bg-danger text-danger-text
   }
 }

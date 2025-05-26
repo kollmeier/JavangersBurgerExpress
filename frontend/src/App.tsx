@@ -1,36 +1,41 @@
-import './App.css'
-import CustomerLayout from "./components/CustomerLayout.tsx";
+import CustomerLayout from "./layout/customer-layout.tsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import AdministrationLayout from "./components/administration/AdministrationLayout.tsx";
-import {DishesContextProvider} from "./context/DishesContextProvider.tsx";
-import DishesPage from "./components/administration/DishesPage.tsx";
+import AdministrationLayout from "./layout/administration-layout.tsx";
+import DishesPage from "./features/manager/dishes/pages/dishes-page.tsx";
 import {ToastContainer, Zoom} from "react-toastify";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
       <>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<CustomerLayout />} />
-                <Route path="manage//*" element={<AdministrationLayout />}>
-                    <Route path="dishes//*" element={<DishesContextProvider><DishesPage /></DishesContextProvider>} />
-                    <Route path="dishes/:dishId/*" element={<DishesContextProvider><DishesPage /></DishesContextProvider>} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
-        <ToastContainer
-            position="bottom-center"
-            autoClose={4000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick={false}
-            rtl={false}
-            pauseOnFocusLoss={false}
-            draggable
-            pauseOnHover
-            theme="light"
-            transition={Zoom}
-        />
+          <QueryClientProvider client={queryClient}>
+              <ReactQueryDevtools initialIsOpen={true} />
+              <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<CustomerLayout />} />
+                    <Route path="manage//*" element={<AdministrationLayout />}>
+                        <Route path="dishes//*" element={<DishesPage />} />
+                        <Route path="dishes/:dishId/*" element={<DishesPage />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+          </QueryClientProvider>
+            <ToastContainer
+                position="bottom-center"
+                autoClose={4000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss={false}
+                draggable
+                pauseOnHover
+                theme="light"
+                transition={Zoom}
+            />
     </>
   )
 }

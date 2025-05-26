@@ -6,3 +6,7 @@ export type DishInputDTO = {
     type: string;
     additionalInformation: Record<string, AdditionalInformationInputDTO>;
 }
+
+export type DishInputDTOWithId = DishInputDTO & {
+    id?: string;
+}
