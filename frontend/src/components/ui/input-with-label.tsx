@@ -49,7 +49,7 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
     ) => {
         const decimalInputMode = inputMode ?? 'decimal';
         const decimalPattern = pattern ?? '[0-9]*[\\.,]?[0-9]{0,2}';
-        const showNumericHints = type === "number" || inputMode || pattern;
+        const showNumericHints = type === "number" || (inputMode ?? pattern);
         return (
             <Field className={cn("flex flex-col flex-1 gap-1 rounded-lg", fieldClassName)}>
                 <Label htmlFor={name} className="text-sm font-medium text-gray-700">
