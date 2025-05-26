@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+@config "../tailwind.config.ts";
+
+@theme {
+  --spacing-circle-lg: calc(var(--spacing) * 24);
+  --spacing-circle-md: calc(var(--spacing) * 16);
+  --spacing-circle-offset-lg: calc(var(--spacing) * 0);
+  --spacing-circle-offset-md: calc(var(--spacing) * -2);
+  --spacing-circle-column-lg: calc(var(--spacing-circle-lg) + var(--spacing-circle-offset-lg));
+  --spacing-circle-column-md: calc(var(--spacing-circle-md) + var(--spacing-circle-offset-md));
+  --radius-rounded-lg: calc(var(--spacing-circle-lg) / 2);
+  --radius-rounded-md: calc(var(--spacing-circle-md) / 2);
+  --radius-circle-lg: calc(var(--radius-rounded-lg) - var(--spacing-circle-offset-lg));
+  --radius-circle-md: calc(var(--radius-rounded-md) - var(--spacing-circle-offset-md));
+  --text-pc: calc(var(--spacing-circle-lg) / 4);
+  --text-tc: calc(var(--spacing-circle-md) / 1.5);
+  --color-primary: var(--color-amber-300);
+  --color-secondary: var(--color-teal-300);
+  --color-normal: var(--color-indigo-300);
+  --color-danger: var(--color-red-300);
+  --color-primary-text: var(--color-amber-50);
+  --color-secondary-text: var(--color-teal-50);
+  --color-normal-text: var(--color-indigo-50);
+  --color-danger-text: var(--color-red-600);
+}
+
 @layer base {
   :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

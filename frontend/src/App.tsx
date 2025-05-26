@@ -1,8 +1,8 @@
-import CustomerLayout from "./components/CustomerLayout.tsx";
+import CustomerLayout from "./layout/customer-layout.tsx";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import AdministrationLayout from "./components/administration/AdministrationLayout.tsx";
-import {DishesContextProvider} from "./context/DishesContextProvider.tsx";
-import DishesPage from "./components/administration/DishesPage.tsx";
+import AdministrationLayout from "./layout/administration-layout.tsx";
+import {DishesContextProvider} from "./context/dishes-context-provider.tsx";
+import DishesPage from "./features/manager/dishes/pages/dishes-page.tsx";
 import {ToastContainer, Zoom} from "react-toastify";
 
 function App() {

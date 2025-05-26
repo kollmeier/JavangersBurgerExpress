@@ -1,5 +1,5 @@
 import {type ReactNode, useState} from "react";
-import PageLayout, {type NavItem, type PageLayoutProps} from "../components/PageLayout.tsx";
+import PageLayout, {type NavItem, type PageLayoutProps} from "../layout/page-layout.tsx";
 
 export type PageLayoutApi = ReturnType<typeof usePageLayout>;
 

@@ -28,7 +28,7 @@ public final class DishConverter {
         return Dish.builder()
             .type(DishType.valueOf(dish.type().toUpperCase()))
             .name(dish.name())
-            .price(new BigDecimal(dish.price()))
+            .price(new BigDecimal(dish.price().replace(",", ".")))
             .additionalInformation(AdditionalInformationConverter.convert(dish.additionalInformation()))
             .build();
     }
