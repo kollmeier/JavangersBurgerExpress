@@ -81,7 +81,10 @@ const DishesPage: React.FC = () => {
         });
     };
 
-    const handleDeleteDish = async (id: string) => {
+    const handleDeleteDish = async (id?: string) => {
+        if (!id) {
+            return;
+        }
         setDishToDelete(undefined);
         const toastId = toast.loading('Gericht wird gelöscht...');
         return deleteDishMutation.mutate(id, {
@@ -155,7 +158,7 @@ const DishesPage: React.FC = () => {
                         <p className="col-start-2 max-w-md place-self-center">Sind Sie sicher, dass Sie das Gericht löschen möchten?</p>
                         <div className="flex justify-end gap-2 row-start-2 col-span-2 place-self-end">
                             <BeButton onClick={() => setDishToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
-                            <BeButton onClick={() => handleDeleteDish(dishToDelete!)} className="btn btn-danger">Löschen</BeButton>
+                            <BeButton onClick={() => handleDeleteDish(dishToDelete)} className="btn btn-danger">Löschen</BeButton>
                         </div>
                     </DialogPanel>
                 </div>
