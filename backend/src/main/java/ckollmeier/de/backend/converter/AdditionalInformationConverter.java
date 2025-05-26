@@ -34,7 +34,7 @@ public final class AdditionalInformationConverter {
     public static AdditionalInformation<?> convert(final AdditionalInformationDTO additionalInformation) {
         switch (additionalInformation.type()) {
             case "SIZE_IN_LITER" -> {
-                return new SizeInLiterAdditionalInformation(new BigDecimal(additionalInformation.value()));
+                return new SizeInLiterAdditionalInformation(new BigDecimal(additionalInformation.value().replace(",", ".")));
             }
             case "PLAIN_TEXT" -> {
                 return new PlainTextAdditionalInformation(additionalInformation.value());
