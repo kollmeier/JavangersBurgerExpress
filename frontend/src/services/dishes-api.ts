@@ -1,42 +1,32 @@
 import axios from "axios";
 import {type DishOutputDTO, isDishOutputDTO} from "../types/DishOutputDTO.ts";
-import type {DishInputDTO} from "../types/DishInputDTO.ts";
+import type {DishInputDTO, DishInputDTOWithId} from "../types/DishInputDTO.ts";
+import {QueryFunctionContext} from "@tanstack/react-query";
 
 export const DishesApi = {
     baseUrl: '/api/dishes',
-
-    cancelableGetAllRef: null as AbortController | null,
     cancelableSavePositionsRef: null as AbortController | null,
     cancelableSaveDishRef: null as AbortController | null,
     cancelableUpdateDishRef: {} as Record<string, AbortController | null>,
     cancelableDeleteDishRef: {} as Record<string, AbortController | null>,
 
-    async getAllDishes(): Promise<DishOutputDTO[]> {
-        this.cancelableGetAllRef?.abort();
-        this.cancelableGetAllRef = new AbortController();
-
-        try {
-            const response = await axios.get(this.baseUrl, {
-                signal: this.cancelableGetAllRef.signal
-            });
-            if (Array.isArray(response.data) && response.data.every(isDishOutputDTO)) {
-                return response.data;
-            }
-        } catch (error) {
-            if (axios.isCancel(error)) {
-                return [];
-            }
+    async getAllDishes({signal}: QueryFunctionContext): Promise<DishOutputDTO[]> {
+        const response = await axios.get(DishesApi.baseUrl, {
+            signal: signal
+        });
+        if (Array.isArray(response.data) && response.data.every(isDishOutputDTO)) {
+            return response.data;
         }
         throw new TypeError("Ungültige Antwort beim Laden der Gerichtliste");
     },
 
     async saveDish(submittedDish: DishInputDTO): Promise<DishOutputDTO | null> {
-        this.cancelableSaveDishRef?.abort();
-        this.cancelableSaveDishRef = new AbortController();
+        DishesApi.cancelableSaveDishRef?.abort();
+        DishesApi.cancelableSaveDishRef = new AbortController();
 
         try {
-            const response = await axios.post(this.baseUrl, submittedDish, {
-                signal: this.cancelableSaveDishRef.signal
+            const response = await axios.post(DishesApi.baseUrl, submittedDish, {
+                signal: DishesApi.cancelableSaveDishRef.signal
             });
             if (isDishOutputDTO(response.data)) {
                 return response.data
@@ -49,13 +39,17 @@ export const DishesApi = {
         throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
     },
 
-    async updateDish(submittedDish: DishInputDTO, dishId: string): Promise<DishOutputDTO | null> {
-        this.cancelableUpdateDishRef[dishId]?.abort();
-        this.cancelableUpdateDishRef[dishId] = new AbortController();
+    async updateDish(submittedDish: DishInputDTOWithId): Promise<DishOutputDTO | null> {
+        const dishId = submittedDish.id;
+        if (!dishId) {
+            throw new TypeError("Fehlende Id beim Speichern des Gerichts");
+        }
+        DishesApi.cancelableUpdateDishRef[dishId]?.abort();
+        DishesApi.cancelableUpdateDishRef[dishId] = new AbortController();
 
         try {
             const response = await axios.put('/api/dishes/' + dishId, submittedDish, {
-                signal: this.cancelableUpdateDishRef[dishId]?.signal
+                signal: DishesApi.cancelableUpdateDishRef[dishId]?.signal
             });
             if (isDishOutputDTO(response.data)) {
                 return response.data
@@ -69,12 +63,12 @@ export const DishesApi = {
     },
 
     async deleteDish(dishId: string): Promise<void> {
-        this.cancelableDeleteDishRef[dishId]?.abort();
-        this.cancelableDeleteDishRef[dishId] = new AbortController();
+        DishesApi.cancelableDeleteDishRef[dishId]?.abort();
+        DishesApi.cancelableDeleteDishRef[dishId] = new AbortController();
 
         try {
             await axios.delete('/api/dishes/' + dishId, {
-                signal: this.cancelableDeleteDishRef[dishId]?.signal
+                signal: DishesApi.cancelableDeleteDishRef[dishId]?.signal
             });
             return;
         } catch (error) {

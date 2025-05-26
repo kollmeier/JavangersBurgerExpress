@@ -1,7 +1,7 @@
 import React, {type PropsWithChildren, useEffect} from "react";
 import PageLayoutContext from "./page-layout-context.ts";
 import {type PageLayoutProps} from "../layout/page-layout.tsx";
-import usePageLayout from "../hooks/usePageLayout.tsx";
+import usePageLayout from "../hooks/use-page-layout.tsx";
 
 type PageLayoutContextProps = PropsWithChildren<PageLayoutProps>;
 

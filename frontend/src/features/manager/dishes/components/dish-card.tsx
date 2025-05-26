@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import React from "react";
 import Card from "@/components/shared/card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
+import {colorMapDishes} from "@/data";
 
 const dishIcon = (type: string) => {
     switch (type) {
@@ -42,9 +43,9 @@ const DishCard = ({dish, onDelete}: CardProps) => {
     return (
         <Card
             header={dish.name}
-            colorVariant={"red"}
+            colorVariant={colorMapDishes[dish.type]}
             actions={<>
-                <BeButton onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
+                <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
             image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name}/>}

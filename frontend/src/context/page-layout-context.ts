@@ -1,5 +1,5 @@
 import {createContext, useContext} from "react";
-import type {PageLayoutApi} from "../hooks/usePageLayout.tsx";
+import type {PageLayoutApi} from "../hooks/use-page-layout.tsx";
 
 const PageLayoutContext = createContext<PageLayoutApi | undefined>(undefined);
 

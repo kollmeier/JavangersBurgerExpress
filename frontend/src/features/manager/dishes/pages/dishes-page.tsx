@@ -7,14 +7,24 @@ import {usePageLayoutContext} from "@/context/page-layout-context.ts";
 import DishItem from "../components/dish-item.tsx";
 import type {DishInputDTO} from "@/types/DishInputDTO.ts";
 
-import {useDishesContext} from "@/context/dishes-context.ts";
 import {BeCircleLink} from "@/components/ui/be-circle-link.tsx";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
+import {isAxiosError} from "axios";
+import {Dialog, DialogBackdrop, DialogPanel} from "@headlessui/react";
+import BeButton from "@/components/ui/be-button.tsx";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faWarning} from "@fortawesome/free-solid-svg-icons";
+import {useDishes} from "@/util";
+import {useDishMutations} from "@/hooks/use-dish-mutations.ts";
 
 const DishesPage: React.FC = () => {
-    const {dishes, addDish, updateDish, deleteDish} = useDishesContext();
+    const dishes = useDishes();
+
+    const {addDishMutation, updateDishMutation, deleteDishMutation} = useDishMutations();
 
     const dishId = useParams().dishId;
+
+    const [dishToDelete, setDishToDelete] = React.useState<string | undefined>(undefined);
 
     const navigate = useNavigate();
 
@@ -26,40 +36,77 @@ const DishesPage: React.FC = () => {
     }, []);
 
     const handleSubmitAddDish = async (submittedDish: DishInputDTO) => {
-        await toast.promise(
-            addDish(submittedDish),
-            {
-                pending: 'Gericht wird gespeichert...',
-                success: 'Gericht erfolgreich gespeichert',
-                error: 'Fehler beim Speichern des Gerichts'
-            });
-        navigate("/manage/dishes");
+        const toastId = toast.loading('Gericht wird gespeichert...');
+        return addDishMutation.mutate(submittedDish, {
+            onSuccess: () => {
+                toast.update(toastId, {
+                    render: 'Gericht erfolgreich gespeichert',
+                    type: 'success',
+                    isLoading: false,
+                    autoClose: 5000,
+                });
+                navigate("/manage/dishes");
+            },
+            onError: (error: unknown) => {
+                toast.update(toastId, {
+                    render: 'Fehler beim Speichern des Gerichts: ' + (isAxiosError(error) && error.message),
+                    type: 'error',
+                    isLoading: false,
+                    autoClose: 5000,
+                });
+            }
+        });
     };
 
-    const handleSubmitUpdateDish = async (_event: React.FormEvent, submittedDish: DishInputDTO, dishId: string) => {
-        await toast.promise(
-            updateDish(submittedDish, dishId),
-            {
-                pending: 'Gericht wird gespeichert...',
-                success: 'Gericht erfolgreich gespeichert',
-                error: 'Fehler beim Speichern des Gerichts'
-            });
-        navigate("/manage/dishes");
+    const handleSubmitUpdateDish = async (submittedDish: DishInputDTO, dishId: string) => {
+        const toastId = toast.loading('Gericht wird gespeichert...');
+        return updateDishMutation.mutate({...submittedDish, id: dishId}, {
+            onSuccess: () => {
+                toast.update(toastId, {
+                    render: 'Gericht erfolgreich gespeichert',
+                    type: 'success',
+                    isLoading: false,
+                    autoClose: 5000,
+                });
+                navigate("/manage/dishes");
+            },
+            onError: (error: unknown) => {
+                toast.update(toastId, {
+                    render: 'Fehler beim Speichern des Gerichts: ' + (isAxiosError(error) && error.message),
+                    type: 'error',
+                    isLoading: false,
+                    autoClose: 5000,
+                });
+            }
+        });
     };
 
-    const handleDelete = async (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>, id: string) => {
-        event.preventDefault();
-        if (!confirm("Sind Sie sicher, dass Sie dieses Gericht löschen möchten?")) {
-            return;
-        }
-        await toast.promise(
-            deleteDish(id),
-            {
-                pending: 'Gericht wird gelöscht...',
-                success: 'Gericht erfolgreich gelöscht',
-                error: 'Fehler beim Löschen des Gerichts'
-            });
-        navigate("/manage/dishes");
+    const handleDeleteDish = async (id: string) => {
+        setDishToDelete(undefined);
+        const toastId = toast.loading('Gericht wird gelöscht...');
+        return deleteDishMutation.mutate(id, {
+            onSuccess: () => {
+                toast.update(toastId, {
+                    render: 'Gericht erfolgreich gelöscht',
+                    type: 'success',
+                    isLoading: false,
+                    autoClose: 5000,
+                });
+                navigate("/manage/dishes");
+            },
+            onError: () => (error: unknown) => {
+                toast.update(toastId, {
+                    render: 'Fehler beim Löschen des Gerichts: ' + (isAxiosError(error) && error.message),
+                    type: 'error',
+                    isLoading: false,
+                    autoClose: 5000,
+                });
+            }
+        });
+    }
+
+    const handleDeleteDishConfirm = async (dishId: string) => {
+        setDishToDelete(dishId);
     }
 
     const handleCancel = () => {
@@ -67,7 +114,8 @@ const DishesPage: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-row flex-wrap gap-6">
+        <>
+        <div className="grid grid-cols-1 auto-rows-fr sm:grid-cols-2 xl:grid-cols-3 gap-6">
             <MinimalCard className={"grow-1 basis-30 min-h-64"}  colorVariant="red">
                 {dishId !== 'add-main' ? (
                     <BeCircleLink icon={faPlus} to="/manage/dishes/add-main">Hauptgericht hinzufügen</BeCircleLink>
@@ -89,15 +137,30 @@ const DishesPage: React.FC = () => {
                     <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="beverage"/>
                 )}
             </MinimalCard>
-            {dishes
-                .map((dish) => <DishItem key={dish.id}
+            {dishes?.map((dish) => <DishItem key={dish.id}
                                                 className="grow-1 basis-30"
                                                 id={dish.id}
                                                 dish={dish}
                                                 onSubmit={handleSubmitUpdateDish}
-                                                onDelete={handleDelete}
+                                                onDelete={handleDeleteDishConfirm}
                                                 onCancel={handleCancel}/>)}
         </div>
+            <Dialog
+                onClose={() => setDishToDelete(undefined)}
+                open={!!dishToDelete}>
+                <DialogBackdrop className="fixed inset-0 bg-black/50 backdrop-blur-xs" />
+                <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+                    <DialogPanel className="grid gap-6 auto-cols-max grid-rows-2 max-w-xl space-y-4 border border-danger bg-neutral-600 shadow-2xl rounded-xl p-10">
+                        <FontAwesomeIcon icon={faWarning} className="w-14 text-6xl text-danger"/>
+                        <p className="col-start-2 max-w-md place-self-center">Sind Sie sicher, dass Sie das Gericht löschen möchten?</p>
+                        <div className="flex justify-end gap-2 row-start-2 col-span-2 place-self-end">
+                            <BeButton onClick={() => setDishToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
+                            <BeButton onClick={() => handleDeleteDish(dishToDelete!)} className="btn btn-danger">Löschen</BeButton>
+                        </div>
+                    </DialogPanel>
+                </div>
+            </Dialog>
+        </>
     );
 };
 

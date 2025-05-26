@@ -1,8 +1,8 @@
-import type {DishOutputDTO} from "../../../../types/DishOutputDTO.ts";
+import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import DishEdit from "./dish-edit.tsx";
-import type {DishInputDTO} from "../../../../types/DishInputDTO.ts";
+import type {DishInputDTO} from "@/types/DishInputDTO.ts";
 import DishCard from "./dish-card.tsx";
 import {cn} from "@/util";
 
@@ -10,9 +10,9 @@ type Props = {
     id: string;
     dish: DishOutputDTO;
     className?: string;
-    onSubmit?: (event: React.FormEvent<HTMLFormElement>, submittedDish: DishInputDTO, dishId: string) => void;
-    onDelete?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>, id: string) => void;
-    onCancel?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+    onSubmit?: (submittedDish: DishInputDTO, dishId: string) => Promise<void>;
+    onDelete?: (id: string) => Promise<void>;
+    onCancel?: () => void;
 }
 function DishItem(props: Readonly<Props>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -22,19 +22,20 @@ function DishItem(props: Readonly<Props>) {
      * @param event Das abgeschickte FormEvent.
      * @param submittedDish Das bearbeitete Gericht.
      */
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>, submittedDish: DishInputDTO) => {
+    const handleSubmit = async (submittedDish: DishInputDTO) => {
         if (props.onSubmit) {
-            props.onSubmit(event, submittedDish, props.dish.id);
+            return props.onSubmit(submittedDish, props.dish.id);
         }
+        return Promise.resolve();
     }
 
     /**
      * Wird aufgerufen, wenn das Editieren abgebrochen wird.
      * @param event Das Maus-Event.
      */
-    const handleCancel = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    const handleCancel = () => {
         if (props.onCancel) {
-            props.onCancel(event);
+            props.onCancel();
         }
         setIsEditing(false);
     }
@@ -42,11 +43,11 @@ function DishItem(props: Readonly<Props>) {
     /**
      *
      */
-    const handleDelete = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-        event.preventDefault();
+    const handleDelete = async () => {
         if (props.onDelete) {
-            props.onDelete(event, props.dish.id);
+            return props.onDelete(props.dish.id);
         }
+        return Promise.resolve();
     }
     const dishId = useParams().dishId;
 
