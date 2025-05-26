@@ -15,12 +15,12 @@
   --radius-circle-md: calc(var(--radius-rounded-md) - var(--spacing-circle-offset-md));
   --text-pc: calc(var(--spacing-circle-lg) / 4);
   --text-tc: calc(var(--spacing-circle-md) / 1.5);
-  --color-primary: var(--color-amber-300);
+  --color-primary: var(--color-amber-200);
   --color-secondary: var(--color-teal-300);
   --color-normal: var(--color-indigo-300);
   --color-danger: var(--color-red-300);
-  --color-primary-text: var(--color-amber-50);
-  --color-secondary-text: var(--color-teal-50);
+  --color-primary-text: var(--color-amber-700);
+  --color-secondary-text: var(--color-teal-800);
   --color-normal-text: var(--color-indigo-50);
   --color-danger-text: var(--color-red-600);
 }
@@ -80,5 +80,23 @@
 
   button, a {
     cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .btn {
+    @apply rounded-full h-8 px-4 py-1 shadow-xs hover:shadow-sm
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-text
+  }
+  .btn-secondary {
+    @apply bg-secondary text-secondary-text
+  }
+  .btn-normal {
+    @apply bg-normal text-normal-text
+  }
+  .btn-danger {
+    @apply bg-danger text-danger-text
   }
 }

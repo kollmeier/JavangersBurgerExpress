@@ -48,11 +48,6 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
         }
     }
 
-    const handleSubmitClicked = () => {
-
-        formRef.current?.dispatchEvent(new Event("submit", {cancelable: true, bubbles: true}));
-    };
-
     const doSubmit = async (submittedDish: DishInputDTO) => {
         if (onSubmit) {
             await onSubmit(submittedDish, dish?.id);
@@ -136,7 +131,7 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                 )}
             />
             <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
-                <BeButton type="button" variant="primary" onClick={handleSubmitClicked}><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
+                <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
                 <BeButton type="button" onClick={handleCancel}><FontAwesomeIcon icon={faClose}/> Abbrechen</BeButton>
             </div>
         </form>

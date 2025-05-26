@@ -1,4 +1,4 @@
-import {Description, Field, Input, Label} from '@headlessui/react'
+import {Description, Field, Input, Label, Textarea} from '@headlessui/react'
 
 import {ChangeEvent, forwardRef} from "react";
 import {cn} from "@/util";
@@ -7,8 +7,8 @@ export type InputWithLabelProps = {
     label: string
     name: string
     value?: string | number
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void
-    onBlur?: (e: ChangeEvent<HTMLInputElement>) => void
+    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    onBlur?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
     type?: string
     placeholder?: string
     required?: boolean
@@ -56,6 +56,24 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
                     {label}
                     {required && ' *'}
                 </Label>
+                {type === "textarea" ? (
+                    <Textarea
+                        id={name}
+                        name={name}
+                        value={value ?? ""}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        placeholder={placeholder}
+                        required={required}
+                        disabled={disabled}
+                        ref={ref}
+                        className={cn(
+                            "rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 bg-white",
+                            error ? "border-red-500 focus:ring-red-500" : "border-secondary focus:ring-blue-500",
+                            disabled && "bg-primary cursor-not-allowed",
+                            className
+                        )}
+                    />) :
                 <Input
                     id={name}
                     name={name}
@@ -78,7 +96,7 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
                         disabled && "bg-primary cursor-not-allowed",
                         className
                     )}
-                />
+                />}
                 {error && (
                     <Description className="text-sm text-red-600" role="alert">
                         {error}
