@@ -87,6 +87,9 @@ public class DishService {
         if (dishInputDTO.additionalInformation() != null && !dishInputDTO.additionalInformation().isEmpty()) {
             dish = dish.withAdditionalInformation(AdditionalInformationConverter.convert(dishInputDTO.additionalInformation()));
         }
+        if (dishInputDTO.imageUrl() != null && !dishInputDTO.imageUrl().isEmpty() && !dishInputDTO.imageUrl().equals(dish.getImageUrl())) {
+            dish = dish.withImageUrl(dishInputDTO.imageUrl());
+        }
         return updateDish(dish);
     }
 

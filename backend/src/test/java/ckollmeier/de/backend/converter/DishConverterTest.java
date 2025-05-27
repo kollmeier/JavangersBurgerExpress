@@ -25,7 +25,8 @@ class DishConverterTest {
                 "main",
                 "Pizza",
                 "9.99",
-                Collections.emptyMap()
+                Collections.emptyMap(),
+                null
         );
 
         Dish dish = DishConverter.convert(dto);
@@ -43,7 +44,8 @@ class DishConverterTest {
                 "unknown",
                 "Pizza",
                 "9.99",
-                Collections.emptyMap()
+                Collections.emptyMap(),
+                null
         );
 
         assertThatThrownBy(() -> DishConverter.convert(dto))
@@ -65,7 +67,8 @@ class DishConverterTest {
                 "side",
                 "Salat",
                 "4.50",
-                infoMap
+                infoMap,
+                null
         );
 
         Dish dish = DishConverter.convert(dto);

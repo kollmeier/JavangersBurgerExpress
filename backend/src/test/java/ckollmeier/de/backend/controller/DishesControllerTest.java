@@ -104,7 +104,7 @@ class DishesControllerTest {
     void addDish_shouldAddDishAndReturnIt(final String typeAsString) throws Exception {
         // Given
         DishType type = DishType.valueOf(typeAsString.toUpperCase());
-        DishInputDTO newDishInput = new DishInputDTO(typeAsString,"Veggie Burger", "10.99", Map.of());
+        DishInputDTO newDishInput = new DishInputDTO(typeAsString,"Veggie Burger", "10.99", Map.of(), "test-image-url.jpg");
         String newDishJson = objectMapper.writeValueAsString(newDishInput);
 
         long initialCount = dishRepository.count();
@@ -119,6 +119,7 @@ class DishesControllerTest {
                 .andExpect(jsonPath("$.id").isNotEmpty()) // ID sollte generiert worden sein
                 .andExpect(jsonPath("$.name", is("Veggie Burger")))
                 .andExpect(jsonPath("$.price", is("10.99")))
+                .andExpect(jsonPath("$.imageUrl", is("test-image-url.jpg")))
                 .andReturn();
 
         // Verify Database state
@@ -141,7 +142,8 @@ class DishesControllerTest {
                 DishType.MAIN.name(),
                 "Integration Pasta",
                 "9.99",
-                Map.of()
+                Map.of(),
+                "test-image-url.jpg"
         );
 
         String requestBody = objectMapper.writeValueAsString(inputDTO);
@@ -155,6 +157,7 @@ class DishesControllerTest {
                 .andExpect(jsonPath("$.id").value(dishId))
                 .andExpect(jsonPath("$.name").value("Integration Pasta"))
                 .andExpect(jsonPath("$.price").value("9.99"))
+                .andExpect(jsonPath("$.imageUrl").value("test-image-url.jpg"))
                 .andExpect(jsonPath("$.type").value(DishType.MAIN.toString().toLowerCase()));
     }
 
@@ -198,7 +201,8 @@ class DishesControllerTest {
                 DishType.SIDE.name(),
                 "NonExistent",
                 "3.00",
-                Map.of()
+                Map.of(),
+                null
         );
 
         String requestBody = objectMapper.writeValueAsString(inputDTO);
