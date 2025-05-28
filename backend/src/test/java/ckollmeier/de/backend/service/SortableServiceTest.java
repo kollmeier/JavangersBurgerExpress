@@ -128,7 +128,7 @@ class SortableServiceTest {
 
     @Test
     @DisplayName("reorder ordnet und speichert korrekt, wenn angefragte Liste größer")
-    void reorder_erfolgreich_wenn_liste_größer() {
+    void reorder_erfolgreich_wenn_liste_groesser() {
         List<SortedInputDTO> inputs = List.of(
                 new SortedInputDTO(2, "a"),
                 new SortedInputDTO(0, "b"),

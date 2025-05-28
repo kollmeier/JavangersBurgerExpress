@@ -3,8 +3,6 @@ package ckollmeier.de.backend.repository;
 import ckollmeier.de.backend.interfaces.Sortable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -39,19 +37,6 @@ public class SortableRepositoryImplementation<T extends Sortable> implements Sor
             returnedEntities.add(mongoTemplate.save(entity));
         }
         return returnedEntities;
-    }
-
-    /**
-     * Finds all entities of the specified class with the given IDs.
-     *
-     * @param theClass The class of the entities to find.
-     * @param ids      The list of IDs to search for.
-     * @return A list of entities matching the specified IDs.
-     * @throws org.springframework.dao.DataAccessException in case of errors
-     */
-    @Override
-    public List<T> findAllByIdIn(final Class<T> theClass, final List<String> ids) {
-        return mongoTemplate.find(new Query().addCriteria(Criteria.where("id").in(ids)), theClass);
     }
 
     /**

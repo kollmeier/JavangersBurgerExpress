@@ -6,7 +6,6 @@ import ckollmeier.de.backend.interfaces.Sortable;
 import java.util.List;
 
 public interface SortableRepository<T extends Sortable> {
-    List<T> findAllByIdIn(Class<T> theClass, List<String> ids);
     List<T> findAll(Class<T> theClass);
     List<T> saveAll(List<T> entity);
 }
