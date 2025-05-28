@@ -1,8 +1,12 @@
 package ckollmeier.de.backend.controller;
 
+import ckollmeier.de.backend.converter.DishOutputDTOConverter;
 import ckollmeier.de.backend.dto.DishInputDTO;
 import ckollmeier.de.backend.dto.DishOutputDTO;
+import ckollmeier.de.backend.dto.SortedInputDTO;
+import ckollmeier.de.backend.model.Dish;
 import ckollmeier.de.backend.service.DishService;
+import ckollmeier.de.backend.service.SortableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,11 @@ public class DishesController {
      * Der Service für die Gerichte.
      */
     private final DishService dishService;
+
+    /**
+     * Der Service für die Sortierung.
+     */
+    private final SortableService<Dish> sortableService;
 
     /**
      * Gibt alle Gerichte zurück.
@@ -61,6 +70,19 @@ public class DishesController {
     public ResponseEntity<DishOutputDTO> updateDish(final @PathVariable String dishId, final @RequestBody DishInputDTO dish) {
         return new ResponseEntity<>(
                 dishService.updateDish(dishId, dish),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * Updated die Positionen der Gerichte.
+     * @param sortedInputDTOs Liste der neuen Reihenfolge
+     * @return die Gerichte in der neuen Reihenfolge
+     */
+    @PutMapping("/positions")
+    public ResponseEntity<List<DishOutputDTO>> updateDishPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
+        return new ResponseEntity<>(
+                DishOutputDTOConverter.convert(sortableService.reorder(Dish.class, sortedInputDTOs)),
                 HttpStatus.OK
         );
     }
