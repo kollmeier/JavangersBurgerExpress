@@ -1,0 +1,16 @@
+package de.ckollmeier.burgerexpress.backend.dto;
+
+import lombok.With;
+
+import java.util.Map;
+
+@With
+public record DishOutputDTO(
+        String id,
+        String name,
+        String price,
+        String type,
+        Map<String, AdditionalInformationDTO> additionalInformation,
+        String imageUrl
+) {
+}
