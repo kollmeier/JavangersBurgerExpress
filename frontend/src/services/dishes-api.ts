@@ -1,19 +1,38 @@
 import axios from "axios";
 import {type DishOutputDTO, isDishOutputDTO} from "../types/DishOutputDTO.ts";
 import type {DishInputDTO, DishInputDTOWithId} from "../types/DishInputDTO.ts";
-import {QueryFunctionContext} from "@tanstack/react-query";
 
 export const DishesApi = {
     baseUrl: '/api/dishes',
-    cancelableSavePositionsRef: null as AbortController | null,
+    cancelableGetAllRef: null as AbortController | null,
     cancelableSaveDishRef: null as AbortController | null,
     cancelableUpdateDishRef: {} as Record<string, AbortController | null>,
     cancelableDeleteDishRef: {} as Record<string, AbortController | null>,
 
-    async getAllDishes({signal}: QueryFunctionContext): Promise<DishOutputDTO[]> {
+    async getAllDishes(): Promise<DishOutputDTO[]> {
+        DishesApi.cancelableGetAllRef?.abort();
+        DishesApi.cancelableGetAllRef = new AbortController();
+
         const response = await axios.get(DishesApi.baseUrl, {
-            signal: signal
+            signal: DishesApi.cancelableGetAllRef.signal,
         });
+        if (Array.isArray(response.data) && response.data.every(isDishOutputDTO)) {
+            return response.data;
+        }
+        throw new TypeError("Ungültige Antwort beim Laden der Gerichtliste");
+    },
+
+    async saveDishesPositions(dishesOrder: string[]  ): Promise<DishOutputDTO[]> {
+        DishesApi.cancelableGetAllRef?.abort();
+        DishesApi.cancelableGetAllRef = new AbortController();
+
+        const response = await axios.put(
+            DishesApi.baseUrl + '/positions',
+            dishesOrder.map((dishId, index) => ({index, id: dishId})),
+            {
+                signal: DishesApi.cancelableGetAllRef.signal,
+            }
+        )
         if (Array.isArray(response.data) && response.data.every(isDishOutputDTO)) {
             return response.data;
         }

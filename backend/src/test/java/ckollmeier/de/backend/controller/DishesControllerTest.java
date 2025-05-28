@@ -1,6 +1,7 @@
 package ckollmeier.de.backend.controller;
 
 import ckollmeier.de.backend.dto.DishInputDTO;
+import ckollmeier.de.backend.dto.SortedInputDTO;
 import ckollmeier.de.backend.model.Dish;
 import ckollmeier.de.backend.model.SizeInLiterAdditionalInformation;
 import ckollmeier.de.backend.repository.DishRepository;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,18 +55,21 @@ class DishesControllerTest {
                 .name("Classic Burger")
                 .price(new BigDecimal("8.99"))
                 .type(DishType.MAIN)
+                .position(0)
                 .build());
 
         mainDish2 = dishRepository.save(Dish.builder()
                 .name("Cheese Burger")
                 .price(new BigDecimal("9.50"))
                 .type(DishType.MAIN)
+                .position(1)
                 .build());
 
         sideDish1 = dishRepository.save(Dish.builder()
                 .name("Fries")
                 .price(new BigDecimal("3.50"))
                 .type(DishType.SIDE)
+                .position(2)
                 .build());
 
         beverageDish1 = dishRepository.save(Dish.builder()
@@ -72,6 +77,7 @@ class DishesControllerTest {
                 .price(new BigDecimal("2.50"))
                 .type(DishType.BEVERAGE)
                 .additionalInformation(Map.of(AdditionalInformationType.SIZE_IN_LITER.name(), new SizeInLiterAdditionalInformation(new BigDecimal("0.5"))))
+                .position(3)
                 .build());
     }
 
@@ -213,5 +219,98 @@ class DishesControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Nested
+    @DisplayName("PUT /positions")
+    class UpdateDishPositionsTests {
+        @Test
+        @DisplayName("PUT /positions sollte Gerichte mit neuen Positionen aktualisieren und neue Liste zurückgeben")
+        void updateDishPositions_shouldUpdateDishPositions_whenAllDishesExist() throws Exception {
+            // Given
+            List<SortedInputDTO> sortedInputDTOS = List.of(
+                    new SortedInputDTO(0, beverageDish1.getId()),
+                    new SortedInputDTO(3, mainDish1.getId()),
+                    new SortedInputDTO(1, mainDish2.getId()),
+                    new SortedInputDTO(2, sideDish1.getId())
+            );
+
+            mockMvc.perform(put("/api/dishes/positions")
+
+            // Then
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sortedInputDTOS)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(4)))
+                    .andExpect(jsonPath("$[0].id").value(beverageDish1.getId()))
+                    .andExpect(jsonPath("$[1].id").value(mainDish2.getId()))
+                    .andExpect(jsonPath("$[2].id").value(sideDish1.getId()))
+                    .andExpect(jsonPath("$[3].id").value(mainDish1.getId()));
+
+            // Verify database state
+            assertThat(dishRepository.findById(beverageDish1.getId()).orElseThrow().getPosition()).isZero();
+            assertThat(dishRepository.findById(mainDish1.getId()).orElseThrow().getPosition()).isEqualTo(3);
+            assertThat(dishRepository.findById(mainDish2.getId()).orElseThrow().getPosition()).isEqualTo(1);
+            assertThat(dishRepository.findById(sideDish1.getId()).orElseThrow().getPosition()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("PUT /positions sollte nur bestehende Gerichte mit neuen Positionen aktualisieren und aktualisierte Liste zurückgeben")
+        void updateDishPositions_shouldUpdateDishPositions_whenAllSomeDishesDontExistAnymore() throws Exception {
+            // Given
+            List<SortedInputDTO> sortedInputDTOS = List.of(
+                    new SortedInputDTO(0, beverageDish1.getId()),
+                    new SortedInputDTO(3, mainDish1.getId()),
+                    new SortedInputDTO(1, mainDish2.getId()),
+                    new SortedInputDTO(2, sideDish1.getId())
+            );
+
+            dishRepository.deleteById(beverageDish1.getId()); // Beverage Dish 1 is not present anymore
+            dishRepository.deleteById(mainDish2.getId()); // Main Dish 2 is not present anymore
+
+            mockMvc.perform(put("/api/dishes/positions")
+
+            // Then
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sortedInputDTOS)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id").value(sideDish1.getId()))
+                    .andExpect(jsonPath("$[1].id").value(mainDish1.getId()));
+
+            // Verify database state
+            assertThat(dishRepository.findById(mainDish1.getId()).orElseThrow().getPosition()).isEqualTo(3);
+            assertThat(dishRepository.findById(sideDish1.getId()).orElseThrow().getPosition()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("PUT /positions sollte ein Gericht mit neuen Positionen aktualisieren und HTTP 204 zurückgeben")
+        void updateDishPositions_shouldUpdateDishPositions_whenMoreDishesExist() throws Exception {
+            // Given
+            List<SortedInputDTO> sortedInputDTOS = List.of(
+                    new SortedInputDTO(0, beverageDish1.getId()),
+                    new SortedInputDTO(1, mainDish2.getId()),
+                    new SortedInputDTO(2, sideDish1.getId())
+            );
+
+            mockMvc.perform(put("/api/dishes/positions")
+
+            // Then
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sortedInputDTOS)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(4)))
+                    .andExpect(jsonPath("$[0].id").value(mainDish1.getId()))
+                    .andExpect(jsonPath("$[1].id").value(beverageDish1.getId()))
+                    .andExpect(jsonPath("$[2].id").value(mainDish2.getId()))
+                    .andExpect(jsonPath("$[3].id").value(sideDish1.getId()));
+
+            // Verify database state
+            // it is intended that two dishes are on position 0, this is just an intermediate state
+            // and will be resolved by the frontend in the next request
+            assertThat(dishRepository.findById(beverageDish1.getId()).orElseThrow().getPosition()).isZero();
+            assertThat(dishRepository.findById(mainDish1.getId()).orElseThrow().getPosition()).isZero();
+            assertThat(dishRepository.findById(mainDish2.getId()).orElseThrow().getPosition()).isEqualTo(1);
+            assertThat(dishRepository.findById(sideDish1.getId()).orElseThrow().getPosition()).isEqualTo(2);
+        }
+    }
 
 }

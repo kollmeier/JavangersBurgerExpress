@@ -1,6 +1,7 @@
 package ckollmeier.de.backend.model;
 
 import ckollmeier.de.backend.interfaces.AdditionalInformation;
+import ckollmeier.de.backend.interfaces.Sortable;
 import ckollmeier.de.backend.types.DishType;
 import lombok.*;
 import org.springframework.data.annotation.TypeAlias;
@@ -18,7 +19,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class Dish {
+public final class Dish implements Sortable {
     /**
      * Die eindeutige ID des Gerichts.
      */
@@ -54,5 +55,15 @@ public final class Dish {
      * Gibt die Position des Gerichts in einer sortierten Liste an.
      */
     @Builder.Default
-    private final int position = 0;
+    private final Integer position = 0;
+
+    @Override
+    public int getPosition() {
+        return position;
+    }
+
+    @Override
+    public int compareWith(final Sortable other) {
+        return this.getPosition() - other.getPosition();
+    }
 }
