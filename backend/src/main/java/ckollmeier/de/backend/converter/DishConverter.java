@@ -30,6 +30,7 @@ public final class DishConverter {
             .name(dish.name())
             .price(new BigDecimal(dish.price().replace(",", ".")))
             .additionalInformation(AdditionalInformationConverter.convert(dish.additionalInformation()))
+            .imageUrl(dish.imageUrl())
             .build();
     }
 }

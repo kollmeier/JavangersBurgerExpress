@@ -47,6 +47,9 @@ public final class Dish {
     @Builder.Default
     private final Map<String, AdditionalInformation<?>> additionalInformation = new HashMap<>();
 
+    @Builder.Default
+    private final String imageUrl = null;
+
     /**
      * Gibt die Position des Gerichts in einer sortierten Liste an.
      */

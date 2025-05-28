@@ -10,12 +10,11 @@ import type {DishInputDTO} from "@/types/DishInputDTO.ts";
 import {BeCircleLink} from "@/components/ui/be-circle-link.tsx";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
 import {isAxiosError} from "axios";
-import {Dialog, DialogBackdrop, DialogPanel} from "@headlessui/react";
 import BeButton from "@/components/ui/be-button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faWarning} from "@fortawesome/free-solid-svg-icons";
 import {useDishes} from "@/util";
 import {useDishMutations} from "@/hooks/use-dish-mutations.ts";
+import BeDialog from "@/components/shared/be-dialog.tsx";
 
 const DishesPage: React.FC = () => {
     const dishes = useDishes();
@@ -148,21 +147,18 @@ const DishesPage: React.FC = () => {
                                                 onDelete={handleDeleteDishConfirm}
                                                 onCancel={handleCancel}/>)}
         </div>
-            <Dialog
+            <BeDialog
                 onClose={() => setDishToDelete(undefined)}
-                open={!!dishToDelete}>
-                <DialogBackdrop className="fixed inset-0 bg-black/50 backdrop-blur-xs" />
-                <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-                    <DialogPanel className="grid gap-6 auto-cols-max grid-rows-2 max-w-xl space-y-4 border border-danger bg-neutral-600 shadow-2xl rounded-xl p-10">
-                        <FontAwesomeIcon icon={faWarning} className="w-14 text-6xl text-danger"/>
-                        <p className="col-start-2 max-w-md place-self-center">Sind Sie sicher, dass Sie das Gericht löschen möchten?</p>
-                        <div className="flex justify-end gap-2 row-start-2 col-span-2 place-self-end">
-                            <BeButton onClick={() => setDishToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
-                            <BeButton onClick={() => handleDeleteDish(dishToDelete)} className="btn btn-danger">Löschen</BeButton>
-                        </div>
-                    </DialogPanel>
-                </div>
-            </Dialog>
+                open={!!dishToDelete}
+                icon={faWarning}
+                iconClassName="text-danger"
+                className="border border-danger"
+                actions={<>
+                    <BeButton onClick={() => setDishToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
+                    <BeButton onClick={() => handleDeleteDish(dishToDelete)} className="btn btn-danger">Löschen</BeButton>
+                </>}>
+                    Sind Sie sicher, dass Sie das Gericht löschen möchten?
+            </BeDialog>
         </>
     );
 };

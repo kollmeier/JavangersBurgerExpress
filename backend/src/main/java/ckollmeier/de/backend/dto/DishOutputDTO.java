@@ -10,6 +10,7 @@ public record DishOutputDTO(
         String name,
         String price,
         String type,
-        Map<String, AdditionalInformationDTO> additionalInformation
+        Map<String, AdditionalInformationDTO> additionalInformation,
+        String imageUrl
 ) {
 }

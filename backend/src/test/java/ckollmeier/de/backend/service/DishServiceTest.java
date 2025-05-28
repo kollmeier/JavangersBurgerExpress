@@ -29,15 +29,15 @@ class DishServiceTest {
     @DisplayName("Returns sorted list of DishOutputDTOs when dishes exist")
     void getAllDishes_returnsSortedDTOs() {
         // Given
-        Dish dish1 = Dish.builder().id("1").name("Pizza").price(new BigDecimal("10.99")).type(DishType.MAIN).additionalInformation(Collections.emptyMap()).build();
+        Dish dish1 = Dish.builder().id("1").name("Pizza").price(new BigDecimal("10.99")).type(DishType.MAIN).additionalInformation(Collections.emptyMap()).imageUrl("test.jpg").build();
         Dish dish2 = Dish.builder().id("2").name("Fries").price(new BigDecimal("3.50")).type(DishType.SIDE).additionalInformation(Collections.emptyMap()).build();
         List<Dish> dishes = List.of(dish1, dish2);
 
         when(dishRepository.findAllByOrderByPositionAsc()).thenReturn(dishes);
 
         List<DishOutputDTO> expectedDTOs = List.of(
-                new DishOutputDTO("1", "Pizza", "10,99", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap()),
-                new DishOutputDTO("2", "Fries", "3,50", DishType.SIDE.toString().toLowerCase(), Collections.emptyMap())
+                new DishOutputDTO("1", "Pizza", "10,99", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap(), "test.jpg"),
+                new DishOutputDTO("2", "Fries", "3,50", DishType.SIDE.toString().toLowerCase(), Collections.emptyMap(), null)
         );
 
         try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
@@ -76,11 +76,11 @@ class DishServiceTest {
     @DisplayName("Saves a valid dish and returns the DishOutputDTO")
     void addDish_savesDishAndReturnsDTO() {
         // Given
-        Dish inputDish = Dish.builder().name("Lemonade").price(new BigDecimal("2.50")).type(DishType.BEVERAGE).additionalInformation(Collections.emptyMap()).build();
+        Dish inputDish = Dish.builder().name("Lemonade").price(new BigDecimal("2.50")).type(DishType.BEVERAGE).additionalInformation(Collections.emptyMap()).imageUrl("test.jpg").build();
         Dish savedDish = inputDish.withId("unique-id-111");
         when(dishRepository.save(any(Dish.class))).thenReturn(savedDish);
 
-        DishOutputDTO expectedDTO = new DishOutputDTO("unique-id-111", "Lemonade", "2,50", DishType.BEVERAGE.toString().toLowerCase(), Collections.emptyMap());
+        DishOutputDTO expectedDTO = new DishOutputDTO("unique-id-111", "Lemonade", "2,50", DishType.BEVERAGE.toString().toLowerCase(), Collections.emptyMap(), "test.jpg");
 
         try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
             converterMock.when(() -> DishOutputDTOConverter.convert(savedDish)).thenReturn(expectedDTO);
@@ -112,7 +112,7 @@ class DishServiceTest {
     @DisplayName("Converts DishInputDTO and stores dish with correct type, returns DTO")
     void addDishByDTOAndType_returnsDTO() {
         // Given
-        DishInputDTO inputDTO = new DishInputDTO(DishType.BEVERAGE.name(), "Cola", "2.20", Collections.emptyMap());
+        DishInputDTO inputDTO = new DishInputDTO(DishType.BEVERAGE.name(), "Cola", "2.20", Collections.emptyMap(), null);
         DishType type = DishType.BEVERAGE;
 
         Dish convertedDish = Dish.builder()
@@ -124,7 +124,7 @@ class DishServiceTest {
         Dish withType = convertedDish.withType(type);
         Dish savedDish = withType.withId("drink-id-212");
 
-        DishOutputDTO expectedDTO = new DishOutputDTO("drink-id-212", "Cola", "2.20", DishType.BEVERAGE.toString().toLowerCase(), Collections.emptyMap());
+        DishOutputDTO expectedDTO = new DishOutputDTO("drink-id-212", "Cola", "2.20", DishType.BEVERAGE.toString().toLowerCase(), Collections.emptyMap(), null);
 
         try (
             MockedStatic<DishConverter> dishConverterMock = mockStatic(DishConverter.class);
@@ -149,7 +149,7 @@ class DishServiceTest {
     @DisplayName("Throws exception if name from DishInputDTO is empty")
     void addDishByDTOAndType_emptyName_throwsException() {
         // Given
-        DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "", "8.40", Collections.emptyMap());
+        DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "", "8.40", Collections.emptyMap(), null);
 
         Dish convertedDish = Dish.builder()
                 .name("")
@@ -180,7 +180,7 @@ class DishServiceTest {
         when(dishRepository.existsById("dish-123")).thenReturn(true);
         when(dishRepository.save(updatedDish)).thenReturn(updatedDish);
 
-        DishOutputDTO expectedDTO = new DishOutputDTO("dish-123", "Vegan Burger", "7,00", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap());
+        DishOutputDTO expectedDTO = new DishOutputDTO("dish-123", "Vegan Burger", "7,00", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap(), null);
 
         try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
             converterMock.when(() -> DishOutputDTOConverter.convert(updatedDish)).thenReturn(expectedDTO);
@@ -217,20 +217,21 @@ class DishServiceTest {
     void updateDishByIdAndInputDto_updatesAndReturnsDTO() {
         // Given
         String id = "test-4711";
-        DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "Wrap", "9.95", Collections.emptyMap());
+        DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "Wrap", "9.95", Collections.emptyMap(), "image-url-123.jpg");
         Dish convertedDish = Dish.builder()
                 .id(id)
                 .name("Wrap")
                 .price(new BigDecimal("9.95"))
                 .type(DishType.MAIN)
                 .additionalInformation(Collections.emptyMap())
+                .imageUrl("image-url-123.jpg")
                 .build();
 
         when(dishRepository.findById(id)).thenReturn(Optional.of(convertedDish));
         when(dishRepository.existsById(id)).thenReturn(true);
         when(dishRepository.save(convertedDish)).thenReturn(convertedDish);
 
-        DishOutputDTO expectedDTO = new DishOutputDTO(id, "Wrap", "9,95", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap());
+        DishOutputDTO expectedDTO = new DishOutputDTO(id, "Wrap", "9,95", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap(), "image-url-123.jpg");
 
         try (
                 MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)
@@ -253,7 +254,7 @@ class DishServiceTest {
     void updateDishByIdAndInputDto_nonexistent_throwsException() {
         // Given
         String id = "notexists-789";
-        DishInputDTO inputDTO = new DishInputDTO(DishType.SIDE.name(), "Pommes", "3.90", Collections.emptyMap());
+        DishInputDTO inputDTO = new DishInputDTO(DishType.SIDE.name(), "Pommes", "3.90", Collections.emptyMap(), null);
 
         when(dishRepository.findById(id)).thenReturn(Optional.empty());
 
