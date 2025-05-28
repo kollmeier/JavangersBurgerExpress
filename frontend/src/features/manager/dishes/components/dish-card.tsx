@@ -14,6 +14,8 @@ import React from "react";
 import Card from "@/components/shared/card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapDishes} from "@/data";
+import {useSortable} from "@dnd-kit/sortable";
+import {CSS} from "@dnd-kit/utilities";
 
 const dishIcon = (type: string) => {
     switch (type) {
@@ -34,6 +36,7 @@ const dishIcon = (type: string) => {
 
 type CardProps = {
     dish: DishOutputDTO;
+
     onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
 
@@ -47,8 +50,23 @@ const DishCard = ({dish, onDelete}: CardProps) => {
         navigate(`/manage/dishes/${dish.id}/edit`);
     }
 
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({id: dish.id});
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
     return (
         <Card
+            ref={setNodeRef}
+            style={style}
             header={dish.name}
             colorVariant={colorMapDishes[dish.type]}
             actions={<>
@@ -56,13 +74,13 @@ const DishCard = ({dish, onDelete}: CardProps) => {
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
             image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name} className="object-contain drop-shadow-lg"/>}
-            typeCircle={dish.type && <FontAwesomeIcon icon={dishIcon(dish.type)}/>}
+            typeCircle={dish.type && <FontAwesomeIcon icon={dishIcon(dish.type)} />}
             priceCircle={<>€{dish.price}</>}
             footer={dish.additionalInformation.size &&
                     <span className={"dish-info dish-info__" + dish.additionalInformation.size.type.toLowerCase()}>
                         {dish.additionalInformation.size.displayString}
                     </span>}
-            topRight={<FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" />}
+            topRight={<span className="dish-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
             >
             {dish.additionalInformation.description &&
                 <span className={"dish-info dish-info__" + dish.additionalInformation.description.type.toLowerCase()}>

@@ -4,10 +4,16 @@ import {DishesApi} from "@/services/dishes-api.ts";
 export function useDishMutations() {
     const queryClient = useQueryClient();
 
+    const savePositionsMutation = useMutation({
+        mutationFn: DishesApi.saveDishesPositions,
+        onSuccess: (savedDishes) => {
+            queryClient.setQueryData(['dishesData'], savedDishes)
+        },
+    })
+
     const addDishMutation = useMutation({
         mutationFn: DishesApi.saveDish,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        onSuccess: (savedDish, _submittedDish) => {
+        onSuccess: (savedDish) => {
             queryClient.setQueryData(['dishesData', savedDish?.id], savedDish);
         },
         onSettled: () => queryClient.invalidateQueries({queryKey: ['dishesData']}),
@@ -30,6 +36,7 @@ export function useDishMutations() {
     });
 
     return {
+        savePositionsMutation,
         addDishMutation,
         updateDishMutation,
         deleteDishMutation,

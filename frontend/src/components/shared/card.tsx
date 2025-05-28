@@ -3,6 +3,8 @@ import {cn} from "@/util";
 import {colorVariants, ColorVariantsType} from "@/data";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
 type CardProps = Readonly<PropsWithChildren<{
+    ref?: React.Ref<HTMLDivElement>;
+    style?: React.CSSProperties;
     className?: string;
     colorVariant?: ColorVariantsType;
     header?: ReactNode;
@@ -15,6 +17,8 @@ type CardProps = Readonly<PropsWithChildren<{
 }>>
 
 const Card = ({
+    ref,
+    style,
     className,
     colorVariant,
     header,
@@ -30,6 +34,8 @@ const Card = ({
 
     return (
         <MinimalCard
+            ref={ref}
+            style={style}
             colorVariant={colorVariant}
             className={cn("px-0 py-0 grid grid-cols-card grid-rows-card gap-4", !!typeCircle && "rounded-tl-circle-md", !!priceCircle && "rounded-br-circle-lg", className)}>
             {typeCircle && <div className={cn("mt-circle-offset-md ml-circle-offset-md row-start-head col-start-first w-circle-md h-circle-md rounded-circle-md flex items-center justify-center !text-tc bg-gray-300 text-gray-800", colorVariant && colorVariants[colorVariant].light)}>{typeCircle}</div>}
