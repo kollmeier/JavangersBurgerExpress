@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import javax.imageio.ImageIO;
@@ -65,7 +66,7 @@ class ImagesServiceTest {
         when(gridFsTemplate.getResource(file)).thenReturn(resource);
         when(resource.getInputStream()).thenReturn(mock(InputStream.class)); // Inhalt wird von ImageIO direkt gemockt
 
-        try (var mocked = org.mockito.Mockito.mockStatic(ImageIO.class)) {
+        try (var mocked = mockStatic(ImageIO.class)) {
             mocked.when(() -> ImageIO.read(any(InputStream.class))).thenReturn(testImage);
             mocked.when(() -> ImageIO.write(any(), eq(format), any(java.io.OutputStream.class))).thenReturn(true);
 
@@ -73,6 +74,35 @@ class ImagesServiceTest {
 
             assertNotNull(dto);
             assertEquals("image/png", dto.getContentType());
+            assertEquals(resource.getFilename(), dto.getFileName());
+        }
+    }
+    @Test
+    @DisplayName("Gibt erfolgreich ein gecropptes webpP-Bild zurück")
+    void getCroppedImage_success_webp() throws IOException {
+        String imageId = "42";
+        int size = 100;
+        String format = "webp";
+
+        GridFSFile file = mock(GridFSFile.class);
+        when(file.getMetadata()).thenReturn(new Document("contentType", "image/webp"));
+        when(filesRepository.getFileById(imageId)).thenReturn(Optional.of(file));
+
+        BufferedImage testImage = new BufferedImage(200, 100, BufferedImage.TYPE_INT_ARGB);
+        GridFsResource resource = mock(GridFsResource.class);
+
+        // ImageIO.read braucht ein richtiges Bild im InputStream. Um es zu umgehen, mocken wir ImageIO.
+        when(gridFsTemplate.getResource(file)).thenReturn(resource);
+        when(resource.getInputStream()).thenReturn(mock(InputStream.class)); // Inhalt wird von ImageIO direkt gemockt
+
+        try (var mocked = mockStatic(ImageIO.class)) {
+            mocked.when(() -> ImageIO.read(any(InputStream.class))).thenReturn(testImage);
+            mocked.when(() -> ImageIO.write(any(), eq(format), any(java.io.OutputStream.class))).thenReturn(true);
+
+            FilesDTO dto = imagesService.getCroppedImage(imageId, size, format);
+
+            assertNotNull(dto);
+            assertEquals("image/webp", dto.getContentType());
             assertEquals(resource.getFilename(), dto.getFileName());
         }
     }
@@ -101,7 +131,7 @@ class ImagesServiceTest {
 
         when(gridFsTemplate.getResource(file)).thenReturn(resource);
         when(resource.getInputStream()).thenReturn(mock(InputStream.class));
-        try (var mocked = org.mockito.Mockito.mockStatic(ImageIO.class)) {
+        try (var mocked = mockStatic(ImageIO.class)) {
             mocked.when(() -> ImageIO.read(any(InputStream.class))).thenReturn(null);
 
             assertThrows(ReadFilesException.class, () -> imagesService.getCroppedImage(imageId, size, format));
@@ -123,7 +153,7 @@ class ImagesServiceTest {
         when(gridFsTemplate.getResource(file)).thenReturn(resource);
         when(resource.getInputStream()).thenReturn(mock(InputStream.class));
 
-        try (var mocked = org.mockito.Mockito.mockStatic(ImageIO.class)) {
+        try (var mocked = mockStatic(ImageIO.class)) {
             mocked.when(() -> ImageIO.read(any(InputStream.class))).thenReturn(image);
             mocked.when(() -> ImageIO.write(any(), eq(format), any(java.io.OutputStream.class))).thenReturn(false);
 
@@ -146,4 +176,5 @@ class ImagesServiceTest {
 
         assertThrows(ReadFilesException.class, () -> imagesService.getCroppedImage(imageId, size, format));
     }
+
 }
