@@ -53,4 +53,16 @@ public class SortableRepositoryImplementation<T extends Sortable> implements Sor
     public List<T> findAllByIdIn(final Class<T> theClass, final List<String> ids) {
         return mongoTemplate.find(new Query().addCriteria(Criteria.where("id").in(ids)), theClass);
     }
+
+    /**
+     * Finds all entities of the specified class.
+     *
+     * @param theClass The class of the entities to find.
+     * @return A list of entities matching the specified class.
+     * @throws org.springframework.dao.DataAccessException in case of errors
+     */
+    @Override
+    public List<T> findAll(final Class<T> theClass) {
+        return mongoTemplate.findAll(theClass);
+    }
 }

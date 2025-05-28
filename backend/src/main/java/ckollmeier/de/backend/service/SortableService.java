@@ -34,14 +34,14 @@ public class SortableService<T extends Sortable> {
         Map<String, Integer> positionsByItemId = new HashMap<>();
         sortedInputDTOS.forEach(input -> positionsByItemId.put(input.id(), input.index()));
 
-        List<String> itemIds = sortedInputDTOS.stream()
-                .map(SortedInputDTO::id)
-                .toList();
-
-        List<T> items = sortableRepository.findAllByIdIn(theClass, itemIds);
+        List<T> items = sortableRepository.findAll(theClass);
 
         List<T> sortedItems = new ArrayList<>(items.size()); // Initialkapazität setzen
         for (T item : items) {
+            if (!positionsByItemId.containsKey(item.getId())) {
+                sortedItems.add(item);
+                continue;
+            }
             T updatedItem = item.withPosition(positionsByItemId.get(item.getId()));
             sortedItems.add(updatedItem);
         }
