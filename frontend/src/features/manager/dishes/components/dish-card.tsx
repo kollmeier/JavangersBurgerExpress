@@ -1,6 +1,13 @@
 import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBowlFood, faBurger, faEdit, faGlassWater, faRemove, faUtensils} from "@fortawesome/free-solid-svg-icons";
+import {
+    faBowlFood,
+    faBurger,
+    faEdit,
+    faGlassWater, faGripLines,
+    faRemove,
+    faUtensils
+} from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
 import React from "react";
@@ -55,6 +62,7 @@ const DishCard = ({dish, onDelete}: CardProps) => {
                     <span className={"dish-info dish-info__" + dish.additionalInformation.size.type.toLowerCase()}>
                         {dish.additionalInformation.size.displayString}
                     </span>}
+            topRight={<FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" />}
             >
             {dish.additionalInformation.description &&
                 <span className={"dish-info dish-info__" + dish.additionalInformation.description.type.toLowerCase()}>
