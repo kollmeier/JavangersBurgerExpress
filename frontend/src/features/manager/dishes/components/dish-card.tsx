@@ -48,18 +48,18 @@ const DishCard = ({dish, onDelete}: CardProps) => {
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
-            image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name}/>}
+            image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name} className="object-contain drop-shadow-lg"/>}
             typeCircle={dish.type && <FontAwesomeIcon icon={dishIcon(dish.type)}/>}
             priceCircle={<>€{dish.price}</>}
-            >
-            {dish.additionalInformation.description &&
-                    <span className={"dish-info dish-info__" + dish.additionalInformation.description.type.toLowerCase()}>
-                        {dish.additionalInformation.description.displayString}
-                    </span>}
-            {dish.additionalInformation.size &&
-                <span className={"dish-info dish-info__" + dish.additionalInformation.size.type.toLowerCase()}>
+            footer={dish.additionalInformation.size &&
+                    <span className={"dish-info dish-info__" + dish.additionalInformation.size.type.toLowerCase()}>
                         {dish.additionalInformation.size.displayString}
                     </span>}
+            >
+            {dish.additionalInformation.description &&
+                <span className={"dish-info dish-info__" + dish.additionalInformation.description.type.toLowerCase()}>
+                    {dish.additionalInformation.description.displayString}
+                </span>}
         </Card>
     );
 }
