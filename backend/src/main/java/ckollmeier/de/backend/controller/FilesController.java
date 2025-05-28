@@ -66,32 +66,6 @@ public class FilesController {
     }
 
     /**
-     * Gibt die ungeänderte Datei anhand der ID zurück.
-     * Optional kann die Übergabe eines Parameters erfolgen, um die Bildgröße zu ändern.
-     *
-     * @param id     Die ID der Datei.
-     * @param size   Optionale gewünschte Größe des Bildausschnitts (Standard 0 = original).
-     * @param format Optionales gewünschtes Bildformat wie "jpg", "png", "webp".
-     * @param accept Optionaler HTTP-Header zur Auswahl des gewünschten Rückgabeformats.
-     * @return ResponseEntity mit den Binärdaten und Content-Type des Bildes.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getFileById(
-            final @PathVariable String id,
-            final @RequestParam(defaultValue = "0") int size,
-            final @RequestParam(required = false) String format,
-            final @RequestHeader(value = "Accept", required = false) String accept
-
-    ) {
-        if (size > 0) {
-            return getCroppedImageDynamic(id, size, format, accept);
-        }
-        FilesDTO filesDTO = filesService.getFilesDTOById(id);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(filesDTO.getContentType())).body(filesDTO.getData());
-    }
-
-    /**
      * Gibt ein dynamisch zugeschnittenes Bild in angeforderter Größe und Format zurück.
      *
      * @param id     Die ID der Bilddatei.
@@ -100,7 +74,7 @@ public class FilesController {
      * @param accept Optionaler Accept-Header zur Formatbestimmung.
      * @return ResponseEntity mit den Bilddaten im gewünschten/zugelassenen Format.
      */
-    @GetMapping("/image/{id}/{size}")
+    @GetMapping("/{id}/{size}")
     public ResponseEntity<byte[]> getCroppedImageDynamic(
             final @PathVariable String id,
             final @PathVariable int size,
@@ -128,6 +102,32 @@ public class FilesController {
         headers.setCacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic());
 
         return new ResponseEntity<>(image.getData(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * Gibt die ungeänderte Datei anhand der ID zurück.
+     * Optional kann die Übergabe eines Parameters erfolgen, um die Bildgröße zu ändern.
+     *
+     * @param id     Die ID der Datei.
+     * @param size   Optionale gewünschte Größe des Bildausschnitts (Standard 0 = original).
+     * @param format Optionales gewünschtes Bildformat wie "jpg", "png", "webp".
+     * @param accept Optionaler HTTP-Header zur Auswahl des gewünschten Rückgabeformats.
+     * @return ResponseEntity mit den Binärdaten und Content-Type des Bildes.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<byte[]> getFileById(
+            final @PathVariable String id,
+            final @RequestParam(defaultValue = "0") int size,
+            final @RequestParam(required = false) String format,
+            final @RequestHeader(value = "Accept", required = false) String accept
+
+    ) {
+        if (size > 0) {
+            return getCroppedImageDynamic(id, size, format, accept);
+        }
+        FilesDTO filesDTO = filesService.getFilesDTOById(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(filesDTO.getContentType())).body(filesDTO.getData());
     }
 
     /**

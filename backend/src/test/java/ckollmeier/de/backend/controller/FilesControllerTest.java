@@ -1,56 +1,103 @@
 package ckollmeier.de.backend.controller;
 
 import ckollmeier.de.backend.dto.FileInfoDTO;
-import ckollmeier.de.backend.dto.FilesDTO;
+import ckollmeier.de.backend.repository.FilesRepository;
 import ckollmeier.de.backend.service.FilesService;
-import ckollmeier.de.backend.service.ImagesService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.types.ObjectId;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
+import java.io.File;
+import java.nio.file.Files;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(FilesController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class FilesControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    @MockitoBean
+    @Autowired
     FilesService filesService;
 
-    @MockitoBean
-    ImagesService imagesService;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private FilesRepository filesRepository;
+
+    protected String fakeFileId;
+    protected String realFileId;
+
+    protected final byte[] fakeData = new byte[]{42, 43};
+    protected byte[] realData;
+
+    @BeforeEach
+    void setUp() throws Exception{
+        filesRepository.deleteAllFiles(); // Sicherstellen, dass das Repository leer ist
+
+        File imageResource = new ClassPathResource("cheeseburger.png").getFile();
+        realData = Files.readAllBytes(imageResource.toPath());
+
+        MockMultipartFile realFile = new MockMultipartFile(
+                "file", "realfile.png", "image/png", realData);
+        realFileId = filesRepository.saveFile(realFile);
+
+        MockMultipartFile fakeFile = new MockMultipartFile(
+                "file", "fakefile.png", "image/png", fakeData);
+        fakeFileId = filesRepository.saveFile(fakeFile);
+    }
 
     @Nested
     @DisplayName("POST /api/files/upload")
     class UploadFileTest {
-
         @Test
         void upload_valid_file_returns_url() throws Exception {
             MockMultipartFile file = new MockMultipartFile(
                     "file", "test.png", "image/png", new byte[]{42, 43});
 
-            Mockito.when(filesService.saveFile(any())).thenReturn("1234");
-
-            mockMvc.perform(multipart("/api/files/upload")
+            String result = mockMvc.perform(multipart("/api/files/upload")
                             .file(file))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.id").value("1234"))
-                    .andExpect(jsonPath("$.uri").value(Matchers.endsWith("/api/files/1234")));
+                    .andExpect(jsonPath("$.id").isNotEmpty())
+                    .andExpect(jsonPath("$.contentType").value("image/png"))
+                    .andReturn().getResponse().getContentAsString();
+
+            FileInfoDTO resultDto = objectMapper.readValue(result, FileInfoDTO.class);
+
+            assertThat(resultDto)
+                    .isNotNull()
+                    .hasFieldOrProperty("id");
+
+            String resultId = resultDto.id();
+
+            assertThat(resultDto.uri()).endsWith("/api/files/" + resultId);
+
+            assertThat(resultDto)
+                    .hasFieldOrPropertyWithValue("fileName", "test.png")
+                    .hasFieldOrPropertyWithValue("contentType", "image/png");
+
+            assertThat(filesService.getFilesDTOById(resultId))
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("fileName", "test.png")
+                .hasFieldOrPropertyWithValue("contentType", "image/png")
+                .hasFieldOrPropertyWithValue("data", new byte[]{42, 43});
         }
 
         @Test
@@ -68,30 +115,28 @@ class FilesControllerTest {
     @Nested
     @DisplayName("GET /api/files/{id}")
     class GetFileTest {
-
         @Test
         void get_file_by_id_returns_data_and_content_type() throws Exception {
-            byte[] fakeData = "FAKE".getBytes();
-            Mockito.when(filesService.getFilesDTOById("1234"))
-                    .thenReturn(new FilesDTO(fakeData, "image/png", "1234.png"));
-
-            mockMvc.perform(get("/api/files/1234"))
+            mockMvc.perform(get("/api/files/" + fakeFileId))
                     .andExpect(status().isOk())
                     .andExpect(content().bytes(fakeData))
-                    .andExpect(content().contentType("image/png"));
+                    .andExpect(content().contentType("image/png"))
+                    .andExpect(header().longValue("Content-Length", 2));
+        }
+
+        @Test
+        void get_file_by_id_returns_404_response() throws Exception {
+            mockMvc.perform(get("/api/files/" + new ObjectId()))
+                    .andExpect(status().isNotFound());
         }
 
         @Test
         void get_file_by_id_with_size_calls_cropping() throws Exception {
-            byte[] cropped = "cropped".getBytes();
-            Mockito.when(imagesService.getCroppedImage("999", 200, "png"))
-                    .thenReturn(new FilesDTO(cropped, "image/png", "999.png"));
-
-            mockMvc.perform(get("/api/files/999")
+            mockMvc.perform(get("/api/files/" + realFileId)
                             .param("size", "200"))
                     .andExpect(status().isOk())
-                    .andExpect(content().bytes(cropped))
-                    .andExpect(content().contentType("image/png"));
+                    .andExpect(content().contentType("image/png"))
+                    .andExpect(header().longValue("Content-Length", 53576)); // Content Length als Indikator, dass die Datei gecropped wurde
         }
     }
 
@@ -100,42 +145,58 @@ class FilesControllerTest {
     class GetCroppedDynamicTest {
         @Test
         void get_cropped_image_with_explicit_format() throws Exception {
-            byte[] cropped = "webpdata".getBytes();
-            Mockito.when(imagesService.getCroppedImage("5", 100, "webp"))
-                    .thenReturn(new FilesDTO(cropped, "image/webp", "5.webp"));
-
-            mockMvc.perform(get("/api/files/image/5/100")
+            mockMvc.perform(get("/api/files/" + realFileId + "/200")
                             .param("format", "webp"))
                     .andExpect(status().isOk())
-                    .andExpect(content().bytes(cropped))
                     .andExpect(header().string("Content-Type", "image/webp"));
         }
-        @Test
-        void get_cropped_image_accepts_webp_header() throws Exception {
-            byte[] cropped = "webpdat".getBytes();
-            Mockito.when(imagesService.getCroppedImage("6", 77, "webp"))
-                    .thenReturn(new FilesDTO(cropped, "image/webp", "6.webp"));
 
-            mockMvc.perform(get("/api/files/image/6/77")
+        @Test
+        void get_dynamic_file_by_id_with_size_calls_cropping() throws Exception {
+            mockMvc.perform(get("/api/files/" + realFileId + "/200"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("image/png"))
+                    .andExpect(header().longValue("Content-Length", 53576)); // Content Length als Indikator, dass die Datei gecropped wurde
+        }
+
+        @Test
+        void get_dynamic_file_by_id_with_format_changes_format() throws Exception {
+            mockMvc.perform(get("/api/files/" + realFileId + "/200")
                             .header("Accept", "image/webp"))
                     .andExpect(status().isOk())
-                    .andExpect(content().bytes(cropped))
-                    .andExpect(header().string("Content-Type", "image/webp"));
+                    .andExpect(content().contentType("image/webp"));
         }
     }
 
     @Test
     @DisplayName("GET /api/files liefert alle Datei-Infos")
     void get_all_images_returns_json_list() throws Exception {
-        FileInfoDTO dto = new FileInfoDTO("id1", "test.png", "image/png", "/api/files/id1");
-        Mockito.when(filesService.getAllImages()).thenReturn(List.of(dto));
-
         mockMvc.perform(get("/api/files"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value("id1"))
+                .andExpect(jsonPath("$", Matchers.hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(realFileId))
                 .andExpect(jsonPath("$[0].contentType").value("image/png"))
-                .andExpect(jsonPath("$[0].fileName").value("test.png"))
-                .andExpect(jsonPath("$[0].uri").value("/api/files/id1"));
+                .andExpect(jsonPath("$[0].fileName").value("realfile.png"))
+                .andExpect(jsonPath("$[1].id").value(fakeFileId))
+                .andExpect(jsonPath("$[1].contentType").value("image/png"))
+                .andExpect(jsonPath("$[1].fileName").value("fakefile.png"));
+    }
+
+    @Test
+    @DisplayName("GET /api/files liefert nur images")
+    void get_all_images_returns_json_list_only_of_images() throws Exception {
+        MockMultipartFile textFile = new MockMultipartFile("file", "textfile.txt", "application/txt", "Test text".getBytes());
+        filesRepository.saveFile(textFile);
+        mockMvc.perform(get("/api/files"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", Matchers.hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(realFileId))
+                .andExpect(jsonPath("$[0].contentType").value("image/png"))
+                .andExpect(jsonPath("$[0].fileName").value("realfile.png"))
+                .andExpect(jsonPath("$[1].id").value(fakeFileId))
+                .andExpect(jsonPath("$[1].contentType").value("image/png"))
+                .andExpect(jsonPath("$[1].fileName").value("fakefile.png"));
     }
 }

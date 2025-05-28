@@ -36,6 +36,7 @@ public class FilesRepository {
      * @return Optional mit der GridFSFile falls gefunden, sonst leer
      */
     public Optional<GridFSFile> getFileById(final String id) {
+        //noinspection OptionalOfNullableMisuse
         return Optional.ofNullable(gridFsTemplate.findOne(query(where("_id").is(new ObjectId(id)))));
     }
 
@@ -71,6 +72,10 @@ public class FilesRepository {
      */
     public void deleteFile(final String id) {
         gridFsTemplate.delete(query(where("_id").is(new ObjectId(id))));
+    }
+
+    public void deleteAllFiles() {
+        gridFsTemplate.delete(query(where("metadata.contentType").exists(true)));
     }
 
     /**
