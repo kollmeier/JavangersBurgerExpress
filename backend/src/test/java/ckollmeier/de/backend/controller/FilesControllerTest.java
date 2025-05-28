@@ -4,6 +4,7 @@ import ckollmeier.de.backend.dto.FileInfoDTO;
 import ckollmeier.de.backend.dto.FilesDTO;
 import ckollmeier.de.backend.service.FilesService;
 import ckollmeier.de.backend.service.ImagesService;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,9 @@ class FilesControllerTest {
             mockMvc.perform(multipart("/api/files/upload")
                             .file(file))
                     .andExpect(status().isOk())
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("/api/files/1234")));
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value("1234"))
+                    .andExpect(jsonPath("$.uri").value(Matchers.endsWith("/api/files/1234")));
         }
 
         @Test
@@ -58,7 +61,7 @@ class FilesControllerTest {
             mockMvc.perform(multipart("/api/files/upload")
                             .file(file))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string(org.hamcrest.Matchers.containsString("Keine Datei ausgewählt")));
+                    .andExpect(content().string(Matchers.containsString("Keine Datei ausgewählt")));
         }
     }
 

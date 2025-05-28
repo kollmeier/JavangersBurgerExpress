@@ -4,6 +4,7 @@ export type DishInputDTO = {
     name: string;
     price: string;
     type: string;
+    imageUrl: string;
     additionalInformation: Record<string, AdditionalInformationInputDTO>;
 }
 

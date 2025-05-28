@@ -1,2 +1,2 @@
 export {cn} from './cn';
-export {useDishes} from './queries';
+export {useDishes, useImages} from './queries';

@@ -1,4 +1,4 @@
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import type {DishInputDTO} from "@/types/DishInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
@@ -7,7 +7,11 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
 import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
-import {Input} from "@headlessui/react";
+import {Button, Input} from "@headlessui/react";
+import ImagePickerDialog from "@/components/shared/image-picker-dialog.tsx";
+import {toast} from "react-toastify";
+import {useImageMutations} from "@/hooks/use-image-mutations.ts";
+import {faCamera} from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
     dish?: DishOutputDTO;
@@ -16,30 +20,49 @@ type Props = {
     onCancel?: () => void;
 }
 
+type ImagesSelection = {
+    imageFiles: File[]
+    existingImageUrls: string[]
+}
+
 const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
     const {
         control,
         handleSubmit,
         reset,
     } = useForm<DishInputDTO>({
+        values: dish,
         defaultValues: {
-            name: dish?.name ?? '',
-            price: dish?.price ?? '',
+            name: '',
+            price: '',
             type: dishType,
+            imageUrl: '',
             additionalInformation: {
                 description: {
                     type: 'PLAIN_TEXT',
-                    value: dish?.additionalInformation?.description?.value ?? ''
+                    value: ''
                 },
                 size: dishType === 'beverage' ? {
                     type: 'SIZE_IN_LITER',
-                    value: dish?.additionalInformation?.size?.value ?? ''
+                    value: ''
                 } : undefined
             }
         }
     });
 
+    const [images, setImages] = useState<ImagesSelection>({imageFiles: [], existingImageUrls: []});
+
+    const {addImageMutation} = useImageMutations();
+
     const formRef = useRef<HTMLFormElement>(null);
+
+    const [imagePickerDialogOpen, setImagePickerDialogOpen] = React.useState<boolean>(false);
+
+    const handleImagesSelected = (onChange: (value: string) => void, files: File[], existingImageUrls: string[]) => {
+        setImages({imageFiles: files, existingImageUrls: existingImageUrls});
+        setImagePickerDialogOpen(false);
+        onChange(existingImageUrls[0] ?? URL.createObjectURL(files[0]) ?? '');
+    }
 
     const handleCancel = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         event.preventDefault();
@@ -47,9 +70,35 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
             onCancel();
         }
     }
-
     const doSubmit = async (submittedDish: DishInputDTO) => {
-        if (onSubmit) {
+        if (images.imageFiles.length > 0) {
+            const toastId = toast.loading('Bild wird hochgeladen...');
+            addImageMutation.mutate(images.imageFiles, {
+                onSuccess: (files) => {
+                    toast.update(toastId, {
+                        render: 'Bild erfolgreich hochgeladen',
+                        type: 'success',
+                        isLoading: false,
+                        autoClose: 5000,
+                    });
+                    const editedDish = {...submittedDish, imageUrl: files[0].uri ?? null};
+                    if (onSubmit) {
+                        (async () => {
+                            await onSubmit(editedDish, dish?.id);
+                            reset();
+                        })();
+                    }
+                },
+                onError: (error) => {
+                    toast.update(toastId, {
+                        render: 'Fehler beim Hochladen des Bildes: ' + error.message,
+                        type: 'error',
+                        isLoading: false,
+                        autoClose: 5000,
+                    });
+                }
+            });
+        } else if (onSubmit) {
             await onSubmit(submittedDish, dish?.id);
             reset();
         }
@@ -124,11 +173,55 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                     <InputWithLabel
                         label="Beschreibung"
                         type="textarea"
-                        fieldClassName="col-span-4"
+                        className="h-24"
+                        fieldClassName="col-span-3 row-start-3"
                         error={fieldState.error?.message}
                         {...field}
                     />
                 )}
+            />
+            <Controller
+                name="imageUrl"
+                control={control}
+                render={({ field, fieldState }) => (
+                    <InputWithLabel
+                        label="Bild"
+                        type="hidden"
+                        fieldClassName="col-span-1 row-start-3"
+                        error={fieldState.error?.message}
+                        {...field}
+                    >
+                        <div className="p-0.5 relative w-24 h-24 bg-gray-200 rounded-xl ">
+                            <Button
+                                type="button"
+                                className="rounded-xl border-2 border-dotted border-gray-400 p-0.5 h-full w-full"
+                                onClick={() => setImagePickerDialogOpen(true)}
+                            >
+                                {field.value ?
+                                    <img className="w-full h-full object-contain" src={field.value} alt="Produktbild"/> :
+                                    <>
+                                        <FontAwesomeIcon icon={faCamera} className="w-full h-full text-xl text-gray-400"/>
+                                        <span className="text-xs text-gray-600">Klicken zur Auswahl</span>
+                                    </>}
+                            </Button>
+                            {field.value && <Button
+                                className="absolute top-0 right-0 m-2 text-lg text-gray-700"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    field.onChange('');
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faClose}/>
+                            </Button>}
+                        </div>
+                        <ImagePickerDialog
+                            open={imagePickerDialogOpen}
+                            onClose={() => {setImagePickerDialogOpen(false);}}
+                            values={[field.value]}
+                            multiple={false}
+                            onImagesSelected={(...args) => handleImagesSelected(field.onChange, ...args)}
+                        />
+                    </InputWithLabel>)}
             />
             <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
                 <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>

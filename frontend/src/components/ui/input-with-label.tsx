@@ -1,14 +1,16 @@
 import {Description, Field, Input, Label, Textarea} from '@headlessui/react'
 
-import {ChangeEvent, forwardRef} from "react";
+import {ChangeEvent, forwardRef, KeyboardEvent, MouseEvent, PropsWithChildren} from "react";
 import {cn} from "@/util";
 
-export type InputWithLabelProps = {
+export type InputWithLabelProps = PropsWithChildren<{
     label: string
     name: string
     value?: string | number
     onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
     onBlur?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    onClick?: (e: MouseEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    onKeyDown?: (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void
     type?: string
     placeholder?: string
     required?: boolean
@@ -22,7 +24,7 @@ export type InputWithLabelProps = {
     inputMode?: "text" | "decimal" | "search" | "none" | "email" | "tel" | "url" | "numeric";
     /** HTML `pattern` attribute "[0-9]*[\\.,]?[0-9]{0,2}" */
     pattern?: string;
-}
+}>
 
 const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
     (
@@ -32,6 +34,8 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
             value,
             onChange,
             onBlur,
+            onClick,
+            onKeyDown,
             type = "text",
             placeholder,
             required,
@@ -44,6 +48,7 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
             max,
             inputMode,
             pattern,
+            children,
         },
         ref
     ) => {
@@ -52,7 +57,7 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
         const showNumericHints = type === "number" || (inputMode ?? pattern);
         return (
             <Field className={cn("flex flex-col flex-1 gap-1 rounded-lg", fieldClassName)}>
-                <Label htmlFor={name} className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-700">
                     {label}
                     {required && ' *'}
                 </Label>
@@ -60,9 +65,11 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
                     <Textarea
                         id={name}
                         name={name}
-                        value={value ?? ""}
+                        value={value}
                         onChange={onChange}
                         onBlur={onBlur}
+                        onClick={onClick}
+                        onKeyDown={onKeyDown}
                         placeholder={placeholder}
                         required={required}
                         disabled={disabled}
@@ -78,9 +85,11 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
                     id={name}
                     name={name}
                     type={type}
-                    value={value ?? ""}
+                    value={value}
                     onChange={onChange}
                     onBlur={onBlur}
+                    onClick={onClick}
+                    onKeyDown={onKeyDown}
                     placeholder={placeholder}
                     required={required}
                     disabled={disabled}
@@ -96,7 +105,7 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
                         disabled && "bg-primary cursor-not-allowed",
                         className
                     )}
-                />}
+                />}{children}
                 {error && (
                     <Description className="text-sm text-red-600" role="alert">
                         {error}

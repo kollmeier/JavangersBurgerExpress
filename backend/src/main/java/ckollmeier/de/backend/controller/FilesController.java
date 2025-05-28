@@ -48,9 +48,9 @@ public class FilesController {
      * @return ResponseEntity mit der URL der hochgeladenen Datei oder einem Fehlerhinweis.
      */
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(final @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<FileInfoDTO> uploadFile(final @RequestParam("file") MultipartFile file) {
         if (file.isEmpty() || file.getOriginalFilename() == null) {
-            return ResponseEntity.badRequest().body("Keine Datei ausgewählt");
+            throw new IllegalArgumentException("Keine Datei ausgewählt");
         }
         String id = filesService.saveFile(file);
 
@@ -60,7 +60,9 @@ public class FilesController {
                     .path(id)
                     .toUriString();
 
-        return ResponseEntity.ok(url);
+        FileInfoDTO fileInfoDTO = new FileInfoDTO(id, file.getOriginalFilename(), file.getContentType(), url);
+
+        return ResponseEntity.ok(fileInfoDTO);
     }
 
     /**

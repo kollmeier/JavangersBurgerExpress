@@ -6,6 +6,10 @@ export function useDishMutations() {
 
     const addDishMutation = useMutation({
         mutationFn: DishesApi.saveDish,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onSuccess: (savedDish, _submittedDish) => {
+            queryClient.setQueryData(['dishesData', savedDish?.id], savedDish);
+        },
         onSettled: () => queryClient.invalidateQueries({queryKey: ['dishesData']}),
     });
 
