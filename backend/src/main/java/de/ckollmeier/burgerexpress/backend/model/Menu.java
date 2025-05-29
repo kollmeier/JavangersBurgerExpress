@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,17 +42,23 @@ public final class Menu implements Sortable {
      * Die Hauptgerichte des Menüs.
      */
     @DBRef
-    private final List<Dish> mainDishes;
+    @NonNull
+    @Builder.Default
+    private final List<Dish> mainDishes = new ArrayList<>();
     /**
      * Die Beilagen des Menüs.
      */
     @DBRef
-    private final List<Dish> sideDishes;
+    @NonNull
+    @Builder.Default
+    private final List<Dish> sideDishes = new ArrayList<>();
     /**
      * Die Getränke des Menüs.
      */
     @DBRef
-    private final List<Dish> beverages;
+    @NonNull
+    @Builder.Default
+    private final List<Dish> beverages = new ArrayList<>();
 
     /**
      * Eine Liste mit zusätzlichen Informationen zum Menü.
