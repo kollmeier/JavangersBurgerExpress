@@ -1,9 +1,11 @@
 package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.MenuInputDTO;
+import de.ckollmeier.burgerexpress.backend.model.Dish;
 import de.ckollmeier.burgerexpress.backend.model.Menu;
 
 import java.math.BigDecimal;
+import java.util.function.Function;
 
 public final class MenuConverter {
     /**
@@ -22,12 +24,14 @@ public final class MenuConverter {
      * @param menu the MenuInputDTO to convert
      * @return the converted Menu
      */
-    public static Menu convert(final MenuInputDTO menu) {
+    public static Menu convert(final MenuInputDTO menu, final Function<String, Dish> dishResolver) {
 
         return Menu.builder()
             .name(menu.name())
-                // Dishes must be added by service
             .price(new BigDecimal(menu.price().replace(",", ".")))
+            .mainDishes(DishConverter.convert(menu.mainDishIds(), dishResolver))
+            .sideDishes(DishConverter.convert(menu.sideDishIds(), dishResolver))
+            .beverages(DishConverter.convert(menu.beverageIds(), dishResolver))
             .additionalInformation(AdditionalInformationConverter.convert(menu.additionalInformation()))
             .build();
     }

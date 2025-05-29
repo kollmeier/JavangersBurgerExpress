@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface DishRepository extends MongoRepository<Dish, String> {
     List<Dish> findAllByOrderByPositionAsc();
+    Dish getReferenceById(String id);
 }

@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class DishConverterTest {
 
@@ -92,5 +94,51 @@ class DishConverterTest {
                 .isInstanceOf(InvocationTargetException.class)
                 .hasCauseInstanceOf(UnsupportedOperationException.class)
                 .hasRootCauseMessage("This is a utility class and cannot be instantiated");
+    }
+
+    @Test
+    @DisplayName("Konvertiert einzelne Dish-ID zu Dish per Resolver")
+    void convertDishIdToDish_referenceReturned() {
+        Dish dummyDish = mock(Dish.class);
+        when(dummyDish.getId()).thenReturn("ab42");
+
+        Dish result = DishConverter.convert("ab42", id -> {
+            if ("ab42".equals(id)) return dummyDish;
+            return null;
+        });
+
+        assertThat(result).isSameAs(dummyDish);
+        assertThat(result.getId()).isEqualTo("ab42");
+    }
+
+    @Test
+    @DisplayName("Konvertiert Liste von Dish-IDs zu Liste von Dishes per Resolver")
+    void convertDishIdsListToDishList_referenceListReturned() {
+        Dish dish1 = mock(Dish.class); when(dish1.getId()).thenReturn("id1");
+        Dish dish2 = mock(Dish.class); when(dish2.getId()).thenReturn("id2");
+        Dish dish3 = mock(Dish.class); when(dish3.getId()).thenReturn("id3");
+
+        var ids = java.util.List.of("id1", "id2", "id3");
+        var resolver = (java.util.function.Function<String, Dish>) id -> switch (id) {
+            case "id1" -> dish1;
+            case "id2" -> dish2;
+            case "id3" -> dish3;
+            default -> null;
+        };
+
+        var result = DishConverter.convert(ids, resolver);
+
+        assertThat(result).containsExactly(dish1, dish2, dish3);
+    }
+
+    @Test
+    @DisplayName("Konvertieren mit ungültiger ID liefert null-Eintrag")
+    void convertWithInvalidIdYieldsNull() {
+        var ids = java.util.List.of("foo", "bar");
+        var resolver = (java.util.function.Function<String, Dish>) id -> null;
+
+        var result = DishConverter.convert(ids, resolver);
+
+        assertThat(result).containsOnlyNulls();
     }
 }

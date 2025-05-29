@@ -2,6 +2,7 @@ package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.AdditionalInformationDTO;
 import de.ckollmeier.burgerexpress.backend.dto.MenuInputDTO;
+import de.ckollmeier.burgerexpress.backend.model.Dish;
 import de.ckollmeier.burgerexpress.backend.model.Menu;
 import de.ckollmeier.burgerexpress.backend.model.PlainTextAdditionalInformation;
 import org.junit.jupiter.api.DisplayName;
@@ -10,9 +11,12 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class MenuConverterTest {
 
@@ -28,13 +32,19 @@ class MenuConverterTest {
                 Collections.emptyMap()
         );
 
-        Menu menu = MenuConverter.convert(dto);
+        Function<String, Dish> resolveDish = (String dishId) -> {
+            Dish dish = mock(Dish.class);
+            when(dish.getId()).thenReturn(dishId);
+            return dish;
+        };
+
+        Menu menu = MenuConverter.convert(dto, resolveDish);
 
         assertThat(menu.getName()).isEqualTo("Pizza Menu");
         assertThat(menu.getPrice()).isEqualByComparingTo(new BigDecimal("9.99"));
-        assertThat(menu.getMainDishes()).isEmpty();
-        assertThat(menu.getSideDishes()).isEmpty();
-        assertThat(menu.getBeverages()).isEmpty();
+        assertThat(menu.getMainDishes()).hasSize(3).extracting(Dish::getId).containsExactlyInAnyOrder("1", "2", "3");
+        assertThat(menu.getSideDishes()).hasSize(2).extracting(Dish::getId).containsExactlyInAnyOrder("3", "4");
+        assertThat(menu.getBeverages()).hasSize(1).extracting(Dish::getId).containsExactlyInAnyOrder("5");
         assertThat(menu.getPosition()).isZero();
         assertThat(menu.getAdditionalInformation()).isEmpty();
     }
@@ -59,7 +69,7 @@ class MenuConverterTest {
                 infoMap
         );
 
-        Menu menu = MenuConverter.convert(dto);
+        Menu menu = MenuConverter.convert(dto, id -> null);
 
         assertThat(menu.getName()).isEqualTo("Salat");
         assertThat(menu.getPrice()).isEqualByComparingTo(new BigDecimal("4.50"));
