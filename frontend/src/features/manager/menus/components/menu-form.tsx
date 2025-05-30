@@ -7,11 +7,27 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
 import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
+import ComboboxWithLabel from "@/components/ui/combobox-with-label.tsx";
+import {useDishes} from "@/util";
+import {DishOutputDTO} from "@/types/DishOutputDTO.ts";
+import {faCamera} from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
     menu?: MenuOutputDTO;
     onSubmit?:  (menu: MenuInputDTO, menuId?: string) => Promise<void>;
     onCancel?: () => void;
+}
+
+const DishOption = ({dish}: {dish: DishOutputDTO}) => {
+    return (
+        <div className="flex items-center justify-between gap-2">
+            <span>{dish.imageUrl ?
+                <img className="h-fit object-contain" src={dish.imageUrl + '?size=55'} alt="Produktbild"/> :
+                <FontAwesomeIcon icon={faCamera} className="h-4 text-xl text-gray-400"/>
+            }</span>
+            <span>{dish.name}, {dish.price}€</span>
+        </div>
+    )
 }
 
 const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
@@ -47,6 +63,8 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
             }
         }
     });
+
+    const dishes = useDishes();
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -97,8 +115,30 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
                         placeholder="0,00"
                         type="number"
                         inputMode="decimal"
-                        fieldClassName="col-span-2"
+                        fieldClassName="col-span-1"
                         error={fieldState.error?.message}
+                    />
+                )}
+            />
+            <Controller
+                name="mainDishIds"
+                control={control}
+                rules={{ required: "Suchen Sie mindestens ein Gericht aus!" }}
+                render={({ field, fieldState }) => (
+                    <ComboboxWithLabel<DishOutputDTO>
+                        label="Gerichte"
+                        fieldClassName="col-span-3 row-start-2"
+                        multiple={true}
+                        options={dishes ?? []}
+                        error={fieldState.error?.message}
+                        {...field}
+                        onChange={(selectedDishes) => field.onChange(
+                            Array.isArray(selectedDishes)
+                                ? selectedDishes.map(dish => dish.id)
+                                : []
+                        )}
+                        optionElement={dish => <DishOption dish={dish}/>}
+                        value={dishes?.filter(dish => field.value.includes(dish.id)) ?? undefined}
                     />
                 )}
             />
@@ -108,9 +148,9 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
                 render={({ field, fieldState }) => (
                     <InputWithLabel
                         label="Beschreibung"
-                        type="textarea"
+                        type="textarea" // This is the fix. The tag was not closed properly.
                         className="h-24"
-                        fieldClassName="col-span-3 row-start-3"
+                        fieldClassName="col-span-4 row-start-3"
                         error={fieldState.error?.message}
                         {...field}
                     />
@@ -121,8 +161,6 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
                 <BeButton type="button" onClick={handleCancel}><FontAwesomeIcon icon={faClose}/> Abbrechen</BeButton>
             </div>
         </form>
-
-);
-}
+    )};
 
 export default MenuForm;
