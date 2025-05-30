@@ -13,7 +13,7 @@ import {useNavigate} from "react-router-dom";
 import React from "react";
 import Card from "@/components/shared/card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
-import {colorMapDishes} from "@/data";
+import {colorMapCards} from "@/data";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 
@@ -68,7 +68,7 @@ const DishCard = ({dish, onDelete}: CardProps) => {
             ref={setNodeRef}
             style={style}
             header={dish.name}
-            colorVariant={colorMapDishes[dish.type]}
+            colorVariant={colorMapCards[dish.type]}
             actions={<>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>

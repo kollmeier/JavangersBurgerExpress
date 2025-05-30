@@ -9,6 +9,7 @@ function AdministrationLayout() {
         footer={<ManagerFooter />}
         mainNav={[
             {label: "Gerichte", href: "/manage/dishes"},
+            {label: "Menüs", href: "/manage/menus"},
         ]}
     >
         <Outlet />

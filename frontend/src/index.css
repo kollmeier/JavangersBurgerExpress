@@ -99,4 +99,30 @@
   .btn-danger {
     @apply bg-danger text-danger-text
   }
+  .btn--disabled {
+    @apply cursor-not-allowed
+  }
+
+  .input {
+    @apply rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 bg-white border-secondary focus:ring-blue-500
+  }
+  .input--error {
+    @apply border-red-500 focus:ring-red-500
+  }
+  .input--disabled {
+    @apply bg-primary cursor-not-allowed
+  }
+
+  .pill {
+    @apply relative rounded-full px-2 py-0 text-xs whitespace-nowrap
+  }
+  .pill-primary {
+    @apply bg-primary text-primary-text
+  }
+  .pill-secondary {
+    @apply bg-secondary text-secondary-text
+  }
+  .pill-normal {
+    @apply bg-normal text-normal-text
+  }
 }

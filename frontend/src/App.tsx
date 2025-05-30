@@ -5,6 +5,7 @@ import DishesPage from "./features/manager/dishes/pages/dishes-page.tsx";
 import {ToastContainer, Zoom} from "react-toastify";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+import MenusPage from "@/features/manager/menus/pages/menus-page.tsx";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,8 @@ function App() {
                     <Route path="manage//*" element={<AdministrationLayout />}>
                         <Route path="dishes//*" element={<DishesPage />} />
                         <Route path="dishes/:dishId/*" element={<DishesPage />} />
+                        <Route path="menus//*" element={<MenusPage />} />
+                        <Route path="menus/:menuId/*" element={<MenusPage />} />
                     </Route>
                 </Routes>
             </BrowserRouter>
