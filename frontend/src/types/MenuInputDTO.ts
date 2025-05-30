@@ -3,9 +3,7 @@ import { type AdditionalInformationInputDTO } from "./AdditionalInformationInput
 export type MenuInputDTO = {
     name: string;
     price: string;
-    mainDishIds: string[];
-    sideDishIds: string[];
-    beverageIds: string[];
+    dishIds: string[];
     additionalInformation: Record<string, AdditionalInformationInputDTO>;
 };
 

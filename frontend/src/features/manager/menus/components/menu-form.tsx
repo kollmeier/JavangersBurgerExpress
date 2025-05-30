@@ -39,9 +39,7 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
         values: {
             name: menu?.name ?? '',
             price: menu?.price ?? '',
-            mainDishIds: menu?.mainDishes.map(dish => dish.id) ?? [],
-            sideDishIds: menu?.sideDishes.map(dish => dish.id) ?? [],
-            beverageIds: menu?.beverages.map(dish => dish.id) ?? [],
+            dishIds: menu?.dishes.map(dish => dish.id) ?? [],
             additionalInformation: {
                 description: {
                     type: 'PLAIN_TEXT',
@@ -52,9 +50,7 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
         defaultValues: {
             name: '',
             price: '',
-            mainDishIds: [],
-            sideDishIds: [],
-            beverageIds: [],
+            dishIds: [],
             additionalInformation: {
                 description: {
                     type: 'PLAIN_TEXT',
@@ -121,7 +117,7 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
                 )}
             />
             <Controller
-                name="mainDishIds"
+                name="dishIds"
                 control={control}
                 rules={{ required: "Suchen Sie mindestens ein Gericht aus!" }}
                 render={({ field, fieldState }) => (
@@ -138,7 +134,11 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
                                 : []
                         )}
                         optionElement={dish => <DishOption dish={dish}/>}
-                        value={dishes?.filter(dish => field.value.includes(dish.id)) ?? undefined}
+                        summaryElement={field.value && dishes && ((value: DishOutputDTO | DishOutputDTO[]) =>
+                            (Array.isArray(value) && value.length > 0 ? <span className="text-gray-300 text-xs">= {value.reduce(
+                                (acc, dish) => acc + parseFloat(dish.price ?? "0"),
+                                0).toFixed(2)}€</span> : undefined))}
+                        value={dishes?.filter(dish => field.value.includes(dish.id)) ?? []}
                     />
                 )}
             />

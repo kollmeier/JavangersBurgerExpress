@@ -27,6 +27,7 @@ export type ComboboxWithLabelProps<T extends ValueInterface> = {
     displayValue?: (item:T) => string
     options: T[]
     optionElement?: (option:T) => ReactNode
+    summaryElement?: (value:T | T[]) => ReactNode
     onChange: (value:T | T[]) => void
     onClose?: () => void
     onBlur?: (e: ChangeEvent<HTMLInputElement>) => void
@@ -48,6 +49,7 @@ const ComboboxWithLabel = forwardRef(
             displayValue = (value) => value?.name ?? '',
             options,
             optionElement = (option) => option.name,
+            summaryElement,
             onChange,
             onClose,
             onBlur,
@@ -97,10 +99,14 @@ const ComboboxWithLabel = forwardRef(
                     >
                         {value && multiple && Array.isArray(value) && value.map(v => (
                             <span key={name+ "-option-pill-" + v.id} className={cn("pill", colorVariants[v.type ?? ""] ?? colorVariants[colorMapCards[v.type ?? ""] ?? "neutral"]?.light)}>
-                                <button onClick={() => onChange(value.filter(f => f !== v))}><FontAwesomeIcon icon={faRemove}/></button>
+                                <button onClick={event => {
+                                    event.stopPropagation();
+                                    onChange(value.filter(f => f !== v))
+                                }}><FontAwesomeIcon icon={faRemove}/></button>
                                 {displayValue(v)}
                             </span>
                         ))}
+                        {summaryElement && value && (summaryElement(value))}
                         <ComboboxInput
                             ref={ref}
                             aria-label={label}

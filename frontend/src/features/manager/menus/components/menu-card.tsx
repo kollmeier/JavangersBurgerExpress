@@ -59,11 +59,8 @@ const MenuCard = ({menu, onDelete}: CardProps) => {
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
             typeCircle={<FontAwesomeIcon icon={menuIcon()} />}
-            priceCircle={<>€{menu.price}</>}
-            footer={menu.additionalInformation.size &&
-                    <span className={"menu-info menu-info__" + menu.additionalInformation.size.type.toLowerCase()}>
-                        {menu.additionalInformation.size.displayString}
-                    </span>}
+            priceCircle={<div className="flex flex-col items-center"><span className="text-[0.6em] line-through">{menu.dishes.reduce((s,d) => s + parseFloat(d.price), 0).toFixed(2)}€</span>{menu.price.replace('.', ',')}€</div>}
+            footer={<div className="flex flex-wrap gap-1">{menu.dishes.map(dish => <span key={menu.id + dish.id} className="not-last:after:content-[',_']">{dish.name}</span>)}</div>}
             topRight={<span className="menu-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
             >
             {menu.additionalInformation.description &&

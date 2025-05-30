@@ -31,6 +31,7 @@ import {useMenus} from "@/util";
 import {useMenuMutations} from "@/hooks/use-menu-mutations.ts";
 import BeDialog from "@/components/shared/be-dialog.tsx";
 import {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
+import {colorMapCards} from "@/data";
 
 const MenusPage: React.FC = () => {
     const menus = useMenus();
@@ -172,7 +173,7 @@ const MenusPage: React.FC = () => {
         <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
                 <SortableContext items={menusOrder} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-1 auto-rows-fr sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            <MinimalCard className={"grow-1 basis-30 min-h-64"}  colorVariant="red">
+            <MinimalCard className={"grow-1 basis-30 min-h-90"}  colorVariant={colorMapCards.menu}>
                 {menuId !== 'add-main' ? (
                     <BeCircleLink icon={faPlus} to="/manage/menus/add-main">Menü hinzufügen</BeCircleLink>
                 ) : (
