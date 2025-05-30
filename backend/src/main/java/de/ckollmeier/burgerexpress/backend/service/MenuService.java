@@ -46,6 +46,13 @@ public class MenuService {
         if (menu.getName().isEmpty()) {
             throw new IllegalArgumentException("Menu name cannot be empty");
         }
+        if (menu.getDishes().isEmpty()) {
+            throw new IllegalArgumentException("Menu must contain at least one dish");
+        }
+        if (menu.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Menu price must be greater than zero");
+        }
+
         return MenuOutputDTOConverter.convert(
             menuRepository.save(menu.withId(UUID.randomUUID().toString()))
         );
@@ -58,6 +65,9 @@ public class MenuService {
      * @return The added menu as a MenuOutputDTO.
      */
     public MenuOutputDTO addMenu(final @NonNull MenuInputDTO menu) {
+        if (menu.price().isBlank()) {
+            throw new IllegalArgumentException("Menu price must not be blank");
+        }
         return addMenu(MenuConverter.convert(menu, dishRepository::getReferenceById));
     }
 
@@ -91,14 +101,8 @@ public class MenuService {
         if (menuInputDTO.additionalInformation() != null && !menuInputDTO.additionalInformation().isEmpty()) {
             menu = menu.withAdditionalInformation(AdditionalInformationConverter.convert(menuInputDTO.additionalInformation()));
         }
-        if (menuInputDTO.mainDishIds() != null) {
-            menu = menu.withMainDishes(DishConverter.convert(menuInputDTO.mainDishIds(), dishRepository::getReferenceById));
-        }
-        if (menuInputDTO.sideDishIds() != null) {
-            menu = menu.withSideDishes(DishConverter.convert(menuInputDTO.sideDishIds(), dishRepository::getReferenceById));
-        }
-        if (menuInputDTO.beverageIds() != null) {
-            menu = menu.withBeverages(DishConverter.convert(menuInputDTO.beverageIds(), dishRepository::getReferenceById));
+        if (menuInputDTO.dishIds() != null) {
+            menu = menu.withDishes(DishConverter.convert(menuInputDTO.dishIds(), dishRepository::getReferenceById));
         }
         return updateMenu(menu);
     }
@@ -113,6 +117,12 @@ public class MenuService {
     public MenuOutputDTO updateMenu(final @NonNull Menu menu) {
         if (!menuRepository.existsById(menu.getId())) {
             throw new IllegalArgumentException("Menu not found");
+        }
+        if (menu.getDishes().isEmpty()) {
+            throw new IllegalArgumentException("Menu must contain at least one dish");
+        }
+        if (menu.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Menu price must be greater than zero");
         }
         return MenuOutputDTOConverter.convert(menuRepository.save(menu));
     }

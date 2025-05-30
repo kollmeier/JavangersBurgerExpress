@@ -44,21 +44,7 @@ public final class Menu implements Sortable {
     @DBRef
     @NonNull
     @Builder.Default
-    private final List<Dish> mainDishes = new ArrayList<>();
-    /**
-     * Die Beilagen des Menüs.
-     */
-    @DBRef
-    @NonNull
-    @Builder.Default
-    private final List<Dish> sideDishes = new ArrayList<>();
-    /**
-     * Die Getränke des Menüs.
-     */
-    @DBRef
-    @NonNull
-    @Builder.Default
-    private final List<Dish> beverages = new ArrayList<>();
+    private final List<Dish> dishes = new ArrayList<>();
 
     /**
      * Eine Liste mit zusätzlichen Informationen zum Menü.

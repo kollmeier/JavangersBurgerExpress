@@ -6,9 +6,7 @@ import java.util.Map;
 public record MenuInputDTO(
         String name,
         String price,
-        List<String> mainDishIds,
-        List<String> sideDishIds,
-        List<String> beverageIds,
+        List<String> dishIds,
         Map<String, AdditionalInformationDTO> additionalInformation
 ) {
 }

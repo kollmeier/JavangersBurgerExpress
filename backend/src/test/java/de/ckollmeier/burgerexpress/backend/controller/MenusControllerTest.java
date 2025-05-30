@@ -47,8 +47,6 @@ class MenusControllerTest {
 
     private Dish mainDish1;
     private Dish mainDish2;
-    private Dish sideDish1;
-    private Dish beverageDish1;
     private Menu menu1;
     private Menu menu2;
     private Menu menu3;
@@ -74,27 +72,10 @@ class MenusControllerTest {
                 .position(1)
                 .build());
 
-        sideDish1 = dishRepository.save(Dish.builder()
-                .name("Fries")
-                .price(new BigDecimal("3.50"))
-                .type(DishType.SIDE)
-                .position(2)
-                .build());
-
-        beverageDish1 = dishRepository.save(Dish.builder()
-                .name("Cola")
-                .price(new BigDecimal("2.50"))
-                .type(DishType.BEVERAGE)
-                .additionalInformation(Map.of(AdditionalInformationType.SIZE_IN_LITER.name(), new SizeInLiterAdditionalInformation(new BigDecimal("0.5"))))
-                .position(3)
-                .build());
-
         menu1 = menuRepository.save(Menu.builder()
                 .name("Classic Burger Menu")
                 .price(new BigDecimal("8.99"))
-                .mainDishes(List.of(mainDish1, mainDish2))
-                .sideDishes(List.of(sideDish1))
-                .beverages(List.of(beverageDish1))
+                .dishes(List.of(mainDish1, mainDish2))
                 .position(0)
                 .build());
 
@@ -148,8 +129,6 @@ class MenusControllerTest {
         MenuInputDTO newMenuInput = new MenuInputDTO("Veggie Burger Menu",
                 "10.99",
                 List.of(mainDish1.getId(), mainDish2.getId()),
-                List.of(sideDish1.getId()),
-                List.of(beverageDish1.getId()),
                 Map.of());
         String newMenuJson = objectMapper.writeValueAsString(newMenuInput);
 
@@ -171,20 +150,10 @@ class MenusControllerTest {
         assertThat(resultMenu)
                 .hasFieldOrPropertyWithValue("name", "Veggie Burger Menu")
                 .hasFieldOrPropertyWithValue("price", "10.99");
-        assertThat(resultMenu.mainDishes())
+        assertThat(resultMenu.dishes())
                 .hasSize(2)
                 .extracting(DishOutputDTO::id)
                 .containsExactlyInAnyOrder(mainDish1.getId(), mainDish2.getId())
-        ;
-        assertThat(resultMenu.sideDishes())
-                .hasSize(1)
-                .extracting(DishOutputDTO::id)
-                .containsExactlyInAnyOrder(sideDish1.getId())
-        ;
-        assertThat(resultMenu.beverages())
-                .hasSize(1)
-                .extracting(DishOutputDTO::id)
-                .containsExactlyInAnyOrder(beverageDish1.getId())
         ;
 
         // Verify Database state
@@ -192,9 +161,7 @@ class MenusControllerTest {
         Menu savedMenu = menuRepository.findById(createdId).orElseThrow();
         assertThat(savedMenu.getName()).isEqualTo("Veggie Burger Menu");
         assertThat(savedMenu.getPrice()).isEqualTo(new BigDecimal("10.99"));
-        assertThat(savedMenu.getMainDishes()).extracting(Dish::getId).containsExactlyInAnyOrder(mainDish1.getId(), mainDish2.getId());
-        assertThat(savedMenu.getSideDishes()).extracting(Dish::getId).containsExactlyInAnyOrder(sideDish1.getId());
-        assertThat(savedMenu.getBeverages()).extracting(Dish::getId).containsExactlyInAnyOrder(beverageDish1.getId());
+        assertThat(savedMenu.getDishes()).extracting(Dish::getId).containsExactlyInAnyOrder(mainDish1.getId(), mainDish2.getId());
         assertThat(savedMenu.getAdditionalInformation()).isEmpty();
     }
 
@@ -206,9 +173,7 @@ class MenusControllerTest {
         MenuInputDTO inputDTO = new MenuInputDTO(
                 "Integration Pasta",
                 "9.99",
-                List.of(),
-                List.of(),
-                List.of(),
+                List.of(mainDish1.getId()),
                 Map.of());
 
         String requestBody = objectMapper.writeValueAsString(inputDTO);
@@ -263,8 +228,6 @@ class MenusControllerTest {
         MenuInputDTO inputDTO = new MenuInputDTO(
                 "NonExistent",
                 "3.00",
-                List.of(),
-                List.of(),
                 List.of(),
                 Map.of());
 

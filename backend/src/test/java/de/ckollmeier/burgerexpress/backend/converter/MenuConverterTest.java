@@ -27,8 +27,6 @@ class MenuConverterTest {
                 "Pizza Menu",
                 "9.99",
                 List.of("1", "2", "3"),
-                List.of("3", "4"),
-                List.of("5"),
                 Collections.emptyMap()
         );
 
@@ -42,9 +40,7 @@ class MenuConverterTest {
 
         assertThat(menu.getName()).isEqualTo("Pizza Menu");
         assertThat(menu.getPrice()).isEqualByComparingTo(new BigDecimal("9.99"));
-        assertThat(menu.getMainDishes()).hasSize(3).extracting(Dish::getId).containsExactlyInAnyOrder("1", "2", "3");
-        assertThat(menu.getSideDishes()).hasSize(2).extracting(Dish::getId).containsExactlyInAnyOrder("3", "4");
-        assertThat(menu.getBeverages()).hasSize(1).extracting(Dish::getId).containsExactlyInAnyOrder("5");
+        assertThat(menu.getDishes()).hasSize(3).extracting(Dish::getId).containsExactlyInAnyOrder("1", "2", "3");
         assertThat(menu.getPosition()).isZero();
         assertThat(menu.getAdditionalInformation()).isEmpty();
     }
@@ -63,8 +59,6 @@ class MenuConverterTest {
         MenuInputDTO dto = new MenuInputDTO(
                 "Salat",
                 "4.50",
-                List.of(),
-                List.of(),
                 List.of(),
                 infoMap
         );

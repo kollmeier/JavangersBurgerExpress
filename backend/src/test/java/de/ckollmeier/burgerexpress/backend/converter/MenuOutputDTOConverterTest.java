@@ -37,9 +37,7 @@ class MenuOutputDTOConverterTest {
         assertThat(dto.name()).isEqualTo("Risotto Menu");
         assertThat(dto.price()).isEqualTo("11.00");
         assertThat(dto.additionalInformation()).isEmpty();
-        assertThat(dto.mainDishes()).isEmpty();
-        assertThat(dto.sideDishes()).isEmpty();
-        assertThat(dto.beverages()).isEmpty();
+        assertThat(dto.dishes()).isEmpty();
     }
 
     @Test
@@ -74,14 +72,13 @@ class MenuOutputDTOConverterTest {
                 .id("abc2")
                 .name("Salat Menu")
                 .price(new BigDecimal("6.50"))
-                .mainDishes(List.of(Dish.builder()
+                .dishes(List.of(Dish.builder()
                         .id("1")
                         .name("Pizza")
                         .price(new BigDecimal("8.90"))
                         .type(DishType.MAIN)
-                        .build()
-                ))
-                .sideDishes(List.of(Dish.builder()
+                        .build(),
+                    Dish.builder()
                         .id("1")
                         .name("Salat 1")
                         .price(new BigDecimal("8.90"))
@@ -92,9 +89,8 @@ class MenuOutputDTOConverterTest {
                         .name("Salat 2")
                         .price(new BigDecimal("8.90"))
                         .type(DishType.SIDE)
-                        .build()
-                ))
-                .beverages(List.of(Dish.builder()
+                        .build(),
+                    Dish.builder()
                         .id("1")
                         .name("Cola")
                         .price(new BigDecimal("8.90"))
@@ -110,9 +106,8 @@ class MenuOutputDTOConverterTest {
         assertThat(dto.name()).isEqualTo("Salat Menu");
         assertThat(dto.price()).isEqualTo("6.50");
         assertThat(dto.additionalInformation()).containsKey("hinweis");
-        assertThat(dto.mainDishes()).hasSize(1).first().extracting(DishOutputDTO::name).isEqualTo("Pizza");
-        assertThat(dto.sideDishes()).hasSize(2).extracting(DishOutputDTO::name).containsExactlyInAnyOrder("Salat 1", "Salat 2");
-        assertThat(dto.beverages()).hasSize(1).first().extracting(DishOutputDTO::name).isEqualTo("Cola");
+        assertThat(dto.dishes()).hasSize(4).extracting(DishOutputDTO::name)
+                .containsExactlyInAnyOrder("Pizza", "Salat 1", "Salat 2", "Cola");
         AdditionalInformationDTO additionalDTO = dto.additionalInformation().get("hinweis");
         assertThat(additionalDTO.type()).isEqualTo("PLAIN_TEXT");
         assertThat(additionalDTO.value()).isEqualTo("Glutenfrei");

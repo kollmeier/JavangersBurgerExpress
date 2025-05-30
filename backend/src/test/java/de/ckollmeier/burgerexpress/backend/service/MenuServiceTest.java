@@ -1,11 +1,16 @@
 package de.ckollmeier.burgerexpress.backend.service;
 
+import de.ckollmeier.burgerexpress.backend.converter.DishConverter;
 import de.ckollmeier.burgerexpress.backend.converter.MenuConverter;
 import de.ckollmeier.burgerexpress.backend.converter.MenuOutputDTOConverter;
+import de.ckollmeier.burgerexpress.backend.dto.DishOutputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.MenuInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.MenuOutputDTO;
+import de.ckollmeier.burgerexpress.backend.model.Dish;
 import de.ckollmeier.burgerexpress.backend.model.Menu;
+import de.ckollmeier.burgerexpress.backend.repository.DishRepository;
 import de.ckollmeier.burgerexpress.backend.repository.MenuRepository;
+import de.ckollmeier.burgerexpress.backend.types.DishType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +32,9 @@ class MenuServiceTest {
 
     @Mock
     private MenuRepository menuRepository;
+
+    @Mock
+    private DishRepository dishRepository;
 
     @InjectMocks
     private MenuService menuService;
@@ -56,14 +64,10 @@ class MenuServiceTest {
                         "Pizza",
                         "10,99",
                         List.of(),
-                        List.of(),
-                        List.of(),
                         Collections.emptyMap()),
                 new MenuOutputDTO("2",
                         "Fries",
                         "3,50",
-                        List.of(),
-                        List.of(),
                         List.of(),
                         Collections.emptyMap())
         );
@@ -104,9 +108,25 @@ class MenuServiceTest {
     @DisplayName("Saves a valid menu and returns the MenuOutputDTO")
     void addMenu_savesMenuAndReturnsDTO() {
         // Given
+        Dish dish1 = Dish.builder()
+                .id("dish-1")
+                .name("Pizza")
+                .type(DishType.MAIN)
+                .imageUrl("pizza.png")
+                .price(new BigDecimal("10.99"))
+                .build();
+
+        DishOutputDTO expectedDishDTO = new DishOutputDTO("dish-1",
+                "Pizza",
+                "10,99",
+                "main",
+                Collections.emptyMap(),
+                "pizza.png");
+
         Menu inputMenu = Menu.builder()
                 .name("Lemonade")
                 .price(new BigDecimal("2.50"))
+                .dishes(List.of(dish1))
                 .additionalInformation(Collections.emptyMap())
                 .build();
         Menu savedMenu = inputMenu.withId("unique-id-111");
@@ -115,9 +135,7 @@ class MenuServiceTest {
         MenuOutputDTO expectedDTO = new MenuOutputDTO("unique-id-111",
                 "Lemonade",
                 "2,50",
-                List.of(),
-                List.of(),
-                List.of(),
+                List.of(expectedDishDTO),
                 Collections.emptyMap());
 
         try (MockedStatic<MenuOutputDTOConverter> converterMock = mockStatic(MenuOutputDTOConverter.class)) {
@@ -137,34 +155,67 @@ class MenuServiceTest {
     @DisplayName("Throws exception when trying to save a menu with empty name")
     void addMenu_emptyName_throwsException() {
         // Given
-        Menu inputMenu = Menu.builder()
-                .name("")
-                .price(new BigDecimal("5.00"))
-                .additionalInformation(Collections.emptyMap())
-                .build();
+        MenuInputDTO inputDTO = new MenuInputDTO(
+                "",
+                "5.00",
+                List.of("5555")
+                , Collections.emptyMap());
 
         // When / Then
-        assertThatThrownBy(() -> menuService.addMenu(inputMenu))
+        assertThatThrownBy(() -> menuService.addMenu(inputDTO))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Menu name cannot be empty");
         verifyNoInteractions(menuRepository);
     }
 
     @Test
+    @DisplayName("Throws exception when trying to save a menu with negative price")
+    void addMenu_negativePrice_throwsException() {
+        // Given
+        MenuInputDTO inputDTO = new MenuInputDTO(
+                "Test",
+                "-5.00",
+                List.of("5555")
+                , Collections.emptyMap());
+
+        // When / Then
+        assertThatThrownBy(() -> menuService.addMenu(inputDTO))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Menu price must be greater than zero");
+        verifyNoInteractions(menuRepository);
+    }
+
+    @Test
+    @DisplayName("Throws exception when trying to save a menu with empty price")
+    void addMenu_emptyPrice_throwsException() {
+        // Given
+        MenuInputDTO inputDTO = new MenuInputDTO(
+                "Test",
+                "",
+                List.of("5555")
+                , Collections.emptyMap());
+
+        // When / Then
+        assertThatThrownBy(() -> menuService.addMenu(inputDTO))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Menu price must not be blank");
+        verifyNoInteractions(menuRepository);
+    }
+
+    @Test
     @DisplayName("Converts MenuInputDTO and stores menu with correct type, returns DTO")
-    void addMenuByDTOAndType_returnsDTO() {
+    void addMenuByDTO_returnsDTO() {
         // Given
         MenuInputDTO inputDTO = new MenuInputDTO("Cola",
                 "2.20",
-                List.of(),
-                List.of(),
-                List.of(),
+                List.of("dish-id"),
                 Collections.emptyMap());
 
         Menu convertedMenu = Menu.builder()
                 .name("Cola")
                 .price(new BigDecimal("2.20"))
                 .additionalInformation(Collections.emptyMap())
+                .dishes(List.of(mock(Dish.class)))
                 .build();
 
         Menu savedMenu = convertedMenu.withId("drink-id-212");
@@ -172,8 +223,6 @@ class MenuServiceTest {
         MenuOutputDTO expectedDTO = new MenuOutputDTO("drink-id-212",
                 "Cola",
                 "2.20",
-                List.of(),
-                List.of(),
                 List.of(),
                 Collections.emptyMap());
 
@@ -203,13 +252,12 @@ class MenuServiceTest {
         MenuInputDTO inputDTO = new MenuInputDTO("",
                 "8.40",
                 List.of(),
-                List.of(),
-                List.of(),
                 Collections.emptyMap());
 
         Menu convertedMenu = Menu.builder()
                 .name("")
                 .price(new BigDecimal("8.40"))
+                .dishes(List.of(mock(Dish.class)))
                 .additionalInformation(Collections.emptyMap())
                 .build();
 
@@ -229,11 +277,27 @@ class MenuServiceTest {
     @DisplayName("Aktualisiert existierendes Menu und gibt aktualisiertes MenuOutputDTO zurück")
     void updateMenu_updatesExistingMenuAndReturnsDTO() {
         // Given
+        Dish dish1 = Dish.builder()
+                .id("dish-1")
+                .name("Pizza")
+                .type(DishType.MAIN)
+                .imageUrl("pizza.png")
+                .price(new BigDecimal("10.99"))
+                .build();
+
+        DishOutputDTO expectedDishDTO = new DishOutputDTO("dish-1",
+                "Pizza",
+                "10,99",
+                "main",
+                Collections.emptyMap(),
+                "pizza.png");
+
         Menu existingMenu = Menu.builder()
                 .id("menu-123")
                 .name("Burger")
                 .price(new BigDecimal("6.00"))
                 .additionalInformation(Collections.emptyMap())
+                .dishes(List.of(dish1))
                 .build();
         Menu updatedMenu = existingMenu.withName("Vegan Burger").withPrice(new BigDecimal("7.00"));
 
@@ -243,9 +307,7 @@ class MenuServiceTest {
         MenuOutputDTO expectedDTO = new MenuOutputDTO("menu-123",
                 "Vegan Burger",
                 "7,00",
-                List.of(),
-                List.of(),
-                List.of(),
+                List.of(expectedDishDTO),
                 Collections.emptyMap());
 
         try (MockedStatic<MenuOutputDTOConverter> converterMock = mockStatic(MenuOutputDTOConverter.class)) {
@@ -287,17 +349,31 @@ class MenuServiceTest {
     @DisplayName("Aktualisiert Menu anhand ID und MenuInputDTO und gibt MenuOutputDTO zurück")
     void updateMenuByIdAndInputDto_updatesAndReturnsDTO() {
         // Given
+        Dish dish1 = Dish.builder()
+                .id("dish-1")
+                .name("Pizza")
+                .type(DishType.MAIN)
+                .imageUrl("pizza.png")
+                .price(new BigDecimal("10.99"))
+                .build();
+
+        DishOutputDTO expectedDishDTO = new DishOutputDTO("dish-1",
+                "Pizza",
+                "10,99",
+                "main",
+                Collections.emptyMap(),
+                "pizza.png");
+
         String id = "test-4711";
         MenuInputDTO inputDTO = new MenuInputDTO("Wrap",
                 "9.95",
-                List.of(),
-                List.of(),
-                List.of(),
+                List.of("dish-1"),
                 Collections.emptyMap());
         Menu convertedMenu = Menu.builder()
                 .id(id)
                 .name("Wrap")
                 .price(new BigDecimal("9.95"))
+                .dishes(List.of(dish1))
                 .additionalInformation(Collections.emptyMap())
                 .build();
 
@@ -308,24 +384,27 @@ class MenuServiceTest {
         MenuOutputDTO expectedDTO = new MenuOutputDTO(id,
                 "Wrap",
                 "9,95",
-                List.of(),
-                List.of(),
-                List.of(),
+                List.of(expectedDishDTO),
                 Collections.emptyMap());
 
         try (
                 MockedStatic<MenuOutputDTOConverter> converterMock = mockStatic(MenuOutputDTOConverter.class)
         ) {
             converterMock.when(() -> MenuOutputDTOConverter.convert(convertedMenu)).thenReturn(expectedDTO);
+            try (
+                    MockedStatic<DishConverter> dishConverterMock = mockStatic(DishConverter.class)
+            ) {
+                dishConverterMock.when(() -> DishConverter.convert(argThat((List<String> l) -> l.contains("dish-1")), any())).thenReturn(List.of(dish1));
 
-            // When
-            MenuOutputDTO result = menuService.updateMenu(id, inputDTO);
+                // When
+                MenuOutputDTO result = menuService.updateMenu(id, inputDTO);
 
-            // Then
-            verify(menuRepository).findById(id);
-            verify(menuRepository).save(convertedMenu);
-            assertThat(result).isEqualTo(expectedDTO);
-            converterMock.verify(() -> MenuOutputDTOConverter.convert(convertedMenu));
+                // Then
+                verify(menuRepository).findById(id);
+                verify(menuRepository).save(convertedMenu);
+                assertThat(result).isEqualTo(expectedDTO);
+                converterMock.verify(() -> MenuOutputDTOConverter.convert(convertedMenu));
+            }
         }
     }
 
@@ -336,8 +415,6 @@ class MenuServiceTest {
         String id = "notexists-789";
         MenuInputDTO inputDTO = new MenuInputDTO("Pommes",
                 "3.90",
-                List.of(),
-                List.of(),
                 List.of(),
                 Collections.emptyMap());
 

@@ -29,9 +29,7 @@ public final class MenuConverter {
         return Menu.builder()
             .name(menu.name())
             .price(new BigDecimal(menu.price().replace(",", ".")))
-            .mainDishes(DishConverter.convert(menu.mainDishIds(), dishResolver))
-            .sideDishes(DishConverter.convert(menu.sideDishIds(), dishResolver))
-            .beverages(DishConverter.convert(menu.beverageIds(), dishResolver))
+            .dishes(DishConverter.convert(menu.dishIds(), dishResolver))
             .additionalInformation(AdditionalInformationConverter.convert(menu.additionalInformation()))
             .build();
     }

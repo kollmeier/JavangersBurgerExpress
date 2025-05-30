@@ -10,9 +10,7 @@ public record MenuOutputDTO(
         String id,
         String name,
         String price,
-        List<DishOutputDTO> mainDishes,
-        List<DishOutputDTO> sideDishes,
-        List<DishOutputDTO> beverages,
+        List<DishOutputDTO> dishes,
         Map<String, AdditionalInformationDTO> additionalInformation
 ) {
 }

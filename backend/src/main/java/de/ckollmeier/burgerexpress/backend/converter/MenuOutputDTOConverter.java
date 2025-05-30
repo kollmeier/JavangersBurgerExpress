@@ -22,9 +22,7 @@ public final class MenuOutputDTOConverter {
                 menu.getId(),
                 menu.getName(),
                 menu.getPrice().toString(),
-                DishOutputDTOConverter.convert(menu.getMainDishes()),
-                DishOutputDTOConverter.convert(menu.getSideDishes()),
-                DishOutputDTOConverter.convert(menu.getBeverages()),
+                DishOutputDTOConverter.convert(menu.getDishes()),
                 AdditionalInformationDTOConverter.convert(menu.getAdditionalInformation())
         );
     }
