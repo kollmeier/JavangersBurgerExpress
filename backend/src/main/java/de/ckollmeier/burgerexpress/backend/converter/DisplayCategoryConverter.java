@@ -21,6 +21,7 @@ public class DisplayCategoryConverter {
 
     public static DisplayCategory convert(final @NonNull DisplayCategoryInputDTO displayCategory, final DisplayCategory displayCategoryToUpdate) {
         return DisplayCategory.builder()
+                .id(displayCategoryToUpdate.getId())
                 .name(displayCategory.name() != null ? displayCategory.name() : displayCategoryToUpdate.getName())
                 .description(displayCategory.description() != null ? displayCategory.description() : displayCategoryToUpdate.getDescription())
                 .imageUrl(displayCategory.imageUrl() != null ? displayCategory.imageUrl() : displayCategoryToUpdate.getImageUrl())

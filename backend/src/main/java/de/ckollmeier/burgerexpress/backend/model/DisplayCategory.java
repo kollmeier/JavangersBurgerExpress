@@ -1,5 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.model;
 
+import de.ckollmeier.burgerexpress.backend.interfaces.FindableItem;
+import de.ckollmeier.burgerexpress.backend.interfaces.NamedItem;
 import de.ckollmeier.burgerexpress.backend.interfaces.Sortable;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -16,7 +18,7 @@ import java.time.Instant;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class DisplayCategory implements Sortable {
+public final class DisplayCategory implements Sortable, FindableItem, NamedItem {
     @Id
     private final String id;
     private final String name;
