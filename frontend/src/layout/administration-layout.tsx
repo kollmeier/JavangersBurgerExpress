@@ -10,6 +10,7 @@ function AdministrationLayout() {
         mainNav={[
             {label: "Gerichte", href: "/manage/dishes"},
             {label: "Menüs", href: "/manage/menus"},
+            {label: "Anzeige-Elemente", href: "/manage/displayItems"},
         ]}
     >
         <Outlet />

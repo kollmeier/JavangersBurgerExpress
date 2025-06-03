@@ -2,6 +2,7 @@ import {useQuery} from "@tanstack/react-query";
 import {DishesApi} from "@/services/dishes-api.ts";
 import {FilesApi} from "@/services/files-api.ts";
 import {MenusApi} from "@/services/menus-api.ts";
+import {DisplayCategoriesApi} from "@/services/display-categories-api.ts";
 
 export function useDishes() {
     return useQuery({
@@ -22,4 +23,11 @@ export function useImages() {
         queryKey: ['imagesData'],
         queryFn: FilesApi.getAllImages,
     }).data
+}
+
+export function useDisplayCategories() {
+    return useQuery({
+        queryKey: ['displayCategoriesData'],
+        queryFn: DisplayCategoriesApi.getAllDisplayCategories,
+    }).data;
 }
