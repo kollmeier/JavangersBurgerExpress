@@ -15,11 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO catchNotFoundException(final NotFoundException exception) {
-        return new ErrorDTO(
-                exception.getClass().getSimpleName(),
-                exception.getMessage(),
-                HttpStatus.NOT_FOUND.name()
-        );
+        return ErrorDTO.fromException(exception).withStatus(HttpStatus.NOT_FOUND.name());
     }
 
     /**
@@ -31,11 +27,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO catchNullPointerException(final NullPointerException exception) {
-        return new ErrorDTO(
-                exception.getClass().getSimpleName(),
-                exception.getMessage(),
-                HttpStatus.BAD_REQUEST.name()
-        );
+        return ErrorDTO.fromException(exception);
     }
 
     /**
@@ -46,11 +38,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO catchIllegalArgumentException(final IllegalArgumentException exception) {
-        return new ErrorDTO(
-                exception.getClass().getSimpleName(),
-                exception.getMessage(),
-                HttpStatus.BAD_REQUEST.name()
-        );
+        return ErrorDTO.fromException(exception);
     }
 
     /**
@@ -62,10 +50,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorDTO catchAll(final Exception exception) {
-        return new ErrorDTO(
-                exception.getClass().getSimpleName(),
-                exception.getMessage(),
-                HttpStatus.INTERNAL_SERVER_ERROR.name()
-        );
+        return ErrorDTO.fromException(exception)
+                .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.name());
     }
 }
