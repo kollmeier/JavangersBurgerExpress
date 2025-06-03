@@ -188,20 +188,20 @@ class DishesControllerTest {
         }
 
         @Test
-        @DisplayName("DELETE /{dishId} sollte HTTP 400 zurückgeben, wenn das Gericht nicht existiert")
+        @DisplayName("DELETE /{dishId} sollte HTTP 404 zurückgeben, wenn das Gericht nicht existiert")
         void deleteDish_shouldReturn404_whenDishDoesNotExist() throws Exception {
             // Given
             String nonExistentDishId = "non-existent-12345";
 
             // When & Then
             mockMvc.perform(delete("/api/dishes/" + nonExistentDishId))
-                    .andExpect(status().isBadRequest()); // HTTP 400
+                    .andExpect(status().isNotFound()); // HTTP 400
         }
     }
 
     @Test
-    @DisplayName("PUT /{dishId} gibt 400 zurück wenn das Gericht nicht existiert")
-    void updateDish_putEndpoint_returns400IfNotFound() throws Exception {
+    @DisplayName("PUT /{dishId} gibt 404 zurück wenn das Gericht nicht existiert")
+    void updateDish_putEndpoint_returns404IfNotFound() throws Exception {
         String unknownDishId = "nicht-existierend-4711";
         DishInputDTO inputDTO = new DishInputDTO(
                 DishType.SIDE.name(),
@@ -216,7 +216,7 @@ class DishesControllerTest {
         mockMvc.perform(put("/api/dishes/" + unknownDishId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Nested

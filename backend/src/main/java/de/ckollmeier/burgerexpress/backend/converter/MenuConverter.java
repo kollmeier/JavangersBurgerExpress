@@ -33,4 +33,14 @@ public final class MenuConverter {
             .additionalInformation(AdditionalInformationConverter.convert(menu.additionalInformation()))
             .build();
     }
+
+    public static Menu convert(final MenuInputDTO menu, final Menu existingMenu, final Function<String, Dish> dishResolver) {
+        return Menu.builder()
+            .id(existingMenu.getId())
+            .name(menu.name() != null ? menu.name() : existingMenu.getName())
+            .price(menu.price() != null ? new BigDecimal(menu.price().replace(",", ".")) : existingMenu.getPrice())
+            .dishes(DishConverter.convert(menu.dishIds(), dishResolver))
+            .additionalInformation(AdditionalInformationConverter.convert(menu.additionalInformation(), existingMenu.getAdditionalInformation()))
+            .build();
+    }
 }

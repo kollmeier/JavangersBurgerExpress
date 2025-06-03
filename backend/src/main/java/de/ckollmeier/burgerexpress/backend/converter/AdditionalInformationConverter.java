@@ -6,6 +6,7 @@ import de.ckollmeier.burgerexpress.backend.model.PlainTextAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.SizeInLiterAdditionalInformation;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,5 +49,22 @@ public final class AdditionalInformationConverter {
         return additionalInformation.entrySet().stream()
                 .map(entry -> Map.entry(entry.getKey(), convert(entry.getValue())))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    /**
+     * Konvertiert eine Map von AdditionalInformationDTO in eine Map von AdditionalInformation,
+     * unter Berücksichtigung bereits existierender AdditionalInformation.
+     *
+     * @param additionalInformation Die Map mit AdditionalInformationDTO-Objekten, die konvertiert werden sollen.
+     * @param existingAdditionalInformation Die bereits existierenden AdditionalInformation, die beibehalten werden sollen.
+     * @return Eine neue Map, die die konvertierten AdditionalInformation enthält, kombiniert mit den bestehenden.
+     */
+    public static Map<String, AdditionalInformation<?>> convert(final Map<String, AdditionalInformationDTO> additionalInformation, final Map<String, AdditionalInformation<?>> existingAdditionalInformation) {
+        Map<String, AdditionalInformation<?>> newAdditionalInformation = new HashMap<>(existingAdditionalInformation);
+        newAdditionalInformation.putAll(additionalInformation.entrySet().stream()
+                .map(entry -> Map.entry(entry.getKey(), entry.getValue() != null ? convert(entry.getValue()) : existingAdditionalInformation.get(entry.getKey())))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+
+        return newAdditionalInformation;
     }
 }

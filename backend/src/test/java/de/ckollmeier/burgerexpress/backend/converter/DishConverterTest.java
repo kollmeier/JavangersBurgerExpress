@@ -86,6 +86,91 @@ class DishConverterTest {
     }
 
     @Test
+    @DisplayName("Konvertiere DishInputDTO zu bestehendem Dish (Felder werden aktualisiert)")
+    void convertDishInputDTOUpdatesExistingDish() {
+        // Arrangement: vorhandenes Dish-Objekt mit anderen Werten
+        Dish existing = Dish.builder()
+                .id("x1")
+                .name("Altname")
+                .price(new BigDecimal("2.50"))
+                .type(DishType.SIDE)
+                .additionalInformation(Collections.emptyMap())
+                .build();
+
+        Map<String, AdditionalInformationDTO> infoMap = new HashMap<>();
+        infoMap.put("test", new AdditionalInformationDTO(
+            "PLAIN_TEXT", "nur Test", null, null
+        ));
+
+        DishInputDTO dto = new DishInputDTO(
+                "main",
+                "Schnitzel",
+                "13.99",
+                infoMap,
+                null
+        );
+
+        // Act: konvertieren, aber mit bestehendem Dish
+        Dish updated = DishConverter.convert(dto, existing);
+
+        // Assert: Das geänderte Objekt enthält nun Werte aus dem DTO
+        assertThat(updated.getId()).isEqualTo("x1");
+        assertThat(updated.getType()).isEqualTo(DishType.MAIN);
+        assertThat(updated.getName()).isEqualTo("Schnitzel");
+        assertThat(updated.getPrice()).isEqualByComparingTo(new BigDecimal("13.99"));
+        assertThat(updated.getAdditionalInformation()).containsKey("test");
+        assertThat(updated.getAdditionalInformation().get("test")).isInstanceOf(PlainTextAdditionalInformation.class);
+        assertThat(((PlainTextAdditionalInformation) updated.getAdditionalInformation().get("test")).value())
+                .isEqualTo("nur Test");
+    }
+
+    @Test
+    @DisplayName("Konvertiere DishInputDTO zu bestehendem Dish (ohne AdditionalInformation, behält alte Infos)")
+    void convertDishInputDTOUpdatesExistingDishAndRemovesAdditionalInformation() {
+        Map<String, PlainTextAdditionalInformation> altesInfo = new HashMap<>();
+        altesInfo.put("hinweis", new PlainTextAdditionalInformation("vorher"));
+
+        Dish existing = Dish.builder()
+                .id("x2")
+                .name("Old")
+                .price(new BigDecimal("1.99"))
+                .type(DishType.SIDE)
+                .additionalInformation(new HashMap<>(altesInfo))
+                .build();
+
+        DishInputDTO dto = new DishInputDTO(
+                "main",
+                "Frisch",
+                "7.77",
+                Collections.emptyMap(),
+                null
+        );
+
+        Dish updated = DishConverter.convert(dto, existing);
+
+        assertThat(updated.getType()).isEqualTo(DishType.MAIN);
+        assertThat(updated.getName()).isEqualTo("Frisch");
+        assertThat(updated.getPrice()).isEqualByComparingTo(new BigDecimal("7.77"));
+        assertThat(updated.getAdditionalInformation()).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("Konvertiert null-DishInputDTO auf bestehendes Dish gibt IllegalArgumentException")
+    void convertNullDishInputDTOWithExistingDish_throwsException() {
+        Dish existierendesDish = Dish.builder()
+                .id("x3")
+                .name("Name")
+                .price(new BigDecimal("1.00"))
+                .type(DishType.SIDE)
+                .additionalInformation(Collections.emptyMap())
+                .build();
+
+        //noinspection DataFlowIssue
+        assertThatThrownBy(() -> DishConverter.convert(null, existierendesDish))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
     @DisplayName("Konstruktor ist privat und nicht instanziierbar")
     void constructor_is_private_and_throws() throws Exception {
         var ctor = DishConverter.class.getDeclaredConstructor();
@@ -140,5 +225,19 @@ class DishConverterTest {
         var result = DishConverter.convert(ids, resolver);
 
         assertThat(result).containsOnlyNulls();
+    }
+
+    @Test
+    @DisplayName("Konvertieren einer leeren Liste von IDs gibt leere Liste zurück")
+    void convertEmptyListOfIdsReturnsEmptyList() {
+        var result = DishConverter.convert(Collections.emptyList(), id -> null);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Konvertiert Dish-ID mit dishResolver, der null zurückgibt, liefert null")
+    void convertDishIdWithNullResolverResultYieldsNull() {
+        Dish result = DishConverter.convert("nix", id -> null);
+        assertThat(result).isNull();
     }
 }

@@ -1,7 +1,6 @@
 package de.ckollmeier.burgerexpress.backend.model;
 
-import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
-import de.ckollmeier.burgerexpress.backend.interfaces.Sortable;
+import de.ckollmeier.burgerexpress.backend.interfaces.*;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
@@ -22,7 +21,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class Menu implements Sortable {
+public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem {
     /**
      * Die eindeutige ID des Menüs.
      */

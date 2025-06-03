@@ -210,20 +210,20 @@ class MenusControllerTest {
         }
 
         @Test
-        @DisplayName("DELETE /{menuId} sollte HTTP 400 zurückgeben, wenn das Menü nicht existiert")
+        @DisplayName("DELETE /{menuId} sollte HTTP 404 zurückgeben, wenn das Menü nicht existiert")
         void deleteMenu_shouldReturn404_whenMenuDoesNotExist() throws Exception {
             // Given
             String nonExistentMenuId = "non-existent-12345";
 
             // When & Then
             mockMvc.perform(delete("/api/menus/" + nonExistentMenuId))
-                    .andExpect(status().isBadRequest()); // HTTP 400
+                    .andExpect(status().isNotFound()); // HTTP 400
         }
     }
 
     @Test
-    @DisplayName("PUT /{menuId} gibt 400 zurück wenn das Menü nicht existiert")
-    void updateMenu_putEndpoint_returns400IfNotFound() throws Exception {
+    @DisplayName("PUT /{menuId} gibt 404 zurück wenn das Menü nicht existiert")
+    void updateMenu_putEndpoint_returns404IfNotFound() throws Exception {
         String unknownMenuId = "nicht-existierend-4711";
         MenuInputDTO inputDTO = new MenuInputDTO(
                 "NonExistent",
@@ -236,7 +236,7 @@ class MenusControllerTest {
         mockMvc.perform(put("/api/menus/" + unknownMenuId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Nested
