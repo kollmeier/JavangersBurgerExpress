@@ -10,7 +10,7 @@ export default {
                 card: '[first] var(--spacing-circle-column-md) [middle] 1fr [side] var(--spacing-circle-lg) [last] var(--spacing-circle-column-lg)'
             },
             gridTemplateRows: {
-                card: '[head] var(--spacing-circle-column-md) [content] minmax(calc(var(--spacing) * 8), auto) [foot] auto [actions] min-content'
+                card: '[head] minmax(var(--spacing-circle-column-md), min-content) [content] minmax(calc(var(--spacing) * 8), min-content) [foot] auto [actions] min-content'
             },
             gridRowStart: {
                 head: 'head',
