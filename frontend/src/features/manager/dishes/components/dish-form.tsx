@@ -7,11 +7,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
 import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
-import {Button, Input} from "@headlessui/react";
-import ImagePickerDialog from "@/components/shared/image-picker-dialog.tsx";
+import {Input} from "@headlessui/react";
 import {toast} from "react-toastify";
-import {faCamera} from "@fortawesome/free-solid-svg-icons";
 import useImagePicker from "@/hooks/use-image-picker.ts";
+import ImagePickerWithLabel from "@/components/ui/image-picker-with-label.tsx";
 
 type Props = {
     dish?: DishOutputDTO;
@@ -45,7 +44,7 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
         }
     });
 
-    const {images, addImageMutation, imagePickerDialogOpen, setImagePickerDialogOpen, handleImagesSelected} = useImagePicker();
+    const {images, addImageMutation, setImages} = useImagePicker();
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -169,44 +168,11 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                 name="imageUrl"
                 control={control}
                 render={({ field, fieldState }) => (
-                    <InputWithLabel
-                        label="Bild"
-                        type="hidden"
-                        fieldClassName="col-span-1 row-start-3"
-                        error={fieldState.error?.message}
-                        {...field}
-                    >
-                        <div className="p-0.5 relative w-24 h-24 bg-gray-200 rounded-xl ">
-                            <Button
-                                type="button"
-                                className="rounded-xl border-2 border-dotted border-gray-400 p-0.5 h-full w-full"
-                                onClick={() => setImagePickerDialogOpen(true)}
-                            >
-                                {field.value ?
-                                    <img className="w-full h-full object-contain" src={field.value} alt="Produktbild"/> :
-                                    <>
-                                        <FontAwesomeIcon icon={faCamera} className="w-full h-full text-xl text-gray-400"/>
-                                        <span className="text-xs text-gray-600">Klicken zur Auswahl</span>
-                                    </>}
-                            </Button>
-                            {field.value && <Button
-                                className="absolute top-0 right-0 m-2 text-lg text-gray-700"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    field.onChange('');
-                                }}
-                            >
-                                <FontAwesomeIcon icon={faClose}/>
-                            </Button>}
-                        </div>
-                        <ImagePickerDialog
-                            open={imagePickerDialogOpen}
-                            onClose={() => {setImagePickerDialogOpen(false);}}
-                            values={[field.value]}
-                            multiple={false}
-                            onImagesSelected={(...args) => handleImagesSelected(field.onChange, ...args)}
-                        />
-                    </InputWithLabel>)}
+                    <ImagePickerWithLabel
+                        field={field}
+                        fieldState={fieldState}
+                        setImages={setImages}
+                        className="col-span-1 row-start-3" />)}
             />
             <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
                 <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
