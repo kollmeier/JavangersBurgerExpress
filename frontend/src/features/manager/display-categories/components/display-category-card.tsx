@@ -1,7 +1,7 @@
 import type {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-    faEdit, faFolderOpen,
+    faEdit, faFileCirclePlus, faFolderOpen,
     faGripLines,
     faRemove,
 } from "@fortawesome/free-solid-svg-icons";
@@ -57,6 +57,7 @@ const DisplayCategoryCard = ({displayCategory, onDelete}: CardProps) => {
             image={displayCategory.imageUrl && <img src={displayCategory.imageUrl + '?size=148'} alt={displayCategory.name} className="object-contain drop-shadow-lg max-h-22"/>}
             imageClassName={cn("place-self-end")}
             actions={<>
+                <BeButton onClick={handleEdit}><FontAwesomeIcon icon={faFileCirclePlus}/> Element hinzufügen</BeButton>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
