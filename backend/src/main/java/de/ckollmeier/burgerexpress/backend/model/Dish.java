@@ -1,7 +1,6 @@
 package de.ckollmeier.burgerexpress.backend.model;
 
-import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
-import de.ckollmeier.burgerexpress.backend.interfaces.Sortable;
+import de.ckollmeier.burgerexpress.backend.interfaces.*;
 import de.ckollmeier.burgerexpress.backend.types.DishType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -20,7 +19,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class Dish implements Sortable {
+public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem {
     /**
      * Die eindeutige ID des Gerichts.
      */

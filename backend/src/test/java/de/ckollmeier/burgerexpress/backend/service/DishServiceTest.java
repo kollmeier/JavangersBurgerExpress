@@ -1,299 +1,268 @@
 package de.ckollmeier.burgerexpress.backend.service;
 
-import de.ckollmeier.burgerexpress.backend.converter.DishConverter;
 import de.ckollmeier.burgerexpress.backend.converter.DishOutputDTOConverter;
 import de.ckollmeier.burgerexpress.backend.dto.DishInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.DishOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.Dish;
 import de.ckollmeier.burgerexpress.backend.repository.DishRepository;
 import de.ckollmeier.burgerexpress.backend.types.DishType;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class DishServiceTest {
 
-    private final DishRepository dishRepository = mock(DishRepository.class);
-    private final DishService dishService = new DishService(dishRepository);
+    @Mock
+    private DishRepository dishRepository;
 
-    @Test
-    @DisplayName("Returns sorted list of DishOutputDTOs when dishes exist")
-    void getAllDishes_returnsSortedDTOs() {
-        // Given
-        Dish dish1 = Dish.builder().id("1").name("Pizza").price(new BigDecimal("10.99")).type(DishType.MAIN).additionalInformation(Collections.emptyMap()).imageUrl("test.jpg").build();
-        Dish dish2 = Dish.builder().id("2").name("Fries").price(new BigDecimal("3.50")).type(DishType.SIDE).additionalInformation(Collections.emptyMap()).build();
-        List<Dish> dishes = List.of(dish1, dish2);
+    @Mock
+    private ValidatedItemService<Dish> validatedDishService;
 
-        when(dishRepository.findAllByOrderByPositionAsc()).thenReturn(dishes);
+    @InjectMocks
+    private DishService dishService;
 
-        List<DishOutputDTO> expectedDTOs = List.of(
-                new DishOutputDTO("1", "Pizza", "10,99", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap(), "test.jpg"),
-                new DishOutputDTO("2", "Fries", "3,50", DishType.SIDE.toString().toLowerCase(), Collections.emptyMap(), null)
-        );
+    @Nested
+    @DisplayName("getAllDishes()")
+    class GetAllDishes {
 
-        try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
-            converterMock.when(() -> DishOutputDTOConverter.convert(dishes)).thenReturn(expectedDTOs);
+        @Test
+        @DisplayName("Gibt sortierte Liste von DishOutputDTOs zurück, wenn Gerichte existieren")
+        void returnsSortedDTOs() {
+            // Given
+            Dish dish1 = Dish.builder()
+                    .id("1")
+                    .name("Burger")
+                    .type(DishType.MAIN)
+                    .price(new BigDecimal("5.99"))
+                    .position(0)
+                    .build();
+            Dish dish2 = Dish.builder()
+                    .id("2")
+                    .name("Fries")
+                    .type(DishType.MAIN)
+                    .price(new BigDecimal("2.49"))
+                    .position(1)
+                    .build();
+            List<Dish> dishes = List.of(dish1, dish2);
 
-            // When
-            List<DishOutputDTO> result = dishService.getAllDishes();
+            when(dishRepository.findAllByOrderByPositionAsc()).thenReturn(dishes);
+
+            List<DishOutputDTO> expectedDTOs = List.of(
+                    new DishOutputDTO("1",
+                            "Burger",
+                            "5,99",
+                            "main", // ggf. Typ oder Extras, siehe DishOutputDTO
+                            Map.of(),
+                            null),
+                    new DishOutputDTO("2",
+                            "Fries",
+                            "2,49",
+                            "main",
+                            Map.of(),
+                            null)
+            );
+
+            try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
+                converterMock.when(() -> DishOutputDTOConverter.convert(dishes)).thenReturn(expectedDTOs);
+
+                // When
+                List<DishOutputDTO> result = dishService.getAllDishes();
+
+                // Then
+                assertThat(result).isEqualTo(expectedDTOs);
+                verify(dishRepository).findAllByOrderByPositionAsc();
+                converterMock.verify(() -> DishOutputDTOConverter.convert(dishes));
+            }
+        }
+
+        @Test
+        @DisplayName("Gibt leere Liste zurück, wenn keine Gerichte existieren")
+        void returnsEmptyList() {
+            // Given
+            when(dishRepository.findAllByOrderByPositionAsc()).thenReturn(Collections.emptyList());
+
+            try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
+                converterMock.when(() -> DishOutputDTOConverter.convert(Collections.emptyList()))
+                        .thenReturn(Collections.emptyList());
+
+                // When
+                List<DishOutputDTO> result = dishService.getAllDishes();
+
+                // Then
+                assertThat(result).isEmpty();
+                verify(dishRepository).findAllByOrderByPositionAsc();
+                converterMock.verify(() -> DishOutputDTOConverter.convert(Collections.emptyList()));
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("addDish(final DishInputDTO)")
+    class AddDish {
+
+        @Test
+        @DisplayName("Konvertiert DishInputDTO und speichert Gericht, gibt DTO zurück")
+        void addDishByDTO_returnsDTO() {
+            // Given
+            DishInputDTO input = new DishInputDTO("Burger", "5,99", null, Map.of(), null);
+            Dish validated = Dish.builder()
+                    .id(null)
+                    .name("Burger")
+                    .type(DishType.MAIN)
+                    .price(new BigDecimal("5.99"))
+                    .position(0)
+                    .build();
+            Dish dishWithId = Dish.builder()
+                    .id("uuid-1")
+                    .name("Burger")
+                    .type(DishType.MAIN)
+                    .price(new BigDecimal("5.99"))
+                    .position(0)
+                    .build();
+
+            when(validatedDishService.validatedItemOrThrow(eq(Dish.class), any(), any(), eq(input), isNull(), eq("add")))
+                    .thenReturn(validated);
+
+            when(dishRepository.save(any(Dish.class))).thenReturn(dishWithId);
+
+            DishOutputDTO dto = new DishOutputDTO("uuid-1", "Burger", "5,99", null, Map.of(), null);
+
+            try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
+                converterMock.when(() -> DishOutputDTOConverter.convert(dishWithId)).thenReturn(dto);
+
+                // When
+                DishOutputDTO result = dishService.addDish(input);
+
+                // Then
+                assertThat(result).isEqualTo(dto);
+                verify(dishRepository).save(argThat(d -> d.getName().equals("Burger")));
+                converterMock.verify(() -> DishOutputDTOConverter.convert(dishWithId));
+            }
+        }
+
+        @Test
+        @DisplayName("Wirft Exception, wenn validatedDishService wirft")
+        void addDishByDTO_throwsException() {
+            // Given
+            DishInputDTO input = new DishInputDTO("Burger", "5,99", null, Map.of(), null);
+
+            when(validatedDishService.validatedItemOrThrow(any(), any(), any(), any(), any(), eq("add")))
+                    .thenThrow(new IllegalArgumentException("Test-Fehler"));
 
             // Then
-            assertThat(result).isEqualTo(expectedDTOs);
-            verify(dishRepository).findAllByOrderByPositionAsc();
-            converterMock.verify(() -> DishOutputDTOConverter.convert(dishes));
+            assertThatThrownBy(() -> dishService.addDish(input))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Test-Fehler");
         }
     }
 
-    @Test
-    @DisplayName("Returns empty list if no dishes exist in the repository")
-    void getAllDishes_returnsEmptyList() {
-        // Given
-        when(dishRepository.findAllByOrderByPositionAsc()).thenReturn(Collections.emptyList());
+    @Nested
+    @DisplayName("updateDish(final String, final DishInputDTO)")
+    class UpdateDish {
 
-        try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
-            converterMock.when(() -> DishOutputDTOConverter.convert(Collections.emptyList())).thenReturn(Collections.emptyList());
+        @Test
+        @DisplayName("Aktualisiert Gericht anhand ID und DishInputDTO und gibt DishOutputDTO zurück")
+        void updatesAndReturnsDTO() {
+            // Given
+            String id = "1";
+            DishInputDTO input = new DishInputDTO("Veggie Burger", "6,99", null, Map.of(), null);
+            Dish validated = Dish.builder()
+                    .id(id)
+                    .name("Veggie Burger")
+                    .type(DishType.MAIN)
+                    .price(new BigDecimal("6.99"))
+                    .position(1)
+                    .build();
 
-            // When
-            List<DishOutputDTO> result = dishService.getAllDishes();
+            Dish saved = Dish.builder()
+                    .id(id)
+                    .name("Veggie Burger")
+                    .type(DishType.MAIN)
+                    .price(new BigDecimal("6.99"))
+                    .position(1)
+                    .build();
+
+            when(validatedDishService.validatedItemOrThrow(eq(Dish.class), any(), any(), eq(input), eq(id), eq("update"), eq(true)))
+                    .thenReturn(validated);
+
+            when(dishRepository.save(any(Dish.class))).thenReturn(saved);
+
+            DishOutputDTO dto = new DishOutputDTO(id, "Veggie Burger", "6,99", null, Map.of(), null);
+
+            try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
+                converterMock.when(() -> DishOutputDTOConverter.convert(saved)).thenReturn(dto);
+
+                // When
+                DishOutputDTO result = dishService.updateDish(id, input);
+
+                // Then
+                assertThat(result).isEqualTo(dto);
+                verify(dishRepository).save(validated);
+                converterMock.verify(() -> DishOutputDTOConverter.convert(saved));
+            }
+        }
+
+        @Test
+        @DisplayName("Wirft Exception, wenn validatedDishService throws")
+        void updateDishByIdAndInputDto_nonexistent_throwsException() {
+            // Given
+            String id = "1";
+            DishInputDTO input = new DishInputDTO("x", "1,99", null, Map.of(), null);
+
+            when(validatedDishService.validatedItemOrThrow(any(), any(), any(), any(), any(), eq("update"), eq(true)))
+                    .thenThrow(new NoSuchElementException("Not found"));
 
             // Then
-            assertThat(result).isEmpty();
-            verify(dishRepository).findAllByOrderByPositionAsc();
-            converterMock.verify(() -> DishOutputDTOConverter.convert(Collections.emptyList()));
+            assertThatThrownBy(() -> dishService.updateDish(id, input))
+                    .isInstanceOf(NoSuchElementException.class)
+                    .hasMessageContaining("Not found");
         }
     }
 
-    @Test
-    @DisplayName("Saves a valid dish and returns the DishOutputDTO")
-    void addDish_savesDishAndReturnsDTO() {
-        // Given
-        Dish inputDish = Dish.builder().name("Lemonade").price(new BigDecimal("2.50")).type(DishType.BEVERAGE).additionalInformation(Collections.emptyMap()).imageUrl("test.jpg").build();
-        Dish savedDish = inputDish.withId("unique-id-111");
-        when(dishRepository.save(any(Dish.class))).thenReturn(savedDish);
+    @Nested
+    @DisplayName("removeDish(final String)")
+    class RemoveDish {
 
-        DishOutputDTO expectedDTO = new DishOutputDTO("unique-id-111", "Lemonade", "2,50", DishType.BEVERAGE.toString().toLowerCase(), Collections.emptyMap(), "test.jpg");
-
-        try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
-            converterMock.when(() -> DishOutputDTOConverter.convert(savedDish)).thenReturn(expectedDTO);
+        @Test
+        @DisplayName("Entfernt ein existierendes Gericht erfolgreich")
+        void shouldRemoveDish_whenDishExists() {
+            // Given
+            String id = "1";
+            when(validatedDishService.validatedItemOrThrow(eq(Dish.class), any(), any(), isNull(), eq(id), eq("delete")))
+                    .thenReturn(Dish.builder()
+                            .id(id)
+                            .name("Test")
+                            .type(DishType.MAIN)
+                            .price(BigDecimal.TEN)
+                            .build());
 
             // When
-            DishOutputDTO result = dishService.addDish(inputDish);
+            dishService.removeDish(id);
 
             // Then
-            verify(dishRepository).save(any(Dish.class));
-            assertThat(result).isEqualTo(expectedDTO);
-            converterMock.verify(() -> DishOutputDTOConverter.convert(savedDish));
+            verify(dishRepository).deleteById(id);
         }
-    }
 
-    @Test
-    @DisplayName("Throws exception when trying to save a dish with empty name")
-    void addDish_emptyName_throwsException() {
-        // Given
-        Dish inputDish = Dish.builder().name("").price(new BigDecimal("5.00")).type(DishType.MAIN).additionalInformation(Collections.emptyMap()).build();
-
-        // When / Then
-        assertThatThrownBy(() -> dishService.addDish(inputDish))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Dish name cannot be empty");
-        verifyNoInteractions(dishRepository);
-    }
-
-    @Test
-    @DisplayName("Converts DishInputDTO and stores dish with correct type, returns DTO")
-    void addDishByDTOAndType_returnsDTO() {
-        // Given
-        DishInputDTO inputDTO = new DishInputDTO(DishType.BEVERAGE.name(), "Cola", "2.20", Collections.emptyMap(), null);
-        DishType type = DishType.BEVERAGE;
-
-        Dish convertedDish = Dish.builder()
-                .name("Cola")
-                .price(new BigDecimal("2.20"))
-                .type(DishType.BEVERAGE)
-                .additionalInformation(Collections.emptyMap())
-                .build();
-        Dish withType = convertedDish.withType(type);
-        Dish savedDish = withType.withId("drink-id-212");
-
-        DishOutputDTO expectedDTO = new DishOutputDTO("drink-id-212", "Cola", "2.20", DishType.BEVERAGE.toString().toLowerCase(), Collections.emptyMap(), null);
-
-        try (
-            MockedStatic<DishConverter> dishConverterMock = mockStatic(DishConverter.class);
-            MockedStatic<DishOutputDTOConverter> dishOutputConverterMock = mockStatic(DishOutputDTOConverter.class)
-        ) {
-            dishConverterMock.when(() -> DishConverter.convert(inputDTO)).thenReturn(convertedDish);
-            when(dishRepository.save(any(Dish.class))).thenReturn(savedDish);
-            dishOutputConverterMock.when(() -> DishOutputDTOConverter.convert(savedDish)).thenReturn(expectedDTO);
-
-            // When
-            DishOutputDTO result = dishService.addDish(inputDTO);
+        @Test
+        @DisplayName("Wirft Exception, wenn validatedDishService wirft")
+        void shouldThrowException_whenDishDoesNotExist() {
+            // Given
+            String id = "1";
+            when(validatedDishService.validatedItemOrThrow(any(), any(), any(), isNull(), eq(id), eq("delete")))
+                    .thenThrow(new NoSuchElementException("Nicht gefunden"));
 
             // Then
-            verify(dishRepository).save(argThat(d -> d.getType() == type && d.getName().equals("Cola")));
-            assertThat(result).isEqualTo(expectedDTO);
-            dishConverterMock.verify(() -> DishConverter.convert(inputDTO));
-            dishOutputConverterMock.verify(() -> DishOutputDTOConverter.convert(savedDish));
+            assertThatThrownBy(() -> dishService.removeDish(id))
+                    .isInstanceOf(NoSuchElementException.class)
+                    .hasMessageContaining("Nicht gefunden");
         }
-    }
-
-    @Test
-    @DisplayName("Throws exception if name from DishInputDTO is empty")
-    void addDishByDTOAndType_emptyName_throwsException() {
-        // Given
-        DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "", "8.40", Collections.emptyMap(), null);
-
-        Dish convertedDish = Dish.builder()
-                .name("")
-                .price(new BigDecimal("8.40"))
-                .type(DishType.MAIN)
-                .additionalInformation(Collections.emptyMap())
-                .build();
-
-        try (MockedStatic<DishConverter> dishConverterMock = mockStatic(DishConverter.class)) {
-            dishConverterMock.when(() -> DishConverter.convert(inputDTO)).thenReturn(convertedDish);
-
-            // When / Then
-            assertThatThrownBy(() -> dishService.addDish(inputDTO))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Dish name cannot be empty");
-            verifyNoInteractions(dishRepository);
-            dishConverterMock.verify(() -> DishConverter.convert(inputDTO));
-        }
-    }
-
-    @Test
-    @DisplayName("Aktualisiert existierendes Dish und gibt aktualisiertes DishOutputDTO zurück")
-    void updateDish_updatesExistingDishAndReturnsDTO() {
-        // Given
-        Dish existingDish = Dish.builder().id("dish-123").name("Burger").price(new BigDecimal("6.00")).type(DishType.MAIN).additionalInformation(Collections.emptyMap()).build();
-        Dish updatedDish = existingDish.withName("Vegan Burger").withPrice(new BigDecimal("7.00"));
-
-        when(dishRepository.existsById("dish-123")).thenReturn(true);
-        when(dishRepository.save(updatedDish)).thenReturn(updatedDish);
-
-        DishOutputDTO expectedDTO = new DishOutputDTO("dish-123", "Vegan Burger", "7,00", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap(), null);
-
-        try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
-            converterMock.when(() -> DishOutputDTOConverter.convert(updatedDish)).thenReturn(expectedDTO);
-
-            // When
-            DishOutputDTO result = dishService.updateDish(updatedDish);
-
-            // Then
-            verify(dishRepository).existsById("dish-123");
-            verify(dishRepository).save(updatedDish);
-            assertThat(result).isEqualTo(expectedDTO);
-            converterMock.verify(() -> DishOutputDTOConverter.convert(updatedDish));
-        }
-    }
-
-    @Test
-    @DisplayName("Wirft Exception, wenn Dish zu aktualisieren nicht existiert")
-    void updateDish_nonexistentDish_throwsException() {
-        // Given
-        Dish nonExistingDish = Dish.builder().id("notfound-001").name("Rice").price(new BigDecimal("2.00")).type(DishType.SIDE).additionalInformation(Collections.emptyMap()).build();
-
-        when(dishRepository.existsById("notfound-001")).thenReturn(false);
-
-        // When / Then
-        assertThatThrownBy(() -> dishService.updateDish(nonExistingDish))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Dish not found");
-        verify(dishRepository).existsById("notfound-001");
-        verify(dishRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Aktualisiert Dish anhand ID und DishInputDTO und gibt DishOutputDTO zurück")
-    void updateDishByIdAndInputDto_updatesAndReturnsDTO() {
-        // Given
-        String id = "test-4711";
-        DishInputDTO inputDTO = new DishInputDTO(DishType.MAIN.name(), "Wrap", "9.95", Collections.emptyMap(), "image-url-123.jpg");
-        Dish convertedDish = Dish.builder()
-                .id(id)
-                .name("Wrap")
-                .price(new BigDecimal("9.95"))
-                .type(DishType.MAIN)
-                .additionalInformation(Collections.emptyMap())
-                .imageUrl("image-url-123.jpg")
-                .build();
-
-        when(dishRepository.findById(id)).thenReturn(Optional.of(convertedDish));
-        when(dishRepository.existsById(id)).thenReturn(true);
-        when(dishRepository.save(convertedDish)).thenReturn(convertedDish);
-
-        DishOutputDTO expectedDTO = new DishOutputDTO(id, "Wrap", "9,95", DishType.MAIN.toString().toLowerCase(), Collections.emptyMap(), "image-url-123.jpg");
-
-        try (
-                MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)
-        ) {
-            converterMock.when(() -> DishOutputDTOConverter.convert(convertedDish)).thenReturn(expectedDTO);
-
-            // When
-            DishOutputDTO result = dishService.updateDish(id, inputDTO);
-
-            // Then
-            verify(dishRepository).findById(id);
-            verify(dishRepository).save(convertedDish);
-            assertThat(result).isEqualTo(expectedDTO);
-            converterMock.verify(() -> DishOutputDTOConverter.convert(convertedDish));
-        }
-    }
-
-    @Test
-    @DisplayName("Wirft Exception, wenn zu aktualisierendes Dish anhand ID und DTO nicht existiert")
-    void updateDishByIdAndInputDto_nonexistent_throwsException() {
-        // Given
-        String id = "notexists-789";
-        DishInputDTO inputDTO = new DishInputDTO(DishType.SIDE.name(), "Pommes", "3.90", Collections.emptyMap(), null);
-
-        when(dishRepository.findById(id)).thenReturn(Optional.empty());
-
-        // When / Then
-        assertThatThrownBy(() -> dishService.updateDish(id, inputDTO))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Dish not found");
-        verify(dishRepository).findById(id);
-        verify(dishRepository, never()).save(any());
-    }
-
-
-    @Test
-    @DisplayName("Entfernt ein existierendes Dish erfolgreich")
-    void removeDish_shouldRemoveDish_whenDishExists() {
-        // Given
-        String id = "existing-dish-id";
-        when(dishRepository.existsById(id)).thenReturn(true);
-
-        // When
-        dishService.removeDish(id);
-
-        // Then
-        verify(dishRepository).existsById(id);
-        verify(dishRepository).deleteById(id);
-    }
-
-    @Test
-    @DisplayName("Wirft Exception, wenn zu löschendes Dish nicht existiert")
-    void removeDish_shouldThrowException_whenDishDoesNotExist() {
-        // Given
-        String id = "nonexistent-dish-id";
-        when(dishRepository.existsById(id)).thenReturn(false);
-
-        // When / Then
-        assertThatThrownBy(() -> dishService.removeDish(id))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Dish not found");
-        verify(dishRepository).existsById(id);
-        verify(dishRepository, never()).deleteById(any());
     }
 }

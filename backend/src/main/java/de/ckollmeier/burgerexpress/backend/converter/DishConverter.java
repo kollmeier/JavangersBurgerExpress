@@ -36,6 +36,23 @@ public final class DishConverter {
     }
 
     /**
+     * Converts a DishInputDTO to a Dish while updating the existing Dish entity.
+     *
+     * @param dish the DishInputDTO to convert
+     * @return the converted Dish
+     */
+    public static Dish convert(final DishInputDTO dish, final Dish existingDish) {
+        return Dish.builder()
+            .id(existingDish.getId())
+            .type(dish.type() != null ? DishType.valueOf(dish.type().toUpperCase()) : existingDish.getType())
+            .name(dish.name() != null ? dish.name() : existingDish.getName())
+            .price(dish.price() != null ? new BigDecimal(dish.price().replace(",", ".")) : existingDish.getPrice())
+            .additionalInformation(AdditionalInformationConverter.convert(dish.additionalInformation(), existingDish.getAdditionalInformation()))
+            .imageUrl(dish.imageUrl())
+            .build();
+    }
+
+    /**
      * Converts a id to a Dish Reference.
      *
      * @param id the id of the Dish to convert
