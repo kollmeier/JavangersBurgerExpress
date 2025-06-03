@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useRef} from "react";
 import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import type {DishInputDTO} from "@/types/DishInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
@@ -10,19 +10,14 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {Button, Input} from "@headlessui/react";
 import ImagePickerDialog from "@/components/shared/image-picker-dialog.tsx";
 import {toast} from "react-toastify";
-import {useImageMutations} from "@/hooks/use-image-mutations.ts";
 import {faCamera} from "@fortawesome/free-solid-svg-icons";
+import useImagePicker from "@/hooks/use-image-picker.ts";
 
 type Props = {
     dish?: DishOutputDTO;
     dishType: 'main' | 'side' | 'beverage';
     onSubmit?:  (dish: DishInputDTO, dishId?: string) => Promise<void>;
     onCancel?: () => void;
-}
-
-type ImagesSelection = {
-    imageFiles: File[]
-    existingImageUrls: string[]
 }
 
 const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
@@ -50,19 +45,9 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
         }
     });
 
-    const [images, setImages] = useState<ImagesSelection>({imageFiles: [], existingImageUrls: []});
-
-    const {addImageMutation} = useImageMutations();
+    const {images, addImageMutation, imagePickerDialogOpen, setImagePickerDialogOpen, handleImagesSelected} = useImagePicker();
 
     const formRef = useRef<HTMLFormElement>(null);
-
-    const [imagePickerDialogOpen, setImagePickerDialogOpen] = React.useState<boolean>(false);
-
-    const handleImagesSelected = (onChange: (value: string) => void, files: File[], existingImageUrls: string[]) => {
-        setImages({imageFiles: files, existingImageUrls: existingImageUrls});
-        setImagePickerDialogOpen(false);
-        onChange(existingImageUrls[0] ?? URL.createObjectURL(files[0]) ?? '');
-    }
 
     const handleCancel = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         event.preventDefault();

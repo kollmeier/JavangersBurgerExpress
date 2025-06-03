@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useRef} from "react";
 import type {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts";
 import type {DisplayCategoryInputDTO} from "@/types/DisplayCategoryInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
@@ -10,18 +10,13 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {faCamera} from "@fortawesome/free-solid-svg-icons";
 import {Button} from "@headlessui/react";
 import ImagePickerDialog from "@/components/shared/image-picker-dialog.tsx";
-import {useImageMutations} from "@/hooks/use-image-mutations.ts";
 import {toast} from "react-toastify";
+import useImagePicker from "@/hooks/use-image-picker.ts";
 
 type Props = {
     displayCategory?: DisplayCategoryOutputDTO;
     onSubmit?:  (displayCategory: DisplayCategoryInputDTO, displayCategoryId?: string) => Promise<void>;
     onCancel?: () => void;
-}
-
-type ImagesSelection = {
-    imageFiles: File[]
-    existingImageUrls: string[]
 }
 
 const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
@@ -43,19 +38,10 @@ const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
             published: false,
         }
     });
-    const [images, setImages] = useState<ImagesSelection>({imageFiles: [], existingImageUrls: []});
 
-    const {addImageMutation} = useImageMutations();
+    const {images, addImageMutation, imagePickerDialogOpen, setImagePickerDialogOpen, handleImagesSelected} = useImagePicker();
 
     const formRef = useRef<HTMLFormElement>(null);
-
-    const [imagePickerDialogOpen, setImagePickerDialogOpen] = React.useState<boolean>(false);
-
-    const handleImagesSelected = (onChange: (value: string) => void, files: File[], existingImageUrls: string[]) => {
-        setImages({imageFiles: files, existingImageUrls: existingImageUrls});
-        setImagePickerDialogOpen(false);
-        onChange(existingImageUrls[0] ?? URL.createObjectURL(files[0]) ?? '');
-    }
 
     const handleCancel = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         event.preventDefault();
