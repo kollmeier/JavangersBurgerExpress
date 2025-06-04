@@ -22,7 +22,7 @@ public final class DishOutputDTOConverter {
                 dish.getId(),
                 dish.getName(),
                 dish.getPrice().toString(),
-                dish.getType().name().toLowerCase(),
+                dish.getOrderableItemType().name().toLowerCase(),
                 AdditionalInformationDTOConverter.convert(dish.getAdditionalInformation()),
                 dish.getImageUrl()
         );

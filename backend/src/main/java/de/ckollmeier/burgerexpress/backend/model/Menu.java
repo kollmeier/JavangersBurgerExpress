@@ -1,6 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.model;
 
 import de.ckollmeier.burgerexpress.backend.interfaces.*;
+import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Builder
 @With
@@ -21,7 +23,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem {
+public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem, OrderableItem {
     /**
      * Die eindeutige ID des Menüs.
      */
@@ -52,6 +54,34 @@ public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem
     @NonNull
     @Builder.Default
     private final Map<String, AdditionalInformation<?>> additionalInformation = new HashMap<>();
+
+    @Override
+    public Map<String, List<String>> getImageUrls () {
+        return dishes.stream()
+                .flatMap(dish -> dish.getImageUrls().entrySet().stream())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (list1, list2) -> {
+                            List<String> merged = new ArrayList<>(list1);
+                            merged.addAll(list2);
+                            return merged;
+                        }
+
+                ));
+    }
+
+    @Override
+    public BigDecimal getOldPrice() {
+        return dishes.stream()
+                .reduce(BigDecimal.ZERO,
+                        (acc, dish) -> acc.add(dish.getPrice()), BigDecimal::add);
+    }
+
+    @Override
+    public OrderableItemType getOrderableItemType() {
+        return OrderableItemType.MENU;
+    }
 
     /**
      * Gibt die Position des Menüs in einer sortierten Liste an.

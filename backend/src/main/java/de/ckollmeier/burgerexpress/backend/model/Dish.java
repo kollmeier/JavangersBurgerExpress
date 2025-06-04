@@ -2,6 +2,7 @@ package de.ckollmeier.burgerexpress.backend.model;
 
 import de.ckollmeier.burgerexpress.backend.interfaces.*;
 import de.ckollmeier.burgerexpress.backend.types.DishType;
+import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Builder
@@ -19,7 +21,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem {
+public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem, OrderableItem {
     /**
      * Die eindeutige ID des Gerichts.
      */
@@ -51,6 +53,22 @@ public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem
 
     @Builder.Default
     private final String imageUrl = null;
+
+    @Override
+    public Map<String, List<String>> getImageUrls () {
+        //noinspection ConstantValue
+        return imageUrl != null ? Map.of(type.name(), List.of(imageUrl)) : Map.of();
+    }
+
+    @Override
+    public BigDecimal getOldPrice() {
+        return null;
+    }
+
+    @Override
+    public OrderableItemType getOrderableItemType() {
+        return OrderableItemType.fromDishType(type);
+    }
 
     /**
      * Gibt die Position des Gerichts in einer sortierten Liste an.
