@@ -74,8 +74,8 @@ public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem
     @Override
     public BigDecimal getOldPrice() {
         return dishes.stream()
-                .reduce(BigDecimal.ZERO,
-                        (acc, dish) -> acc.add(dish.getPrice()), BigDecimal::add);
+                .map(Dish::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     @Override
