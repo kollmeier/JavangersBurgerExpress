@@ -171,7 +171,7 @@ const DishesPage: React.FC = () => {
     return (
         <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
                 <SortableContext items={dishesOrder} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 auto-rows-fr sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6">
             <MinimalCard className={"grow-1 basis-30 min-h-64"}  colorVariant="red">
                 {dishId !== 'add-main' ? (
                     <BeCircleLink icon={faPlus} to="/manage/dishes/add-main">Hauptgericht hinzufügen</BeCircleLink>

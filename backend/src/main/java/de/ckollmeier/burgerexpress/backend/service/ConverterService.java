@@ -1,14 +1,9 @@
 package de.ckollmeier.burgerexpress.backend.service;
 
-import de.ckollmeier.burgerexpress.backend.converter.DishConverter;
-import de.ckollmeier.burgerexpress.backend.converter.DishOutputDTOConverter;
-import de.ckollmeier.burgerexpress.backend.converter.MenuConverter;
-import de.ckollmeier.burgerexpress.backend.converter.MenuOutputDTOConverter;
-import de.ckollmeier.burgerexpress.backend.dto.DishInputDTO;
-import de.ckollmeier.burgerexpress.backend.dto.DishOutputDTO;
-import de.ckollmeier.burgerexpress.backend.dto.MenuInputDTO;
-import de.ckollmeier.burgerexpress.backend.dto.MenuOutputDTO;
+import de.ckollmeier.burgerexpress.backend.converter.*;
+import de.ckollmeier.burgerexpress.backend.dto.*;
 import de.ckollmeier.burgerexpress.backend.model.Dish;
+import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
 import de.ckollmeier.burgerexpress.backend.model.Menu;
 import de.ckollmeier.burgerexpress.backend.repository.DishRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +36,17 @@ public class ConverterService {
 
     public MenuOutputDTO convert(Menu menu) {
         return MenuOutputDTOConverter.convert(menu);
+    }
+
+    public DisplayCategory convert(DisplayCategoryInputDTO displayCategory) {
+        return DisplayCategoryConverter.convert(displayCategory);
+    }
+
+    public DisplayCategory convert(DisplayCategoryInputDTO displayCategory, DisplayCategory displayCategoryToUpdate) {
+        return DisplayCategoryConverter.convert(displayCategory, displayCategoryToUpdate);
+    }
+
+    public DisplayCategoryOutputDTO convert(DisplayCategory displayCategory) {
+        return DisplayCategoryOutputDTOConverter.convert(displayCategory);
     }
 }

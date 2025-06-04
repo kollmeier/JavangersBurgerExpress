@@ -1,0 +1,202 @@
+package de.ckollmeier.burgerexpress.backend.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.ckollmeier.burgerexpress.backend.dto.DisplayCategoryInputDTO;
+import de.ckollmeier.burgerexpress.backend.dto.SortedInputDTO;
+import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
+import de.ckollmeier.burgerexpress.backend.repository.DisplayCategoryRepository;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("DisplayCategoryController")
+class DisplayCategoryControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private DisplayCategoryRepository displayCategoryRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private DisplayCategory category1;
+    private DisplayCategory category2;
+    private DisplayCategory category3;
+
+    @BeforeEach
+    void setUp() {
+        displayCategoryRepository.deleteAll();
+
+        category1 = DisplayCategory.builder()
+            .name("Burger")
+            .description("Burger und Getränke")
+            .imageUrl( "https://example.com/burger.jpg")
+            .position(1)
+            .build();
+
+        category2 = DisplayCategory.builder()
+            .name("Pizza")
+            .description("Pizza und Getränke")
+            .position(2)
+            .build();
+
+        category3 = DisplayCategory.builder()
+            .name("Drinks")
+            .description("Getränke")
+            .position(3)
+            .build();
+
+        category1 = displayCategoryRepository.save(category1);
+        category2 = displayCategoryRepository.save(category2);
+        category3 = displayCategoryRepository.save(category3);
+    }
+
+    @AfterEach
+    void tearDown() {
+        displayCategoryRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("GET /api/displayCategories gibt alle Kategorien zurück")
+    void should_returnAllDisplayCategories_WhenGetAllDisplayCategories() throws Exception {
+        mockMvc.perform(get("/api/displayCategories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(3)))
+                .andExpect(jsonPath("$[?(@.name=='Burger')]").exists())
+                .andExpect(jsonPath("$[?(@.name=='Pizza')]").exists())
+                .andExpect(jsonPath("$[?(@.name=='Drinks')]").exists());
+    }
+
+    @Test
+    @DisplayName("POST /api/displayCategories fügt eine neue Kategorie hinzu und gibt sie zurück")
+    void should_addDisplayCategoryAndReturnIt_WhenValidInputGiven() throws Exception {
+        DisplayCategoryInputDTO inputDTO = new DisplayCategoryInputDTO(
+                "Salate",
+                "Salat und Getränke",
+                "",
+                true
+        );
+
+        mockMvc.perform(post("/api/displayCategories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inputDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Salate"))
+                .andExpect(jsonPath("$.description").value("Salat und Getränke"));
+
+        Assertions.assertTrue(displayCategoryRepository.findAll().stream().anyMatch(c -> "Salate".equals(c.getName())));
+    }
+
+    @Nested
+    @DisplayName("PUT /{displayCategoryId}")
+    class UpdateDisplayCategoryTests {
+
+        @Test
+        @DisplayName("aktualisiert eine Kategorie und gibt das aktualisierte Objekt zurück")
+        void should_updateDisplayCategory_WhenCategoryExists() throws Exception {
+            DisplayCategoryInputDTO updated = new DisplayCategoryInputDTO(
+                    "Burger Updated",
+                    null,
+                    "",
+                    false
+            );
+            String categoryIdToUpdate = category1.getId();
+            mockMvc.perform(put("/api/displayCategories/" + categoryIdToUpdate)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updated)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Burger Updated"))
+                    .andExpect(jsonPath("$.description").value("Burger und Getränke"));
+
+            DisplayCategory updatedCategory = displayCategoryRepository.findById(categoryIdToUpdate).orElseThrow();
+            Assertions.assertEquals("Burger Updated", updatedCategory.getName());
+            Assertions.assertEquals("Burger und Getränke", updatedCategory.getDescription());
+            Assertions.assertEquals("", updatedCategory.getImageUrl());
+            Assertions.assertFalse(updatedCategory.isPublished());
+        }
+
+        @Test
+        @DisplayName("gibt 404 zurück, wenn die zu aktualisierende Kategorie nicht existiert")
+        void should_return404_WhenUpdatingNonExistingCategory() throws Exception {
+            // Arrange
+            String nonExistentId = "non-existent-id";
+            DisplayCategoryInputDTO updateDto = new DisplayCategoryInputDTO(
+                    "NichtGefunden",
+                    "",
+                    "",
+                    true
+            );
+
+            // Act & Assert
+            mockMvc.perform(
+                    put("/api/displayCategories/" + nonExistentId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateDto))
+            )
+            .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("DELETE /{displayCategoryId}")
+    class DeleteDisplayCategoryTests {
+
+        @Test
+        @DisplayName("löscht eine Kategorie und gibt HTTP 204 zurück")
+        void should_removeDisplayCategory_WhenCategoryExists() throws Exception {
+            mockMvc.perform(delete("/api/displayCategories/" + category2.getId()))
+                    .andExpect(status().isNoContent());
+
+            Assertions.assertFalse(displayCategoryRepository.findById(category2.getId()).isPresent());
+        }
+
+        @Test
+        @DisplayName("gibt 404 zurück, wenn die zu löschende Kategorie nicht existiert")
+        void should_return404_WhenDeletingNonExistingCategory() throws Exception {
+            // Arrange
+            String nonExistentId = "non-existent-id";
+
+            // Act & Assert
+            mockMvc.perform(delete("/api/displayCategories/" + nonExistentId))
+                .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /positions")
+    class UpdateDisplayCategoryPositionsTests {
+
+        @Test
+        @DisplayName("aktualisiert Positionen aller DisplayCategories und gibt neue Liste zurück")
+        void should_updateDisplayCategoryPositions_WhenAllCategoriesExist() throws Exception {
+            List<SortedInputDTO> sorted = Arrays.asList(
+                    new SortedInputDTO(1, category3.getId()),
+                    new SortedInputDTO(2, category1.getId()),
+                    new SortedInputDTO(3, category2.getId())
+            );
+
+            mockMvc.perform(put("/api/displayCategories/positions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(sorted)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(3)))
+                    .andExpect(jsonPath("$[0].id").value(category3.getId()))
+                    .andExpect(jsonPath("$[1].id").value(category1.getId()))
+                    .andExpect(jsonPath("$[2].id").value(category2.getId()));
+        }
+    }
+}

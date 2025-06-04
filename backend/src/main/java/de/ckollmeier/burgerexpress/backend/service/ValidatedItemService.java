@@ -1,6 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.service;
 
 import de.ckollmeier.burgerexpress.backend.dto.DishInputDTO;
+import de.ckollmeier.burgerexpress.backend.dto.DisplayCategoryInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.MenuInputDTO;
 import de.ckollmeier.burgerexpress.backend.exceptions.NoValidNumberException;
 import de.ckollmeier.burgerexpress.backend.exceptions.NotBlankException;
@@ -9,6 +10,7 @@ import de.ckollmeier.burgerexpress.backend.interfaces.FindableItem;
 import de.ckollmeier.burgerexpress.backend.interfaces.NamedDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.PricedDTO;
 import de.ckollmeier.burgerexpress.backend.model.Dish;
+import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
 import de.ckollmeier.burgerexpress.backend.model.Menu;
 import de.ckollmeier.burgerexpress.backend.repository.GeneralRepository;
 import lombok.RequiredArgsConstructor;
@@ -66,11 +68,55 @@ public class ValidatedItemService<T extends FindableItem> {
         }
     }
 
+    private Dish returnDish(FindableItem findableItem, DishInputDTO dishInputDTO, boolean withUpdate) {
+        return (withUpdate && findableItem instanceof Dish dish ?
+                converterService.convert(dishInputDTO, dish) :
+                converterService.convert(dishInputDTO));
+    }
+
+    private Menu returnMenu(FindableItem findableItem, MenuInputDTO menuInputDTO, boolean withUpdate) {
+        return (withUpdate ?
+                converterService.convert(menuInputDTO, (Menu) findableItem) :
+                converterService.convert(menuInputDTO));
+    }
+
+    private DisplayCategory returnDisplayCategory(FindableItem findableItem, DisplayCategoryInputDTO displayCategoryInputDTO, boolean withUpdate) {
+        return (withUpdate ?
+                converterService.convert(displayCategoryInputDTO, (DisplayCategory) findableItem) :
+                converterService.convert(displayCategoryInputDTO));
+    }
+
+    private T returnValueByTypeOrThrow(FindableItem findableItem, Object inputDTO, boolean withUpdate) throws IllegalArgumentException {
+        if (inputDTO instanceof DishInputDTO dishInputDTO && (findableItem instanceof Dish || findableItem == null)) {
+            //noinspection unchecked
+            return (T) returnDish(findableItem, dishInputDTO, withUpdate);
+        }
+        if (inputDTO instanceof MenuInputDTO && (findableItem == null || findableItem instanceof Menu)) {
+            //noinspection unchecked
+            return (T) returnMenu(findableItem, (MenuInputDTO) inputDTO, withUpdate);
+        }
+        if (inputDTO instanceof DisplayCategoryInputDTO && (findableItem == null || findableItem instanceof DisplayCategory)) {
+            //noinspection unchecked
+            return (T) returnDisplayCategory(findableItem, (DisplayCategoryInputDTO) inputDTO, withUpdate);
+        }
+        throw new IllegalArgumentException("Unbekannter InputDTO-Typ!");
+    }
+
     public T validatedItemOrThrow(Class<T> theClass, String itemName, String base, Object inputDTO, String id, String item) {
         return validatedItemOrThrow(theClass, itemName, base, inputDTO, id, item, false);
     }
 
-    public T validatedItemOrThrow(Class<T> theClass, String itemName, String base, Object inputDTO, String id, String item, boolean withUpdate) {
+    /**
+     * Validates the given inputDTO and returns the corresponding item.
+     *
+     * @param theClass     The class of the item to validate.
+     * @param itemName     The name of the item to validate.
+     * @param base         The base path of the item.
+     * @param inputDTO     The inputDTO to validate.
+     * @param id           The ID of the item to validate.
+     * @throws IllegalArgumentException If the given inputDTO is invalid.
+    */
+    public T validatedItemOrThrow(Class<T> theClass, String itemName, String base, Object inputDTO, String id, String item, boolean withUpdate) throws IllegalArgumentException {
         T findableItem = null;
         if (id != null) {
             findableItem = repository.findById(id, theClass).orElseThrow(
@@ -89,19 +135,7 @@ public class ValidatedItemService<T extends FindableItem> {
         if (inputDTO instanceof PricedDTO pricedDTO) {
             validatePriceOrThrow(pricedDTO, base, item);
         }
-        if (inputDTO instanceof DishInputDTO dishInputDTO && (findableItem instanceof Dish || findableItem == null)) {
-            //noinspection unchecked
-            return (T) (withUpdate && findableItem instanceof Dish dish ?
-                    converterService.convert(dishInputDTO, dish) :
-                    converterService.convert(dishInputDTO));
-        }
-        if (inputDTO instanceof MenuInputDTO && (findableItem == null || findableItem instanceof Menu)) {
-            //noinspection unchecked
-            return (T) (withUpdate ?
-                    converterService.convert((MenuInputDTO) inputDTO, (Menu) findableItem) :
-                    converterService.convert((MenuInputDTO) inputDTO));
-        }
-        throw new IllegalArgumentException("Unbekannter InputDTO-Typ!");
+        return returnValueByTypeOrThrow(findableItem, inputDTO, withUpdate);
     }
 
 

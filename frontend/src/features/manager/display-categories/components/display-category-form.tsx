@@ -1,50 +1,43 @@
 import React, {useRef} from "react";
-import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
-import type {DishInputDTO} from "@/types/DishInputDTO.ts";
+import type {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts";
+import type {DisplayCategoryInputDTO} from "@/types/DisplayCategoryInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
 import InputWithLabel from "@/components/ui/input-with-label";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
 import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
-import {Input} from "@headlessui/react";
 import {toast} from "react-toastify";
 import useImagePicker from "@/hooks/use-image-picker.ts";
 import ImagePickerWithLabel from "@/components/ui/image-picker-with-label.tsx";
 
 type Props = {
-    dish?: DishOutputDTO;
-    dishType: 'main' | 'side' | 'beverage';
-    onSubmit?:  (dish: DishInputDTO, dishId?: string) => Promise<void>;
+    displayCategory?: DisplayCategoryOutputDTO;
+    onSubmit?:  (displayCategory: DisplayCategoryInputDTO, displayCategoryId?: string) => Promise<void>;
     onCancel?: () => void;
 }
 
-const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
+const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
     const {
         control,
         handleSubmit,
         reset,
-    } = useForm<DishInputDTO>({
-        values: dish,
+    } = useForm<DisplayCategoryInputDTO>({
+        values: {
+            name: displayCategory?.name ?? '',
+            description: displayCategory?.description ?? '',
+            imageUrl: displayCategory?.imageUrl ?? '',
+            published: displayCategory?.published ?? false,
+        },
         defaultValues: {
             name: '',
-            price: '',
-            type: dishType,
+            description: '',
             imageUrl: '',
-            additionalInformation: {
-                description: {
-                    type: 'PLAIN_TEXT',
-                    value: ''
-                },
-                size: dishType === 'beverage' ? {
-                    type: 'SIZE_IN_LITER',
-                    value: ''
-                } : undefined
-            }
+            published: false,
         }
     });
 
-    const {images, addImageMutation, setImages} = useImagePicker();
+    const {images, setImages, addImageMutation} = useImagePicker();
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -54,7 +47,7 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
             onCancel();
         }
     }
-    const doSubmit = async (submittedDish: DishInputDTO) => {
+    const doSubmit = async (submittedDisplayCategory: DisplayCategoryInputDTO) => {
         if (images.imageFiles.length > 0) {
             const toastId = toast.loading('Bild wird hochgeladen...');
             addImageMutation.mutate(images.imageFiles, {
@@ -65,10 +58,10 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                         isLoading: false,
                         autoClose: 5000,
                     });
-                    const editedDish = {...submittedDish, imageUrl: files[0].uri ?? null};
+                    const editedDisplayCategory = {...submittedDisplayCategory, imageUrl: files[0].uri ?? null};
                     if (onSubmit) {
                         (async () => {
-                            await onSubmit(editedDish, dish?.id);
+                            await onSubmit(editedDisplayCategory, displayCategory?.id);
                             reset();
                         })();
                     }
@@ -83,7 +76,7 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                 }
             });
         } else if (onSubmit) {
-            await onSubmit(submittedDish, dish?.id);
+            await onSubmit(submittedDisplayCategory, displayCategory?.id);
             reset();
         }
     }
@@ -103,62 +96,22 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                 render={({ field, fieldState }) => (
                     <InputWithLabel
                         label="Name"
-                        fieldClassName="col-start-1 -col-end-1"
+                        fieldClassName="col-start-1 -col-end-2"
                         error={fieldState.error?.message}
                         {...field}
                     />
                 )}
             />
+
             <Controller
-                name="price"
-                control={control}
-                rules={{ required: "Bitte geben Sie einen Preis an!" }}
-                render={({ field, fieldState }) => (
-                    <InputWithLabel
-                        {...field}
-                        label="Preis"
-                        value={field.value}
-                        placeholder="0,00"
-                        type="number"
-                        inputMode="decimal"
-                        fieldClassName="col-span-2"
-                        error={fieldState.error?.message}
-                    />
-                )}
-            />
-            {dishType === 'beverage' &&
-                <Controller
-                    name="additionalInformation.size.value"
-                    control={control}
-                    rules={{ required: "Bitte geben Sie eine Größe an!" }}
-                    render={({ field, fieldState }) => (
-                        <InputWithLabel
-                            {...field}
-                            label="Größe in Liter"
-                            value={field.value}
-                            placeholder="0,00"
-                            type="number"
-                            inputMode="decimal"
-                            fieldClassName="col-span-2"
-                            error={fieldState.error?.message}
-                        />
-                    )}
-                />
-            }
-            <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                <Input type="hidden" {...field} />)} />
-            <Controller
-                name="additionalInformation.description.value"
+                name="description"
                 control={control}
                 render={({ field, fieldState }) => (
                     <InputWithLabel
                         label="Beschreibung"
                         type="textarea"
-                        className="h-24"
-                        fieldClassName="col-span-3 row-start-3"
+                        className="h-36"
+                        fieldClassName="col-span-3 row-start-2"
                         error={fieldState.error?.message}
                         {...field}
                     />
@@ -172,15 +125,13 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                         field={field}
                         fieldState={fieldState}
                         setImages={setImages}
-                        className="col-span-1 row-start-3" />)}
+                        className="col-span-1 row-span-2 row-start-1 h-34 min-h-fit min-w-fit"/>)}
             />
             <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
                 <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
                 <BeButton type="button" onClick={handleCancel}><FontAwesomeIcon icon={faClose}/> Abbrechen</BeButton>
             </div>
         </form>
+    )};
 
-);
-}
-
-export default DishForm;
+export default DisplayCategoryForm;
