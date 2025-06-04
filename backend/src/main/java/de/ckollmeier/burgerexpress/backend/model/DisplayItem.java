@@ -47,10 +47,10 @@ public class DisplayItem implements Sortable, FindableItem, PricedItem, NamedIte
     }
 
     public BigDecimal getOldPrice() {
+        if (orderableItems.isEmpty()) {
+            return null;
+        }
         if (getActualPrice() == null) {
-            if (orderableItems.isEmpty()) {
-                return null;
-            }
             if (orderableItems.stream().noneMatch(item -> item.getOldPrice() != null)) {
                 return null;
             }
