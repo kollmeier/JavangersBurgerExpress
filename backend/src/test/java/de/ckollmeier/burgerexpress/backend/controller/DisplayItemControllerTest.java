@@ -3,7 +3,6 @@ package de.ckollmeier.burgerexpress.backend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.SortedInputDTO;
-import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.Dish;
 import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
 import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
@@ -82,8 +81,6 @@ class DisplayItemControllerTest {
         item1 = displayItemRepository.save(item1);
         item2 = displayItemRepository.save(item2);
 
-        OrderableItem[] orderableItems = new OrderableItem[5];
-
         // Add some orderable items to the category
         for (int i = 0; i < 5; i++) {
             Dish orderableItem = Dish.builder()
@@ -93,8 +90,6 @@ class DisplayItemControllerTest {
                     .build();
 
             orderableItem = dishRepository.save(orderableItem);
-
-            orderableItems[i] = orderableItem;
 
             // Store the ID of the first OrderableItem for use in tests
             if (i == 1) {
