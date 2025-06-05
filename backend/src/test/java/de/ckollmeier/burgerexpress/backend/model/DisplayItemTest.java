@@ -1,6 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.model;
 
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
 import org.bson.types.ObjectId;
@@ -156,7 +157,7 @@ class DisplayItemTest {
         @Override public String getId() { return null; }
         @Override public String getName() { return null; }
         @Override public OrderableItemType getOrderableItemType() { return null; }
-        @Override public Map<String, AdditionalInformation<?>> getAdditionalInformation() { return null; }
+        @Override public Map<String, BaseAdditionalInformation> getAdditionalInformation() { return null; }
         @Override public Map<String, List<String>> getImageUrls() { return null; }
     }
 }

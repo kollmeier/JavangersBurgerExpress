@@ -1,7 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemInputDTO;
-import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.*;
@@ -29,8 +30,8 @@ class DisplayItemConverterTest {
         }
         @Override public String getId() { return id; }
         @Override public String getName() { return name; }
-        @Override public java.util.Map<String, AdditionalInformation<?>> getAdditionalInformation() { return Collections.emptyMap(); }
-        @Override public java.util.Map<String, List<String>> getImageUrls() { return Collections.emptyMap(); }
+        @Override public Map<String, BaseAdditionalInformation> getAdditionalInformation() { return Collections.emptyMap(); }
+        @Override public Map<String, List<String>> getImageUrls() { return Collections.emptyMap(); }
         @Override public BigDecimal getPrice() { return price; }
         @Override public BigDecimal getOldPrice() { return null; }
         @Override public de.ckollmeier.burgerexpress.backend.types.OrderableItemType getOrderableItemType() { return null; }

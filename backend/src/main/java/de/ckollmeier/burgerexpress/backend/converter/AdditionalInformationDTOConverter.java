@@ -2,6 +2,7 @@ package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.AdditionalInformationDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public final class AdditionalInformationDTOConverter {
      * @return the converted {@link AdditionalInformationDTO} with the corresponding type, value,
      *         display string, and short display string extracted from the provided {@link AdditionalInformation}.
      */
-    public static AdditionalInformationDTO convert(final AdditionalInformation<?> additionalInformation) {
+    public static AdditionalInformationDTO convert(final BaseAdditionalInformation additionalInformation) {
         return new AdditionalInformationDTO(additionalInformation.type(),
                 additionalInformation.value().toString(),
                 additionalInformation.displayString(),
@@ -38,7 +39,7 @@ public final class AdditionalInformationDTOConverter {
      *                              instances to be converted.
      * @return a {@link Map} with the same keys as the input, but the values are converted to {@link AdditionalInformationDTO}.
      */
-    public static Map<String, AdditionalInformationDTO> convert(final Map<String, ? extends AdditionalInformation<?>> additionalInformation) {
+    public static Map<String, AdditionalInformationDTO> convert(final Map<String, ? extends BaseAdditionalInformation> additionalInformation) {
         return additionalInformation.entrySet().stream()
                 .map(entry -> Map.entry(entry.getKey(), convert(entry.getValue())))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

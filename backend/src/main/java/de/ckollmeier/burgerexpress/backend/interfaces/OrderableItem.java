@@ -9,7 +9,7 @@ import java.util.Map;
 public interface OrderableItem extends FindableItem {
     String getId();
     String getName();
-    Map<String, AdditionalInformation<?>> getAdditionalInformation();
+    Map<String, BaseAdditionalInformation> getAdditionalInformation();
     Map<String, List<String>> getImageUrls();
     BigDecimal getPrice();
     BigDecimal getOldPrice();

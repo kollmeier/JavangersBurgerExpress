@@ -49,7 +49,7 @@ public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem
      */
     @NonNull
     @Builder.Default
-    private final Map<String, AdditionalInformation<?>> additionalInformation = new HashMap<>();
+    private final Map<String, BaseAdditionalInformation> additionalInformation = new HashMap<>();
 
     @Builder.Default
     private final String imageUrl = null;

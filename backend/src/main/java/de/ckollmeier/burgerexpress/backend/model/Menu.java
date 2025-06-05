@@ -53,7 +53,7 @@ public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem
      */
     @NonNull
     @Builder.Default
-    private final Map<String, AdditionalInformation<?>> additionalInformation = new HashMap<>();
+    private final Map<String, BaseAdditionalInformation> additionalInformation = new HashMap<>();
 
     @Override
     public Map<String, List<String>> getImageUrls () {

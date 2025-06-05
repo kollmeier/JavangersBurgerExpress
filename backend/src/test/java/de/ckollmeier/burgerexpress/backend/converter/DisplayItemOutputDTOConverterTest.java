@@ -3,6 +3,7 @@ package de.ckollmeier.burgerexpress.backend.converter;
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemOutputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.OrderableItemOutputDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
@@ -47,7 +48,7 @@ class DisplayItemOutputDTOConverterTest {
         }
 
         @Override
-        public Map<String, AdditionalInformation<?>> getAdditionalInformation() {
+        public Map<String, BaseAdditionalInformation> getAdditionalInformation() {
             return Collections.emptyMap();
         }
 

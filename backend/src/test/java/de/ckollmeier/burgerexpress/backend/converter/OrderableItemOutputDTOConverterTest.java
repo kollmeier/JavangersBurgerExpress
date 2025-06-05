@@ -2,6 +2,7 @@ package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.OrderableItemOutputDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.PlainTextAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.SizeInLiterAdditionalInformation;
@@ -44,7 +45,7 @@ class OrderableItemOutputDTOConverterTest {
     @Test
     @DisplayName("Konvertiere OrderableItem zu OrderableItemOutputDTO (mit AdditionalInformation, Beschreibung und Größe)")
     void convertOrderableItemWithDescriptionsAndSizes() {
-        Map<String, AdditionalInformation<?>> info = new HashMap<>();
+        Map<String, BaseAdditionalInformation> info = new HashMap<>();
         info.put("description", new PlainTextAdditionalInformation("leckeres Getränk"));
         info.put("size", new SizeInLiterAdditionalInformation(BigDecimal.ONE));
         TestOrderableItem item = new TestOrderableItem(
@@ -108,11 +109,11 @@ class OrderableItemOutputDTOConverterTest {
         private final BigDecimal oldPrice;
         private final BigDecimal price;
         private final OrderableItemType type;
-        private final Map<String, AdditionalInformation<?>> additionalInformation;
+        private final Map<String, BaseAdditionalInformation> additionalInformation;
         private final Map<String, List<String>> imageUrls;
 
         TestOrderableItem(String id, String name, BigDecimal oldPrice, BigDecimal price, OrderableItemType type,
-                          Map<String, AdditionalInformation<?>> additionalInformation,
+                          Map<String, BaseAdditionalInformation> additionalInformation,
                           Map<String, List<String>> imageUrls) {
             this.id = id;
             this.name = name;
@@ -139,7 +140,7 @@ class OrderableItemOutputDTOConverterTest {
         public OrderableItemType getOrderableItemType() { return type; }
 
         @Override
-        public Map<String, AdditionalInformation<?>> getAdditionalInformation() { return additionalInformation; }
+        public Map<String, BaseAdditionalInformation> getAdditionalInformation() { return additionalInformation; }
 
         @Override
         public Map<String, List<String>> getImageUrls() { return imageUrls; }

@@ -2,6 +2,7 @@ package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.AdditionalInformationDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.PlainTextAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.SizeInLiterAdditionalInformation;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,7 @@ class AdditionalInformationConverterTest {
                 null // irrelevant for Conversion
         );
 
-        AdditionalInformation<?> result = AdditionalInformationConverter.convert(dto);
+        BaseAdditionalInformation result = AdditionalInformationConverter.convert(dto);
 
         assertThat(result).isInstanceOf(SizeInLiterAdditionalInformation.class);
         assertThat(((SizeInLiterAdditionalInformation) result).value()).isEqualByComparingTo(new BigDecimal("1.5"));
@@ -41,7 +42,7 @@ class AdditionalInformationConverterTest {
                 null // irrelevant for Conversion
         );
 
-        AdditionalInformation<?> result = AdditionalInformationConverter.convert(dto);
+        BaseAdditionalInformation result = AdditionalInformationConverter.convert(dto);
 
         assertThat(result).isInstanceOf(PlainTextAdditionalInformation.class);
         assertThat(((PlainTextAdditionalInformation) result).value()).isEqualTo("Vegetarisch");
@@ -69,7 +70,7 @@ class AdditionalInformationConverterTest {
         dtoMap.put("info1", new AdditionalInformationDTO("PLAIN_TEXT", "Glutenfrei", null, null));
         dtoMap.put("vol", new AdditionalInformationDTO("SIZE_IN_LITER", "0.33", null, null));
 
-        Map<String, AdditionalInformation<?>> result = AdditionalInformationConverter.convert(dtoMap);
+        Map<String, BaseAdditionalInformation> result = AdditionalInformationConverter.convert(dtoMap);
 
         assertThat(result)
                 .containsOnlyKeys("info1", "vol")
@@ -100,11 +101,11 @@ class AdditionalInformationConverterTest {
         dtoMap.put("info1", new AdditionalInformationDTO("PLAIN_TEXT", "Laktosefrei", null, null));
         dtoMap.put("info2", null); // Sollte Wert aus existingMap übernehmen
 
-        Map<String, AdditionalInformation<?>> existingMap = new HashMap<>();
+        Map<String, BaseAdditionalInformation> existingMap = new HashMap<>();
         existingMap.put("info2", new PlainTextAdditionalInformation("Vorhanden"));
         existingMap.put("infoOld", new SizeInLiterAdditionalInformation(new BigDecimal("2.0")));
 
-        Map<String, AdditionalInformation<?>> result =
+        Map<String, BaseAdditionalInformation> result =
                 AdditionalInformationConverter.convert(dtoMap, existingMap);
 
         assertThat(result).hasSize(3);
@@ -120,9 +121,9 @@ class AdditionalInformationConverterTest {
     @DisplayName("convert(Map<DTO>, Map<Existing>): Beide Maps leer liefert leere Ergebnismap")
     void convert_merge_maps_both_empty() {
         Map<String, AdditionalInformationDTO> dtoMap = new HashMap<>();
-        Map<String, AdditionalInformation<?>> existingMap = new HashMap<>();
+        Map<String, BaseAdditionalInformation> existingMap = new HashMap<>();
 
-        Map<String, AdditionalInformation<?>> result =
+        Map<String, BaseAdditionalInformation> result =
                 AdditionalInformationConverter.convert(dtoMap, existingMap);
 
         assertThat(result).isEmpty();
@@ -134,11 +135,11 @@ class AdditionalInformationConverterTest {
         Map<String, AdditionalInformationDTO> dtoMap = new HashMap<>();
         dtoMap.put("shared", new AdditionalInformationDTO("SIZE_IN_LITER", "3.33", null, null));
 
-        Map<String, AdditionalInformation<?>> existingMap = new HashMap<>();
+        Map<String, BaseAdditionalInformation> existingMap = new HashMap<>();
         existingMap.put("shared", new PlainTextAdditionalInformation("Alt"));
         existingMap.put("remain", new PlainTextAdditionalInformation("Bleibt"));
 
-        Map<String, AdditionalInformation<?>> result =
+        Map<String, BaseAdditionalInformation> result =
                 AdditionalInformationConverter.convert(dtoMap, existingMap);
 
         assertThat(result.get("shared")).isInstanceOf(SizeInLiterAdditionalInformation.class);
@@ -157,7 +158,7 @@ class AdditionalInformationConverterTest {
                 null
         );
 
-        AdditionalInformation<?> result = AdditionalInformationConverter.convert(dto);
+        BaseAdditionalInformation result = AdditionalInformationConverter.convert(dto);
 
         assertThat(result).isInstanceOf(SizeInLiterAdditionalInformation.class);
         assertThat(((SizeInLiterAdditionalInformation) result).value()).isEqualByComparingTo(new BigDecimal("1.75"));
