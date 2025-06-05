@@ -45,7 +45,8 @@ class DisplayItemConverterTest {
                 true,
                 "4.99",
                 List.of("it1", "it2"),
-                true
+                true,
+                "000000000000000000000000"
         );
         Function<String, OrderableItem> resolver = id -> new StubOrderableItem(id, "Item-" + id, new BigDecimal("1.00"));
 
@@ -68,7 +69,8 @@ class DisplayItemConverterTest {
                 null,
                 null,
                 Collections.emptyList(),
-                true
+                true,
+                "000000000000000000000000"
         );
         Function<String, OrderableItem> resolver = id -> new StubOrderableItem(id, "Sollte-nicht-aufgerufen-werden", BigDecimal.ZERO);
 
@@ -86,6 +88,7 @@ class DisplayItemConverterTest {
         DisplayItem existing = DisplayItem.builder()
                 .name("Altname")
                 .description("Alter Burger")
+                .categoryId(new org.bson.types.ObjectId("000000000000000000000000"))
                 .actualPrice(new BigDecimal("8.50"))
                 .orderableItems(Collections.emptyList())
                 .build();
@@ -96,7 +99,8 @@ class DisplayItemConverterTest {
                 true,
                 "6.00",
                 List.of("o1"),
-                true
+                true,
+                "000000000000000000000000"
         );
         Function<String, OrderableItem> resolver = id -> new StubOrderableItem(id, "test", new BigDecimal("2.00"));
 

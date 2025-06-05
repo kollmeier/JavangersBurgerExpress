@@ -16,6 +16,7 @@ public class DisplayCategoryOutputDTOConverter {
                 displayCategory.getId(),
                 displayCategory.getName(),
                 displayCategory.getDescription(),
+                DisplayItemOutputDTOConverter.convert(displayCategory.getDisplayItems()),
                 displayCategory.getImageUrl(),
                 displayCategory.isPublished()
         );

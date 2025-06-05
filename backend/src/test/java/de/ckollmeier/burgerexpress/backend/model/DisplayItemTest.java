@@ -3,6 +3,7 @@ package de.ckollmeier.burgerexpress.backend.model;
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ class DisplayItemTest {
             // Given
             DisplayItem displayItem = DisplayItem.builder()
                     .id("id")
+                    .categoryId(new ObjectId())
                     .name("Test")
                     .actualPrice(new BigDecimal("9.99"))
                     .orderableItems(Collections.emptyList())
@@ -47,6 +49,7 @@ class DisplayItemTest {
             OrderableItem item2 = new OrderableItemStub(new BigDecimal("2.20"), null);
             DisplayItem displayItem = DisplayItem.builder()
                     .id("id")
+                    .categoryId(new ObjectId())
                     .name("Test")
                     .actualPrice(null)
                     .orderableItems(List.of(item1, item2))
@@ -72,6 +75,7 @@ class DisplayItemTest {
             OrderableItem item2 = new OrderableItemStub(new BigDecimal("2.20"), new BigDecimal("3.00"));
             DisplayItem displayItem = DisplayItem.builder()
                     .id("id")
+                    .categoryId(new ObjectId())
                     .name("Test")
                     .actualPrice(null)
                     .orderableItems(List.of(item1, item2))
@@ -92,6 +96,7 @@ class DisplayItemTest {
             OrderableItem item2 = new OrderableItemStub(new BigDecimal("2.20"), null);
             DisplayItem displayItem = DisplayItem.builder()
                     .id("id")
+                    .categoryId(new ObjectId())
                     .name("Test")
                     .actualPrice(null)
                     .orderableItems(List.of(item1, item2))
@@ -112,6 +117,7 @@ class DisplayItemTest {
             OrderableItem item2 = new OrderableItemStub(new BigDecimal("2.20"), null);
             DisplayItem displayItem = DisplayItem.builder()
                     .id("id")
+                    .categoryId(new ObjectId())
                     .name("Test")
                     .actualPrice(null)
                     .orderableItems(List.of(item1, item2))

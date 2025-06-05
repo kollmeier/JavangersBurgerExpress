@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,8 @@ public class DisplayItemService {
     private final DisplayItemRepository displayItemRepository;
 
     private final ValidatedItemService<DisplayItem> validatedDisplayItemService;
+
+    private final ConverterService converterService;
 
     private static final String DISPLAY_ITEM = "Anzeigeelement";
     private static final String ERROR_PATH_BASE = "displayItems";
@@ -37,13 +40,24 @@ public class DisplayItemService {
             }
         }
 
-        return validatedDisplayItemService.validatedItemOrThrow(
-                DisplayItem.class,
-                DISPLAY_ITEM,
-                ERROR_PATH_BASE,
-                displayItem,
-                id,
-                item, update);
+        DisplayItem findableItem = null;
+        if (id != null) {
+            findableItem = validatedDisplayItemService.validatedItemOrThrow(
+                    DisplayItem.class,
+                    DISPLAY_ITEM,
+                    ERROR_PATH_BASE,
+                    null,
+                    id,
+                    item);
+        }
+
+        if (displayItem == null) {
+            return findableItem;
+        }
+
+        return update && findableItem != null ? 
+                converterService.convert(displayItem, findableItem) : 
+                converterService.convert(displayItem);
     }
 
     public List<DisplayItemOutputDTO> getAllDisplayItems() {
@@ -56,7 +70,8 @@ public class DisplayItemService {
                 validatedDisplayItemOrThrow(
                         displayItem,
                         null,
-                        "new", false))
+                        "new", false)
+                        .withId(UUID.randomUUID().toString()))
         );
     }
 

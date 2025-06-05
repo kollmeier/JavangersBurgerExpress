@@ -2,6 +2,7 @@ package de.ckollmeier.burgerexpress.backend.model;
 
 import de.ckollmeier.burgerexpress.backend.interfaces.*;
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -23,6 +24,8 @@ import java.util.List;
 public class DisplayItem implements Sortable, FindableItem, PricedItem, NamedItem {
     @Id
     private final String id;
+    @NonNull
+    private final ObjectId categoryId;
     @NonNull
     private final String name;
     private final String description;

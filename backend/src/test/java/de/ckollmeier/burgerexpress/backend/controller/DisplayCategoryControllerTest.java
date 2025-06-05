@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.ckollmeier.burgerexpress.backend.dto.DisplayCategoryInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.SortedInputDTO;
 import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
+import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
 import de.ckollmeier.burgerexpress.backend.repository.DisplayCategoryRepository;
+import de.ckollmeier.burgerexpress.backend.repository.DisplayItemRepository;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,11 +34,17 @@ class DisplayCategoryControllerTest {
     private DisplayCategoryRepository displayCategoryRepository;
 
     @Autowired
+    private DisplayItemRepository displayItemCategoryRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     private DisplayCategory category1;
     private DisplayCategory category2;
     private DisplayCategory category3;
+
+    private DisplayItem item1;
+    private DisplayItem item2;
 
     @BeforeEach
     void setUp() {
@@ -63,6 +72,21 @@ class DisplayCategoryControllerTest {
         category1 = displayCategoryRepository.save(category1);
         category2 = displayCategoryRepository.save(category2);
         category3 = displayCategoryRepository.save(category3);
+
+        item1 = DisplayItem.builder()
+                .name("Pizza Margherita")
+                .description("Margherita mit Tomatensoße")
+                .categoryId(new ObjectId(category2.getId()))
+                .build();
+
+        item2 = DisplayItem.builder()
+                .name("Pizza Salami")
+                .description("Pizza Salami mit Tomatensoße")
+                .categoryId(new ObjectId(category2.getId()))
+                .build();
+
+        item1 = displayItemCategoryRepository.save(item1);
+        item2 = displayItemCategoryRepository.save(item2);
     }
 
     @AfterEach
@@ -78,6 +102,9 @@ class DisplayCategoryControllerTest {
                 .andExpect(jsonPath("$.length()", is(3)))
                 .andExpect(jsonPath("$[?(@.name=='Burger')]").exists())
                 .andExpect(jsonPath("$[?(@.name=='Pizza')]").exists())
+                .andExpect(jsonPath("$[?(@.name=='Pizza')].displayItems.length()").value(2))
+                .andExpect(jsonPath("$[?(@.name=='Pizza')].displayItems[0].name").value("Pizza Margherita"))
+                .andExpect(jsonPath("$[?(@.name=='Pizza')].displayItems[1].name").value("Pizza Salami"))
                 .andExpect(jsonPath("$[?(@.name=='Drinks')]").exists());
     }
 

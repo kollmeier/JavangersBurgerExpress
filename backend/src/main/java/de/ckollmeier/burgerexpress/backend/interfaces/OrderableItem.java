@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-public interface OrderableItem {
+public interface OrderableItem extends FindableItem {
     String getId();
     String getName();
     Map<String, AdditionalInformation<?>> getAdditionalInformation();

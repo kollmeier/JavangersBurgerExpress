@@ -6,6 +6,7 @@ import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -76,6 +77,7 @@ class DisplayItemOutputDTOConverterTest {
     void convertDisplayItemToOutputDTOWithoutOldPriceAndOrderables() {
         DisplayItem displayItem = DisplayItem.builder()
                 .id("item1")
+                .categoryId(new ObjectId())
                 .name("Burger Classic")
                 .description("Ein klassischer Rindfleisch-Burger")
                 .orderableItems(Collections.emptyList())
@@ -112,6 +114,7 @@ class DisplayItemOutputDTOConverterTest {
 
         DisplayItem displayItem = DisplayItem.builder()
                 .id("item2")
+                .categoryId(new ObjectId())
                 .name("Cheese Burger")
                 .description("Burger mit Käse")
                 .orderableItems(List.of(orderableItem1, orderableItem2))
@@ -137,6 +140,7 @@ class DisplayItemOutputDTOConverterTest {
     void convertListOfDisplayItemsToDTOs() {
         DisplayItem item1 = DisplayItem.builder()
                 .id("item1")
+                .categoryId(new ObjectId())
                 .name("Hot Dog")
                 .description("Würstchen im Brötchen")
                 .orderableItems(Collections.emptyList())
@@ -146,6 +150,7 @@ class DisplayItemOutputDTOConverterTest {
 
         DisplayItem item2 = DisplayItem.builder()
                 .id("item2")
+                .categoryId(new ObjectId())
                 .name("Veggie Burger")
                 .description("Vegetarischer Burger")
                 .orderableItems(Collections.emptyList())

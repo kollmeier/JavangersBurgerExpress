@@ -29,6 +29,7 @@ public final class DisplayItemConverter {
         return DisplayItem.builder()
             .name(displayItem.name())
             .description(displayItem.description())
+            .categoryId(new org.bson.types.ObjectId(displayItem.categoryId()))
             .actualPrice(Boolean.TRUE.equals(displayItem.hasActualPrice()) ? new BigDecimal(displayItem.actualPrice().replace(",", ".")) : null)
             .orderableItems(displayItem.orderableItemIds().stream()
                     .map(itemResolver)
@@ -43,12 +44,15 @@ public final class DisplayItemConverter {
             actualPrice = displayItem.actualPrice() != null ? new BigDecimal(displayItem.actualPrice().replace(",", ".")) : null;
         }
         return DisplayItem.builder()
+            .id(existingDisplayItem.getId())
             .name(displayItem.name() == null ? existingDisplayItem.getName() : displayItem.name())
             .description(displayItem.description() == null ? existingDisplayItem.getDescription() : displayItem.description())
+            .categoryId(displayItem.categoryId() != null ? new org.bson.types.ObjectId(displayItem.categoryId()) : existingDisplayItem.getCategoryId())
             .actualPrice(actualPrice)
             .orderableItems(displayItem.orderableItemIds().stream()
                     .map(itemResolver)
                     .toList())
+            .published(displayItem.published() != null ? displayItem.published() : existingDisplayItem.isPublished())
             .build();
     }
 }

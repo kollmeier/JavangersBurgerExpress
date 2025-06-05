@@ -8,6 +8,7 @@ public record DisplayItemInputDTO(
         Boolean hasActualPrice,
         String actualPrice,
         List<String> orderableItemIds,
-        Boolean published
+        Boolean published,
+        String categoryId
 ) {
 }
