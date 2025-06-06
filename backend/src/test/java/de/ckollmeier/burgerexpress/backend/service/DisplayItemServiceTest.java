@@ -44,9 +44,15 @@ class DisplayItemServiceTest {
             List<DisplayItem> items = List.of(item1, item2);
             when(displayItemRepository.findAllByOrderByPositionAsc()).thenReturn(items);
 
-            DisplayItemOutputDTO dto1 = mock(DisplayItemOutputDTO.class);
-            DisplayItemOutputDTO dto2 = mock(DisplayItemOutputDTO.class);
+            // Create real DisplayItemOutputDTO instances instead of mocking them
+            DisplayItemOutputDTO dto1 = new DisplayItemOutputDTO(
+                "id1", "category1", "Item 1", "Description 1", 
+                Collections.emptyList(), "10.00", null, true);
+            DisplayItemOutputDTO dto2 = new DisplayItemOutputDTO(
+                "id2", "category2", "Item 2", "Description 2", 
+                Collections.emptyList(), "20.00", "25.00", false);
             List<DisplayItemOutputDTO> dtos = List.of(dto1, dto2);
+
             try (MockedStatic<DisplayItemOutputDTOConverter> mockStatic = mockStatic(DisplayItemOutputDTOConverter.class)) {
                 mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(items)).thenReturn(dtos);
 
@@ -79,8 +85,10 @@ class DisplayItemServiceTest {
         @Test
         @DisplayName("shouldConvertAndSaveDisplayItem_whenValidInput")
         void addDisplayItem_shouldConvertAndSaveDisplayItem_whenValidInput() {
-            DisplayItemInputDTO inputDTO = mock(DisplayItemInputDTO.class);
-            when(inputDTO.orderableItemIds()).thenReturn(List.of("item1", "item2"));
+            // Create a real DisplayItemInputDTO instead of mocking it
+            DisplayItemInputDTO inputDTO = new DisplayItemInputDTO(
+                "Test Item", "Test Description", true, "10.00",
+                List.of("item1", "item2"), true, "category1");
 
             DisplayItem converted = mock(DisplayItem.class);
             when(converterService.convert(inputDTO)).thenReturn(converted);
@@ -91,13 +99,17 @@ class DisplayItemServiceTest {
             DisplayItem saved = mock(DisplayItem.class);
             when(displayItemRepository.save(withId)).thenReturn(saved);
 
-            DisplayItemOutputDTO outputDTO = mock(DisplayItemOutputDTO.class);
+            // Create a real DisplayItemOutputDTO instead of mocking it
+            DisplayItemOutputDTO expectedDTO = new DisplayItemOutputDTO(
+                "test-id", "test-category", "Test Item", "Test Description", 
+                Collections.emptyList(), "10.00", null, true);
+
             try (MockedStatic<DisplayItemOutputDTOConverter> mockStatic = mockStatic(DisplayItemOutputDTOConverter.class)) {
-                mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(saved)).thenReturn(outputDTO);
+                mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(saved)).thenReturn(expectedDTO);
 
                 DisplayItemOutputDTO result = displayItemService.addDisplayItem(inputDTO);
 
-                assertThat(result).isEqualTo(outputDTO);
+                assertThat(result).isEqualTo(expectedDTO);
                 verify(converterService).convert(inputDTO);
                 verify(displayItemRepository).save(withId);
             }
@@ -106,8 +118,10 @@ class DisplayItemServiceTest {
         @Test
         @DisplayName("shouldThrowException_whenValidatedItemServiceThrows")
         void addDisplayItem_shouldThrowException_whenValidatedItemServiceThrows() {
-            DisplayItemInputDTO inputDTO = mock(DisplayItemInputDTO.class);
-            when(inputDTO.orderableItemIds()).thenReturn(List.of("item1"));
+            // Create a real DisplayItemInputDTO instead of mocking it
+            DisplayItemInputDTO inputDTO = new DisplayItemInputDTO(
+                "Invalid Item", "Invalid Description", true, "15.00",
+                List.of("item1"), true, "category1");
 
             when(converterService.convert(inputDTO)).thenThrow(new IllegalArgumentException("Ungültige Eingabe"));
 
@@ -149,8 +163,10 @@ class DisplayItemServiceTest {
         @DisplayName("shouldThrowException_whenValidatedItemServiceThrows")
         void updateDisplayItem_shouldThrowException_whenValidatedItemServiceThrows() {
             String id = "itemid-error";
-            DisplayItemInputDTO inputDTO = mock(DisplayItemInputDTO.class);
-            when(inputDTO.orderableItemIds()).thenReturn(List.of("item1"));
+            // Create a real DisplayItemInputDTO instead of mocking it
+            DisplayItemInputDTO inputDTO = new DisplayItemInputDTO(
+                "Error Item", "Error Description", false, "5.00",
+                List.of("item1"), false, "category-error");
 
             DisplayItem existingItem = mock(DisplayItem.class);
             when(validatedDisplayItemService.validatedItemOrThrow(
@@ -168,8 +184,10 @@ class DisplayItemServiceTest {
         @DisplayName("shouldValidateAndUpdateDisplayItem_whenValidInput")
         void updateDisplayItem_shouldValidateAndUpdateDisplayItem_whenValidInput() {
             String id = "itemid-xyz";
-            DisplayItemInputDTO inputDTO = mock(DisplayItemInputDTO.class);
-            when(inputDTO.orderableItemIds()).thenReturn(List.of("item1", "item2"));
+            // Create a real DisplayItemInputDTO instead of mocking it
+            DisplayItemInputDTO inputDTO = new DisplayItemInputDTO(
+                "Updated Item", "Updated Description", true, "12.50",
+                List.of("item1", "item2"), true, "category-updated");
 
             DisplayItem existingItem = mock(DisplayItem.class);
             when(validatedDisplayItemService.validatedItemOrThrow(
@@ -182,13 +200,17 @@ class DisplayItemServiceTest {
             DisplayItem saved = mock(DisplayItem.class);
             when(displayItemRepository.save(updated)).thenReturn(saved);
 
-            DisplayItemOutputDTO outputDTO = mock(DisplayItemOutputDTO.class);
+            // Create a real DisplayItemOutputDTO instead of mocking it
+            DisplayItemOutputDTO expectedDTO = new DisplayItemOutputDTO(
+                "test-id", "test-category", "Test Item", "Test Description", 
+                Collections.emptyList(), "10.00", null, true);
+
             try (MockedStatic<DisplayItemOutputDTOConverter> mockStatic = mockStatic(DisplayItemOutputDTOConverter.class)) {
-                mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(saved)).thenReturn(outputDTO);
+                mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(saved)).thenReturn(expectedDTO);
 
                 DisplayItemOutputDTO result = displayItemService.updateDisplayItem(id, inputDTO);
 
-                assertThat(result).isEqualTo(outputDTO);
+                assertThat(result).isEqualTo(expectedDTO);
                 verify(validatedDisplayItemService).validatedItemOrThrow(
                         eq(DisplayItem.class), eq("Anzeigeelement"), eq("displayItems"), isNull(), eq(id), eq("update"));
                 verify(converterService).convert(inputDTO, existingItem);

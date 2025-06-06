@@ -51,8 +51,13 @@ class DisplayCategoryServiceTest {
             List<DisplayCategory> categories = List.of(cat1, cat2);
             when(displayCategoryRepository.findAllByOrderByPositionAsc()).thenReturn(categories);
 
-            DisplayCategoryOutputDTO dto1 = mock(DisplayCategoryOutputDTO.class);
-            DisplayCategoryOutputDTO dto2 = mock(DisplayCategoryOutputDTO.class);
+            // Create real DisplayCategoryOutputDTO instances instead of mocking them
+            DisplayCategoryOutputDTO dto1 = new DisplayCategoryOutputDTO(
+                "id1", "Category 1", "Description 1", 
+                Collections.emptyList(), "image1.jpg", true);
+            DisplayCategoryOutputDTO dto2 = new DisplayCategoryOutputDTO(
+                "id2", "Category 2", "Description 2", 
+                Collections.emptyList(), "image2.jpg", false);
             List<DisplayCategoryOutputDTO> dtos = List.of(dto1, dto2);
             try (MockedStatic<DisplayCategoryOutputDTOConverter> mock = mockStatic(DisplayCategoryOutputDTOConverter.class)) {
                 mock.when(() -> DisplayCategoryOutputDTOConverter.convert(categories)).thenReturn(dtos);
@@ -104,7 +109,10 @@ class DisplayCategoryServiceTest {
             DisplayCategory saved = mock(DisplayCategory.class);
             when(displayCategoryRepository.save(validated)).thenReturn(saved);
 
-            DisplayCategoryOutputDTO outputDTO = mock(DisplayCategoryOutputDTO.class);
+            // Create a real DisplayCategoryOutputDTO instead of mocking it
+            DisplayCategoryOutputDTO outputDTO = new DisplayCategoryOutputDTO(
+                "test-id", "Test Category", "Test Description", 
+                Collections.emptyList(), "test-image.jpg", true);
             try (MockedStatic<DisplayCategoryOutputDTOConverter> mock = mockStatic(DisplayCategoryOutputDTOConverter.class)) {
                 mock.when(() -> DisplayCategoryOutputDTOConverter.convert(saved)).thenReturn(outputDTO);
 
@@ -153,7 +161,10 @@ class DisplayCategoryServiceTest {
             DisplayCategory saved = mock(DisplayCategory.class);
             when(displayCategoryRepository.save(validated)).thenReturn(saved);
 
-            DisplayCategoryOutputDTO outputDTO = mock(DisplayCategoryOutputDTO.class);
+            // Create a real DisplayCategoryOutputDTO instead of mocking it
+            DisplayCategoryOutputDTO outputDTO = new DisplayCategoryOutputDTO(
+                "updated-id", "Updated Category", "Updated Description", 
+                Collections.emptyList(), "updated-image.jpg", true);
             try (MockedStatic<DisplayCategoryOutputDTOConverter> mockStatic = mockStatic(DisplayCategoryOutputDTOConverter.class)) {
                 mockStatic.when(() -> DisplayCategoryOutputDTOConverter.convert(saved)).thenReturn(outputDTO);
 
