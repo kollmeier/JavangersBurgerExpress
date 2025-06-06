@@ -37,6 +37,7 @@ import {useDisplayItemMutations} from "@/hooks/use-display-item-mutations.ts";
 import DisplayItemAdd from "@/features/manager/display-items/components/display-item-add.tsx";
 import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {useDisplayItems} from "@/util/queries.ts";
+import {SortedInputDTO} from "@/types/SortedInputDTO.ts";
 
 const DisplayItemsPage: React.FC = () => {
     const {data: displayCategories} = useDisplayCategories();
@@ -120,12 +121,25 @@ const DisplayItemsPage: React.FC = () => {
 
     useEffect(() => {
         if (displayItemsOrderByCategory && Object.keys(displayItemsOrderByCategory).length > 0) {
-            saveItemPositionsMutation.mutate(Object.values(displayItemsOrderByCategory)
-                .flatMap((displayItems: string[]) => displayItems), {
+            const flattenedOrder = Object.values(displayItemsOrderByCategory)
+                .flatMap((displayItemIds: string[]) => displayItemIds.map((displayItemId, index): SortedInputDTO | undefined => {
+                    const displayItem = displayItemForId(displayItemId);
+                    return (
+                        displayItem && {
+                            index,
+                            id: displayItemId,
+                            parentId: displayItem.categoryId,
+                        }
+                    )
+                }))
+                .filter(item => !!item);
+
+
+            saveItemPositionsMutation.mutate(flattenedOrder, {
                 onError: () => toast.error('Fehler beim Speichern der Positionen.')
             });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [displayItemsOrderByCategory]);
 
     useEffect(() => {
@@ -154,6 +168,10 @@ const DisplayItemsPage: React.FC = () => {
             }
         });
     };
+
+    const displayItemForId = (id: string) => {
+        return displayItems?.find((item: DisplayItemOutputDTO) => item.id === id);
+    }
 
     const handleSubmitUpdateDisplayCategory = async (submittedDisplayCategory: DisplayCategoryInputDTO, displayCategoryId: string) => {
         const toastId = toast.loading('Kategorie wird gespeichert...');
@@ -349,7 +367,10 @@ const DisplayItemsPage: React.FC = () => {
 
     // Handle dragging an item directly to a category
     function handleItemToCategoryDrag(activeItem: DisplayItemOutputDTO, overCategory: DisplayCategoryOutputDTO) {
-        activeItem.categoryId = overCategory.id;
+        // Only track category change if it's actually changing categories
+        if (activeItem.categoryId !== overCategory.id) {
+            activeItem.categoryId = overCategory.id;
+        }
 
         // Create a new array with the updated item
         const updatedDisplayItems = displayItems?.map(item => 
