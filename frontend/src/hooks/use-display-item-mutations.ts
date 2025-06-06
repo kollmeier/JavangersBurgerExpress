@@ -6,7 +6,12 @@ export function useDisplayItemMutations() {
     const queryClient = useQueryClient();
 
     const updateData = (data: DisplayItemOutputDTO | DisplayItemOutputDTO[] | null | undefined, id?: string): void => {
-        queryClient.setQueryData(['displayItemsData', ...(id ? [id] : [])], data)
+        queryClient.setQueryData(['displayItemsData', ...(id ? [{id}] : [])], data)
+    }
+
+    const handleSettled = (data: DisplayItemOutputDTO | null | undefined) => {
+        queryClient.invalidateQueries({queryKey: ['displayItemsData']})
+        queryClient.invalidateQueries({queryKey: ['displayCategoriesData', ...(data ? [{id: data.categoryId}] : [])]})
     }
     
     const savePositionsMutation = useMutation({
@@ -21,7 +26,7 @@ export function useDisplayItemMutations() {
         onSuccess: (savedDisplayItem) => {
             updateData(savedDisplayItem, savedDisplayItem?.id);
         },
-        onSettled: () => queryClient.invalidateQueries({queryKey: ['displayItemsData']}),
+        onSettled: handleSettled,
     });
 
     const updateDisplayItemMutation = useMutation({
@@ -29,7 +34,7 @@ export function useDisplayItemMutations() {
         onSuccess: (savedDisplayItem, submittedDisplayItem) => {
             updateData(savedDisplayItem, submittedDisplayItem.id);
         },
-        onSettled: () => queryClient.invalidateQueries({queryKey: ['displayItemsData']}),
+        onSettled: handleSettled,
     });
 
     const deleteDisplayItemMutation = useMutation({
@@ -37,7 +42,7 @@ export function useDisplayItemMutations() {
         onSuccess: (_v, deletedId) => {
             updateData(undefined, deletedId);
         },
-        onSettled: () => queryClient.invalidateQueries({queryKey: ['displayItemsData']}),
+        onSettled: () => handleSettled(undefined),
     });
 
     return {

@@ -57,13 +57,20 @@ const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
             typeCircle={getIconElement('displayItem')}
             priceCircle={<div className="flex flex-col items-center">{displayItem.oldPrice && <span
                 className="text-[0.6em] line-through">{displayItem.oldPrice.replace('.', ',')}€</span>}{displayItem.price.replace('.', ',')}€</div>}
-            footer={<div className="flex flex-wrap gap-1">{displayItem.orderableItems.map(orderableItem => <span key={displayItem.id + orderableItem.id} className="not-last:after:content-[',_']">{orderableItem.name}</span>)}</div>}
+            footer={<div className="flex flex-wrap gap-1">{displayItem.orderableItems.map(orderableItem =>
+                <span key={displayItem.id + orderableItem.id} className={cn("pill !text-sm", getIconColor(orderableItem.type, "light"))}>
+                    {getColoredIconElement(orderableItem.type, "bg-transparent")} {orderableItem.name}
+                </span>)}</div>}
             topRight={<span className="displayItem-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
             >
             {displayItem.description &&
-                <span>
-                    {displayItem.description}
-                </span>}
+                <blockquote className={cn("text-sm text-gray-500 bg-white/10 mx-2 p-2 rounded-md shadow-xs relative",
+                    "before:absolute before:-bottom-6 before:-left-2 before:content-[open-quote] before:text-3xl before:text-shadow-sm",
+                    "after:absolute after:-top-2 after:-right-2 after:content-[close-quote] after:text-3xl after:text-shadow-sm",
+                    "hover:bg-gray-50 max-h-9 hover:max-h-24 transition-[max-height,background-color] duration-300 ease-in-out]"
+                )}>
+                    <div className="not-hover:text-nowrap not-hover:text-ellipsis overflow-hidden hover:overflow-y-scroll max-h-20">{displayItem.description}</div>
+                </blockquote>}
         </Card>
     );
 }

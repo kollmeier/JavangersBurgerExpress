@@ -38,10 +38,10 @@ import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {useDisplayItems} from "@/util/queries.ts";
 
 const DisplayItemsPage: React.FC = () => {
-    const {data: displayCategories, isLoading} = useDisplayCategories();
+    const {data: displayCategories} = useDisplayCategories();
     const [displayCategoriesOrder, setDisplayCategoriesOrder] = useState<string[]>([]);
 
-    const {data: displayItems} = useDisplayItems(isLoading);
+    const {data: displayItems} = useDisplayItems();
     const [displayItemsOrderByCategory, setDisplayItemsOrderByCategory] = useState<{[categoryId: string]: string[]}>({});
 
     const setDisplayItemsOrder = (categoryId: string, displayItemsOrder: string[]) => {
@@ -217,6 +217,7 @@ const DisplayItemsPage: React.FC = () => {
                     autoClose: 5000,
                 });
                 navigate("/manage/displayItems");
+                setDisplayCategoryToAddTo(undefined);
             },
             onError: (error: unknown) => {
                 toast.update(toastId, {
@@ -231,7 +232,6 @@ const DisplayItemsPage: React.FC = () => {
 
     const handleSubmitUpdateDisplayItem = async (submittedDisplayItem: DisplayItemInputDTO, displayItemId: string) => {
         const toastId = toast.loading('Kategorie wird gespeichert...');
-        console.log(submittedDisplayItem);
         return updateDisplayItemMutation.mutate({...submittedDisplayItem, id: displayItemId}, {
             onSuccess: () => {
                 toast.update(toastId, {

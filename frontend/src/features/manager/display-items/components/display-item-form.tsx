@@ -1,7 +1,11 @@
 import React, {useRef} from "react";
 import type {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import type {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
-import {Controller, useForm} from "react-hook-form";
+import {
+    Controller,
+    ControllerRenderProps,
+    useForm,
+} from "react-hook-form";
 import InputWithLabel from "@/components/ui/input-with-label";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
@@ -37,6 +41,8 @@ const DisplayItemForm = ({ displayItem, categoryId, onSubmit, onCancel }: Props)
         control,
         handleSubmit,
         reset,
+        setValue,
+        formState
     } = useForm<DisplayItemInputDTO>({
         values: {
             name: displayItem?.name ?? '',
@@ -62,12 +68,39 @@ const DisplayItemForm = ({ displayItem, categoryId, onSubmit, onCancel }: Props)
 
     const formRef = useRef<HTMLFormElement>(null);
 
+    const autoNameAllowed = displayItem?.orderableItems?.map(o => o.name).join(', ') === displayItem?.name;
+    const autoDescriptionAllowed = displayItem?.orderableItems?.flatMap(o => o.descriptionForDisplay).join(', ') === displayItem?.description;
+
     const handleCancel = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         event.preventDefault();
         if (onCancel) {
             onCancel();
         }
     }
+
+    const handleItemChange = (selectedOrderableItems: OrderableItemOutputDTO | OrderableItemOutputDTO[], field: ControllerRenderProps<DisplayItemInputDTO, "orderableItemIds">) => {
+        const newSelectedOrderableItems = Array.isArray(selectedOrderableItems)
+            ? selectedOrderableItems.map(orderableItem => orderableItem.id)
+            : [];
+        field.onChange(newSelectedOrderableItems)
+        if (!formState.dirtyFields.name && autoNameAllowed) {
+            if (Array.isArray(selectedOrderableItems)) {
+                setValue('name', selectedOrderableItems.map(orderableItem => orderableItem.name).join(', '), {});
+            }
+            else {
+                setValue('name', selectedOrderableItems.name, {});
+            }
+        }
+        if (!formState.dirtyFields.description && autoDescriptionAllowed) {
+            if (Array.isArray(selectedOrderableItems)) {
+                setValue('description', selectedOrderableItems.flatMap(orderableItem => orderableItem.descriptionForDisplay).join(', '), {});
+            }
+            else {
+                setValue('description', selectedOrderableItems.descriptionForDisplay.join(', '), {});
+            }
+        }
+    }
+
     const doSubmit = async (submittedDisplayItem: DisplayItemInputDTO) => {
         if (!onSubmit) {
             return;
@@ -79,7 +112,6 @@ const DisplayItemForm = ({ displayItem, categoryId, onSubmit, onCancel }: Props)
         if (!isNaN(parseFloat(submittedDisplayItem.actualPrice))) {
             submittedDisplayItem.hasActualPrice = true;
         }
-        console.log(submittedDisplayItem);
         await onSubmit(submittedDisplayItem, displayItem?.id);
         reset();
     }
@@ -132,11 +164,7 @@ const DisplayItemForm = ({ displayItem, categoryId, onSubmit, onCancel }: Props)
                         options={orderableItems ?? []}
                         error={fieldState.error?.message}
                         {...field}
-                        onChange={(selectedOrderableItems) => field.onChange(
-                            Array.isArray(selectedOrderableItems)
-                                ? selectedOrderableItems.map(orderableItem => orderableItem.id)
-                                : []
-                        )}
+                        onChange={(selectedOrderableItems) => handleItemChange(selectedOrderableItems, field)}
                         optionElement={orderableItem => <OrderableItemOption orderableItem={orderableItem}/>}
                         summaryElement={field.value && orderableItems && ((value: OrderableItemOutputDTO | OrderableItemOutputDTO[]) =>
                             (Array.isArray(value) && value.length > 0 ? <span className="text-gray-300 text-xs">= {value.reduce(

@@ -6,7 +6,7 @@ export function useDisplayCategoryMutations() {
     const queryClient = useQueryClient();
 
     const updateData = (data: DisplayCategoryOutputDTO | DisplayCategoryOutputDTO[] | null | undefined, id?: string): void => {
-        queryClient.setQueryData(['displayCategoriesData', ...(id ? [id] : [])], data)
+        queryClient.setQueryData(['displayCategoriesData', ...(id ? [{id}] : [])], data)
     }
 
     const savePositionsMutation = useMutation({
