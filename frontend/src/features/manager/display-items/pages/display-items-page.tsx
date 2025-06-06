@@ -1,20 +1,21 @@
 import React, {useEffect, useState} from 'react';
-import { useNavigate, useParams} from 'react-router-dom';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import {useNavigate, useParams} from 'react-router-dom';
+import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
 import {
+    closestCorners,
     DndContext,
-    closestCenter,
+    DragEndEvent,
+    DragStartEvent,
     KeyboardSensor,
     PointerSensor,
     useSensor,
     useSensors,
-    DragEndEvent,
 } from '@dnd-kit/core';
 import {
     arrayMove,
+    rectSortingStrategy,
     SortableContext,
     sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {toast} from "react-toastify";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
@@ -65,6 +66,8 @@ const DisplayItemsPage: React.FC = () => {
     const [displayCategoryToAddTo, setDisplayCategoryToAddTo] = React.useState<string | undefined>(undefined);
 
     const [countItemsInCategoryToDelete, setCountItemsInCategoryToDelete] = React.useState<number>(0);
+    const [draggingCategoryId, setDraggingCategoryId] = React.useState<string | null>(null);
+    const [isAnyCategoryDragging, setIsAnyCategoryDragging] = React.useState<boolean>(false);
 
     const navigate = useNavigate();
 
@@ -289,25 +292,122 @@ const DisplayItemsPage: React.FC = () => {
         setDisplayCategoryToAddTo(undefined);
     }
 
+    function handleDragStart(event: DragStartEvent) {
+        const {active} = event;
+        if (!active) {
+            return;
+        }
+
+        // Check if the dragged item is a category
+        const activeCategory = displayCategories?.find((displayCategory: DisplayCategoryOutputDTO) => 
+            displayCategory.id === active.id);
+
+        if (activeCategory) {
+            setDraggingCategoryId(activeCategory.id);
+            setIsAnyCategoryDragging(true);
+        }
+    }
+
+    // Helper function to find active and over items/categories
+    function findDragElements(activeId: string, overId: string) {
+        const activeItem = displayItems?.find((item: DisplayItemOutputDTO) => item.id === activeId);
+        const overItem = displayItems?.find((item: DisplayItemOutputDTO) => item.id === overId);
+
+        const activeCategory = displayCategories?.find((category: DisplayCategoryOutputDTO) =>
+            category.id === activeItem?.categoryId || category.id === activeId);
+        const overCategory = displayCategories?.find((category: DisplayCategoryOutputDTO) =>
+            category.id === overItem?.categoryId || category.id === overId);
+
+        return { activeItem, overItem, activeCategory, overCategory };
+    }
+
+    // Handle dragging an item to another item
+    function handleItemToItemDrag(activeItem: DisplayItemOutputDTO, overItem: DisplayItemOutputDTO, activeCategory?: DisplayCategoryOutputDTO, overCategory?: DisplayCategoryOutputDTO) {
+        // Get a flat list of all display items across all categories
+        const displayItemsOrder = Object.values(displayItemsOrderByCategory).flatMap((items: string[]) => items);
+        const oldIndex = displayItemsOrder.indexOf(activeItem.id);
+        const newIndex = displayItemsOrder.indexOf(overItem.id);
+
+        const newDisplayItemsOrder = arrayMove(displayItemsOrder, oldIndex, newIndex);
+
+        // Update the category ID of the active item if it's being moved to a different category
+        if (overCategory && activeCategory?.id !== overCategory.id) {
+            activeItem.categoryId = overCategory.id;
+        }
+
+        // Create a new array of display items with updated order and category IDs
+        const updatedDisplayItems = newDisplayItemsOrder.map((itemId: string) => {
+            if (itemId === activeItem.id) {
+                return activeItem;
+            }
+            return displayItems?.find((item: DisplayItemOutputDTO) => item.id === itemId);
+        }).filter(item => !!item);
+
+        // Update the display items state
+        setDisplayItems(updatedDisplayItems);
+    }
+
+    // Handle dragging an item directly to a category
+    function handleItemToCategoryDrag(activeItem: DisplayItemOutputDTO, overCategory: DisplayCategoryOutputDTO) {
+        activeItem.categoryId = overCategory.id;
+
+        // Create a new array with the updated item
+        const updatedDisplayItems = displayItems?.map(item => 
+            item.id === activeItem.id ? {...item, categoryId: overCategory.id} : item
+        ) || [];
+
+        setDisplayItems(updatedDisplayItems);
+    }
+
+    // Handle dragging a category to another category
+    function handleCategoryToCategoryDrag(activeId: string, overId: string) {
+        setDisplayCategoriesOrder((currentOrder) => {
+            const oldIndex = currentOrder.indexOf(activeId);
+            const newIndex = currentOrder.indexOf(overId);
+            return arrayMove(currentOrder, oldIndex, newIndex);
+        });
+    }
+
     function handleDragEnd(event: DragEndEvent) {
         const {active, over} = event;
+
+        // Reset dragging state
+        setDraggingCategoryId(null);
+        setIsAnyCategoryDragging(false);
+
         if (!active || !over) {
             return;
         }
 
         if (active.id !== over.id) {
-            setDisplayCategoriesOrder((displayCategoriesOrder) => {
-                const oldIndex = displayCategoriesOrder.indexOf(active.id + "");
-                const newIndex = displayCategoriesOrder.indexOf(over.id + "");
+            const { activeItem, overItem, activeCategory, overCategory } = findDragElements(active.id as string, over.id as string);
 
-                return arrayMove(displayCategoriesOrder, oldIndex, newIndex);
-            });
+            if (activeItem) { // We are dragging an item
+                if (overItem) {
+                    handleItemToItemDrag(activeItem, overItem, activeCategory, overCategory);
+                } else if (overCategory && activeCategory?.id !== overCategory.id) {
+                    handleItemToCategoryDrag(activeItem, overCategory);
+                }
+                return; // We return here, because we don't want to update the displayCategoriesOrder
+            }
+
+            if (activeCategory && overCategory) { // We are dragging a category to another category
+                handleCategoryToCategoryDrag(active.id as string, over.id as string);
+            }
         }
     }
 
+    // Create a flat list of all display item IDs across all categories
+    const allDisplayItemIds = Object.values(displayItemsOrderByCategory).flatMap(ids => ids);
+
     return (
-        <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-            <SortableContext items={displayCategoriesOrder} strategy={verticalListSortingStrategy}>
+        <DndContext 
+            collisionDetection={closestCorners}
+            sensors={sensors} 
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+        >
+            <SortableContext items={[...displayCategoriesOrder, ...allDisplayItemIds]} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     <MinimalCard className={cn("col-span-1 sm:col-span-2 xl:col-span-3 h-28 transition-[height]", displayCategoryId === 'add' && "h-58")} colorVariant={colorMapCards.displayCategory}>
                         {displayCategoryId !== 'add' ? (
@@ -327,7 +427,9 @@ const DisplayItemsPage: React.FC = () => {
                                                                                       onDisplayItemDelete={handleDeleteDisplayItemConfirm}
                                                                                       onAddDisplayItemClicked={() => setDisplayCategoryToAddTo(displayCategory.id)}
                                                                                       onDelete={handleDeleteDisplayCategoryConfirm}
-                                                                                      onCancel={handleCancel}/>)}
+                                                                                      onCancel={handleCancel}
+                                                                                      isDragging={draggingCategoryId === displayCategory.id}
+                                                                                      isAnyCategoryDragging={isAnyCategoryDragging}/>)}
                 </div>
                 <BeDialog
                     onClose={() => setDisplayCategoryToDelete(undefined)}

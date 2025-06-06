@@ -5,7 +5,6 @@ import DisplayCategoryEdit from "./display-category-edit.tsx";
 import type {DisplayCategoryInputDTO} from "@/types/DisplayCategoryInputDTO.ts";
 import DisplayCategoryCard from "./display-category-card.tsx";
 import {cn} from "@/util";
-import {rectSortingStrategy, SortableContext} from "@dnd-kit/sortable";
 import DisplayItemItem from "@/features/manager/display-items/components/display-item-item.tsx";
 import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
@@ -22,6 +21,8 @@ type Props = {
     onAddDisplayItemClicked: () => void;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
+    isDragging?: boolean;
+    isAnyCategoryDragging?: boolean;
 }
 function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItemsOrder, ...props}: Readonly<Props>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -74,28 +75,32 @@ function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItem
         <>
             <div className={cn("h-39 transition-[height]", isEditing && "h-58", props.className)} id={props.id}>
                 {!isEditing ? (
-                    <DisplayCategoryCard displayCategory={displayCategory} onDelete={handleDelete} onAddDisplayItemClicked={props.onAddDisplayItemClicked}/>
+                    <DisplayCategoryCard 
+                        displayCategory={displayCategory} 
+                        onDelete={handleDelete} 
+                        onAddDisplayItemClicked={props.onAddDisplayItemClicked}
+                        isDragging={props.isDragging}
+                    />
                 ) : (
                     <DisplayCategoryEdit displayCategory={displayCategory}
                                          onSubmit={handleSubmit}
                                          onCancel={handleCancel}/>
                 )}
             </div>
-            <SortableContext items={displayItemsOrder} strategy={rectSortingStrategy}>
-                {displayCategory.displayItems.map((displayItem) => (
-                    <div key={displayItem.id}>
-                        <DisplayItemItem
-                            id={displayItem.id}
-                            categoryId={displayCategory.id}
-                            displayItem={displayItem}
-                            onCancel={props.onCancel}
-                            onSubmit={props.onDisplayItemSubmit}
-                            onDelete={props.onDisplayItemDelete}
-                            className="w-full h-full"
-                        />
-                    </div>
-                ))}
-            </SortableContext>
+            {displayCategory.displayItems.map((displayItem) => (
+                <DisplayItemItem
+                    key={displayItem.id}
+                    id={displayItem.id}
+                    categoryId={displayCategory.id}
+                    displayItem={displayItem}
+                    onCancel={props.onCancel}
+                    onSubmit={props.onDisplayItemSubmit}
+                    onDelete={props.onDisplayItemDelete}
+                    className="w-full h-full"
+                    isDragging={props.isDragging}
+                    isAnyCategoryDragging={props.isAnyCategoryDragging}
+                />
+            ))}
         </>
     );
 }

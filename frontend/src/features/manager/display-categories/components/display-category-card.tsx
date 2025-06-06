@@ -19,9 +19,10 @@ type CardProps = {
     displayCategory: DisplayCategoryOutputDTO;
     onAddDisplayItemClicked: () => void;
     onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+    isDragging?: boolean;
 }
 
-const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked}: CardProps) => {
+const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked, isDragging}: CardProps) => {
 
     const navigate = useNavigate();
     /**
@@ -35,6 +36,7 @@ const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked
         attributes,
         listeners,
         setNodeRef,
+        setActivatorNodeRef,
         transform,
         transition,
     } = useSortable({id: displayCategory.id});
@@ -58,8 +60,11 @@ const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
             typeCircle={getIconElement("displayCategory")}
-            topRight={<span className="displayCategory-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
-            className={cn("gap-y-1 gap-x-2")}
+            topRight={<span className="displayCategory-type" ref={setActivatorNodeRef} {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            className={cn(
+                "gap-y-1 gap-x-2",
+                isDragging && "shadow-lg scale-105 z-10"
+            )}
             headerClassName="row-span-1"
             childrenClassName="col-start-middle row-span-2 -mx-1.5 max-h-9"
             actionsClassName="col-span-4 mr-4"

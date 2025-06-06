@@ -4,6 +4,7 @@ import {useParams} from "react-router-dom";
 import DisplayItemEdit from "./display-item-edit.tsx";
 import type {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
 import DisplayItemCard from "./display-item-card.tsx";
+import {cn} from "@/util";
 
 type Props = {
     id: string;
@@ -13,6 +14,8 @@ type Props = {
     onSubmit?: (submittedDisplayItem: DisplayItemInputDTO, displayItemId: string) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
+    isDragging?: boolean;
+    isAnyCategoryDragging?: boolean;
 }
 function DisplayItemItem(props: Readonly<Props>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -55,7 +58,21 @@ function DisplayItemItem(props: Readonly<Props>) {
     }, [displayItemId]);
 
     return (
-        <div className={props.className} id={props.id}>
+        <div
+            className={cn(
+                props.className,
+                "origin-top",
+                (props.isAnyCategoryDragging)
+                    ? "h-auto opacity-0 max-h-0"
+                    : "h-auto opacity-100 max-h-80",
+            )}
+            id={props.id}
+            style={{
+                transition: (props.isAnyCategoryDragging ? "max-height 100ms 200ms ease-in-out, opacity 200ms ease-in-out"
+                        : "max-height 200ms ease-in-out, opacity 200ms 100ms ease-in-out"),
+                willChange: "height, opacity",
+            }}
+        >
             {!isEditing ? (
                 <DisplayItemCard displayItem={props.displayItem} onDelete={handleDelete}/>
             ) : (

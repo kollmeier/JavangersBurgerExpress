@@ -35,6 +35,7 @@ const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
         attributes,
         listeners,
         setNodeRef,
+        setActivatorNodeRef,
         transform,
         transition,
     } = useSortable({id: displayItem.id});
@@ -61,7 +62,7 @@ const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
                 <span key={displayItem.id + orderableItem.id} className={cn("pill !text-sm", getIconColor(orderableItem.type, "light"))}>
                     {getColoredIconElement(orderableItem.type, "bg-transparent")} {orderableItem.name}
                 </span>)}</div>}
-            topRight={<span className="displayItem-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            topRight={<span className="displayItem-type" ref={setActivatorNodeRef} {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
             >
             {displayItem.description &&
                 <blockquote className={cn("text-sm text-gray-500 bg-white/10 mx-2 p-2 rounded-md shadow-xs relative",
@@ -69,7 +70,7 @@ const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
                     "after:absolute after:-top-2 after:-right-2 after:content-[close-quote] after:text-3xl after:text-shadow-sm",
                     "hover:bg-gray-50 max-h-9 hover:max-h-24 transition-[max-height,background-color] duration-300 ease-in-out]"
                 )}>
-                    <div className="not-hover:text-nowrap not-hover:text-ellipsis overflow-hidden hover:overflow-y-scroll max-h-20">{displayItem.description}</div>
+                    <div className="not-hover:text-nowrap not-hover:text-ellipsis overflow-hidden transition-[overflow] hover:delay-300 hover:overflow-y-scroll max-h-20">{displayItem.description}</div>
                 </blockquote>}
         </Card>
     );
