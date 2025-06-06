@@ -8,7 +8,7 @@ export type BeButtonLinkProps = LinkProps & {
 
 const BeButtonLink = ({className, variant, ...props}: BeButtonLinkProps) => {
     return (
-        <Link {...props} className={cn("rounded-2xl h-2xl px-4 py-1 shadow-xs hover:shadow-sm", variant ? buttonColors[variant] : buttonColors.neutral, className)} />
+        <Link {...props} className={cn("btn", variant ? buttonColors[variant] : buttonColors.neutral, className)} />
     )
 }
 

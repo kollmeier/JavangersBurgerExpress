@@ -4,7 +4,6 @@ import {
     faEdit,
     faGripLines,
     faRemove,
-    faUtensils
 } from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
@@ -14,10 +13,7 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
-
-const displayItemIcon = () => {
-    return faUtensils;
-}
+import {cn, getColoredIconElement, getIconColor, getIconElement} from "@/util";
 
 type CardProps = {
     displayItem: DisplayItemOutputDTO;
@@ -58,7 +54,7 @@ const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
-            typeCircle={<FontAwesomeIcon icon={displayItemIcon()} />}
+            typeCircle={getIconElement('displayItem')}
             priceCircle={<div className="flex flex-col items-center">{displayItem.oldPrice && <span
                 className="text-[0.6em] line-through">{displayItem.oldPrice.replace('.', ',')}€</span>}{displayItem.price.replace('.', ',')}€</div>}
             footer={<div className="flex flex-wrap gap-1">{displayItem.orderableItems.map(orderableItem => <span key={displayItem.id + orderableItem.id} className="not-last:after:content-[',_']">{orderableItem.name}</span>)}</div>}

@@ -23,6 +23,7 @@
   --color-secondary-text: var(--color-teal-800);
   --color-normal-text: var(--color-indigo-50);
   --color-danger-text: var(--color-red-600);
+  --tw-shadow-color: var(--color-gray-900);
 }
 
 @layer base {
@@ -85,7 +86,7 @@
 
 @layer utilities {
   .btn {
-    @apply rounded-full h-8 px-4 py-1 shadow-xs hover:shadow-sm
+    @apply rounded-sm h-8 px-4 py-1 shadow-sm hover:shadow-xs hover:translate-[1px] active:translate-0.5 transition-[transform,box-shadow]
   }
   .btn-primary {
     @apply bg-primary text-primary-text

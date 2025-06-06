@@ -1,12 +1,9 @@
 import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-    faBowlFood,
-    faBurger,
     faEdit,
-    faGlassWater, faGripLines,
-    faRemove,
-    faUtensils
+    faGripLines,
+    faRemove
 } from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
@@ -16,23 +13,8 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
+import {getIconElement} from "@/util";
 
-const dishIcon = (type: string) => {
-    switch (type) {
-        case 'main': {
-            return faBurger;
-        }
-        case 'side': {
-            return faBowlFood;
-        }
-        case 'beverage': {
-            return faGlassWater;
-        }
-        default: {
-            return faUtensils;
-        }
-    }
-}
 
 type CardProps = {
     dish: DishOutputDTO;
@@ -74,7 +56,7 @@ const DishCard = ({dish, onDelete}: CardProps) => {
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
             image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name} className="object-contain drop-shadow-lg"/>}
-            typeCircle={dish.type && <FontAwesomeIcon icon={dishIcon(dish.type)} />}
+            typeCircle={dish.type && getIconElement(dish.type)}
             priceCircle={<>€{dish.price}</>}
             footer={dish.additionalInformation.size &&
                     <span className={"dish-info dish-info__" + dish.additionalInformation.size.type.toLowerCase()}>

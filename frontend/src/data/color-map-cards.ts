@@ -7,5 +7,6 @@ export const colorMapCards: Record<string, ColorVariantsType> = {
     side: "green",
     beverage: "blue",
     menu: "teal",
+    displayItem: "gray",
     displayCategory: "blue",
 }

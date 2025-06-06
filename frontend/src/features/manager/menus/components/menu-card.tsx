@@ -3,8 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faEdit,
     faGripLines,
-    faRemove,
-    faUtensils
+    faRemove
 } from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
@@ -14,10 +13,7 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
-
-const menuIcon = () => {
-    return faUtensils;
-}
+import {getIconElement} from "@/util";
 
 type CardProps = {
     menu: MenuOutputDTO;
@@ -58,7 +54,7 @@ const MenuCard = ({menu, onDelete}: CardProps) => {
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
-            typeCircle={<FontAwesomeIcon icon={menuIcon()} />}
+            typeCircle={getIconElement('menu')}
             priceCircle={<div className="flex flex-col items-center"><span className="text-[0.6em] line-through">{menu.dishes.reduce((s,d) => s + parseFloat(d.price), 0).toFixed(2)}€</span>{menu.price.replace('.', ',')}€</div>}
             footer={<div className="flex flex-wrap gap-1">{menu.dishes.map(dish => <span key={menu.id + dish.id} className="not-last:after:content-[',_']">{dish.name}</span>)}</div>}
             topRight={<span className="menu-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}

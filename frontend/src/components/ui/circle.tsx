@@ -13,13 +13,13 @@ export type CircleProps = PropsWithChildren<{
 
 export function Circle({children, className, icon, size, color}: CircleProps) {
     const sizes = {
-        sm: "w-10 h-10",
-        md: "w-12 h-12",
-        lg: "w-16 h-16"
+        sm: "!w-10 !h-10",
+        md: "!w-12 !h-12",
+        lg: "!w-16 !h-16"
     }
     return (
         <div className={cn("flex flex-col items-center", className)}>
-            <div className={cn("rounded-full flex flex-col p-1", size ? sizes[size] : sizes.md, color ? colorVariants[color].normal : colorVariants.neutral.dark)}>
+            <div className={cn("btn !rounded-full flex flex-col p-1", size ? sizes[size] : sizes.md, color ? colorVariants[color].normal : colorVariants.neutral.dark)}>
                 {icon ? <FontAwesomeIcon icon={icon} className="grow-1"/> : children}
             </div>
             {children && icon && <div>{children}</div>}
