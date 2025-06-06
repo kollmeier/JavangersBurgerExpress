@@ -26,6 +26,13 @@ public record ErrorDTO(
      */
     public static ErrorDTO fromException(final Exception exception) {
         Throwable cause = exception.getCause();
+        String message = exception.getMessage();
+        if (message == null) {
+            message = cause != null ? cause.getMessage() : null;
+        }
+        if (message == null) {
+            message = exception.getClass().getSimpleName();
+        }
         String path = null;
         if (exception instanceof WithPathInterface exceptionWithPath) {
             path = exceptionWithPath.getPath();
@@ -34,7 +41,7 @@ public record ErrorDTO(
                 exception.getClass().getSimpleName(),
                 cause != null ? cause.getClass().getSimpleName() : null,
                 cause != null ? cause.getMessage() : null,
-                StringUtils.capitalize(exception.getMessage()),
+                StringUtils.capitalize(message),
                 Instant.now().toString(),
                 HttpStatus.BAD_REQUEST.name(),
                 path
