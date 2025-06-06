@@ -2,7 +2,6 @@ package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemOutputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.OrderableItemOutputDTO;
-import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
@@ -89,6 +88,7 @@ class DisplayItemOutputDTOConverterTest {
         DisplayItemOutputDTO dto = DisplayItemOutputDTOConverter.convert(displayItem);
 
         assertThat(dto.id()).isEqualTo("item1");
+        assertThat(dto.categoryId()).isEqualTo(displayItem.getCategoryId().toString());
         assertThat(dto.name()).isEqualTo("Burger Classic");
         assertThat(dto.description()).isEqualTo("Ein klassischer Rindfleisch-Burger");
         assertThat(dto.orderableItems()).isEmpty();
@@ -126,6 +126,7 @@ class DisplayItemOutputDTOConverterTest {
         DisplayItemOutputDTO dto = DisplayItemOutputDTOConverter.convert(displayItem);
 
         assertThat(dto.id()).isEqualTo("item2");
+        assertThat(dto.categoryId()).isEqualTo(displayItem.getCategoryId().toString());
         assertThat(dto.name()).isEqualTo("Cheese Burger");
         assertThat(dto.description()).isEqualTo("Burger mit Käse");
         assertThat(dto.orderableItems()).hasSize(2)

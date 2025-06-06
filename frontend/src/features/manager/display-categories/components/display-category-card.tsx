@@ -21,11 +21,11 @@ const displayCategoryIcon = () => {
 
 type CardProps = {
     displayCategory: DisplayCategoryOutputDTO;
-
+    onAddDisplayItemClicked: () => void;
     onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
 
-const DisplayCategoryCard = ({displayCategory, onDelete}: CardProps) => {
+const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked}: CardProps) => {
 
     const navigate = useNavigate();
     /**
@@ -57,7 +57,7 @@ const DisplayCategoryCard = ({displayCategory, onDelete}: CardProps) => {
             image={displayCategory.imageUrl && <img src={displayCategory.imageUrl + '?size=148'} alt={displayCategory.name} className="object-contain drop-shadow-lg max-h-22"/>}
             imageClassName={cn("place-self-end")}
             actions={<>
-                <BeButton onClick={handleEdit}><FontAwesomeIcon icon={faFileCirclePlus}/> Element hinzufügen</BeButton>
+                <BeButton onClick={onAddDisplayItemClicked}><FontAwesomeIcon icon={faFileCirclePlus}/> Element hinzufügen</BeButton>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}

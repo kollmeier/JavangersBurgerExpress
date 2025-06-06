@@ -19,6 +19,7 @@ public class DisplayItemOutputDTOConverter {
     public static DisplayItemOutputDTO convert(final DisplayItem displayItem) {
         return new DisplayItemOutputDTO(
                 displayItem.getId(),
+                displayItem.getCategoryId().toString(),
                 displayItem.getName(),
                 displayItem.getDescription(),
                 OrderableItemOutputDTOConverter.convert(displayItem.getOrderableItems()),

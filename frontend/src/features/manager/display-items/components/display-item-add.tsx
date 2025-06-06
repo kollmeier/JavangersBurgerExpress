@@ -1,14 +1,16 @@
-import type {MenuInputDTO} from "@/types/MenuInputDTO.ts";
-import MenuForm from "@/features/manager/menus/components/menu-form.tsx";
+import type {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
+import DisplayItemForm from "@/features/manager/display-items/components/display-item-form.tsx";
 
 interface Props {
-    onSubmit?: (submittedMenu: MenuInputDTO) => Promise<void>;
+    categoryId: string;
+    onSubmit?: (submittedDisplayItem: DisplayItemInputDTO) => Promise<void>;
     onCancel?: () => void;
 }
 
-const DisplayItemAdd = ({ onSubmit, onCancel }: Props) => {
+const DisplayItemAdd = ({ onSubmit, onCancel, categoryId }: Props) => {
     return (
-        <MenuForm
+        <DisplayItemForm
+            categoryId={categoryId}
             onSubmit={onSubmit}
             onCancel={onCancel}/>
     );

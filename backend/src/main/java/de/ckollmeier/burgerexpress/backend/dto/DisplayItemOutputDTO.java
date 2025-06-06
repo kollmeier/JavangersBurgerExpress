@@ -8,6 +8,8 @@ public record DisplayItemOutputDTO(
         @NonNull
         String id,
         @NonNull
+        String categoryId,
+        @NonNull
         String name,
         @NonNull
         String description,

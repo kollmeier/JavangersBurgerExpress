@@ -41,7 +41,7 @@ public final class DisplayItemConverter {
     public static DisplayItem convert(final @NonNull DisplayItemInputDTO displayItem, final @NonNull DisplayItem existingDisplayItem, final @NonNull Function<String, OrderableItem> itemResolver) {
         BigDecimal actualPrice = existingDisplayItem.getActualPrice();
         if (displayItem.hasActualPrice() != null) {
-            actualPrice = displayItem.actualPrice() != null ? new BigDecimal(displayItem.actualPrice().replace(",", ".")) : null;
+            actualPrice = (displayItem.hasActualPrice() && displayItem.actualPrice() != null) ? new BigDecimal(displayItem.actualPrice().replace(",", ".")) : null;
         }
         return DisplayItem.builder()
             .id(existingDisplayItem.getId())

@@ -1,4 +1,4 @@
-import type {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
+import type {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faEdit,
@@ -15,24 +15,24 @@ import {colorMapCards} from "@/data";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 
-const menuIcon = () => {
+const displayItemIcon = () => {
     return faUtensils;
 }
 
 type CardProps = {
-    menu: MenuOutputDTO;
+    displayItem: DisplayItemOutputDTO;
 
     onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
 
-const DisplayItemCard = ({menu, onDelete}: CardProps) => {
+const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
 
     const navigate = useNavigate();
     /**
      * Wird aufgerufen, wenn der Bearbeiten-Button geklickt wird.
      */
     const handleEdit = () => {
-        navigate(`/manage/menus/${menu.id}/edit`);
+        navigate(`/manage/displayItems/${displayItem.id}/edit`);
     }
 
     const {
@@ -41,7 +41,7 @@ const DisplayItemCard = ({menu, onDelete}: CardProps) => {
         setNodeRef,
         transform,
         transition,
-    } = useSortable({id: menu.id});
+    } = useSortable({id: displayItem.id});
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -52,20 +52,21 @@ const DisplayItemCard = ({menu, onDelete}: CardProps) => {
         <Card
             ref={setNodeRef}
             style={style}
-            header={menu.name}
-            colorVariant={colorMapCards['menu']}
+            header={displayItem.name}
+            colorVariant={colorMapCards['displayItem']}
             actions={<>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
-            typeCircle={<FontAwesomeIcon icon={menuIcon()} />}
-            priceCircle={<div className="flex flex-col items-center"><span className="text-[0.6em] line-through">{menu.dishes.reduce((s,d) => s + parseFloat(d.price), 0).toFixed(2)}€</span>{menu.price.replace('.', ',')}€</div>}
-            footer={<div className="flex flex-wrap gap-1">{menu.dishes.map(dish => <span key={menu.id + dish.id} className="not-last:after:content-[',_']">{dish.name}</span>)}</div>}
-            topRight={<span className="menu-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            typeCircle={<FontAwesomeIcon icon={displayItemIcon()} />}
+            priceCircle={<div className="flex flex-col items-center">{displayItem.oldPrice && <span
+                className="text-[0.6em] line-through">{displayItem.oldPrice.replace('.', ',')}€</span>}{displayItem.price.replace('.', ',')}€</div>}
+            footer={<div className="flex flex-wrap gap-1">{displayItem.orderableItems.map(orderableItem => <span key={displayItem.id + orderableItem.id} className="not-last:after:content-[',_']">{orderableItem.name}</span>)}</div>}
+            topRight={<span className="displayItem-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
             >
-            {menu.additionalInformation.description &&
-                <span className={"menu-info menu-info__" + menu.additionalInformation.description.type.toLowerCase()}>
-                    {menu.additionalInformation.description.displayString}
+            {displayItem.description &&
+                <span>
+                    {displayItem.description}
                 </span>}
         </Card>
     );

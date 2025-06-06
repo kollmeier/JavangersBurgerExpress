@@ -1,6 +1,6 @@
 import React, {useRef} from "react";
-import type {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
-import type {MenuInputDTO} from "@/types/MenuInputDTO.ts";
+import type {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
+import type {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
 import InputWithLabel from "@/components/ui/input-with-label";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -8,59 +8,57 @@ import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
 import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
 import ComboboxWithLabel from "@/components/ui/combobox-with-label.tsx";
-import {useDishes} from "@/util";
-import {DishOutputDTO} from "@/types/DishOutputDTO.ts";
+import {OrderableItemOutputDTO} from "@/types/OrderableItemOutputDTO.ts";
 import {faCamera} from "@fortawesome/free-solid-svg-icons";
+import {useOrderableItems} from "@/util/queries.ts";
+import {colorMapCards} from "@/data";
 
 type Props = {
-    menu?: MenuOutputDTO;
-    onSubmit?:  (menu: MenuInputDTO, menuId?: string) => Promise<void>;
+    displayItem?: DisplayItemOutputDTO;
+    categoryId: string;
+    onSubmit?:  (displayItem: DisplayItemInputDTO, displayItemId?: string) => Promise<void>;
     onCancel?: () => void;
 }
 
-const DishOption = ({dish}: {dish: DishOutputDTO}) => {
+const OrderableItemOption = ({orderableItem}: {orderableItem: OrderableItemOutputDTO}) => {
     return (
         <div className="flex items-center justify-between gap-2">
-            <span>{dish.imageUrl ?
-                <img className="h-fit object-contain" src={dish.imageUrl + '?size=55'} alt="Produktbild"/> :
+            <span>{Object.values(orderableItem.imageUrls).length > 0 ?
+                <img className="h-fit object-contain" src={Object.values(orderableItem.imageUrls)[0] + '?size=55'} alt="Produktbild"/> :
                 <FontAwesomeIcon icon={faCamera} className="h-4 text-xl text-gray-400"/>
             }</span>
-            <span>{dish.name}, {dish.price}€</span>
+            <span className={colorMapCards[orderableItem.type] ?? ""}>{orderableItem.name}, {orderableItem.price}€</span>
         </div>
     )
 }
 
-const DisplayItemForm = ({ menu, onSubmit, onCancel }: Props)=> {
+const DisplayItemForm = ({ displayItem, categoryId, onSubmit, onCancel }: Props)=> {
     const {
         control,
         handleSubmit,
         reset,
-    } = useForm<MenuInputDTO>({
+    } = useForm<DisplayItemInputDTO>({
         values: {
-            name: menu?.name ?? '',
-            price: menu?.price ?? '',
-            dishIds: menu?.dishes.map(dish => dish.id) ?? [],
-            additionalInformation: {
-                description: {
-                    type: 'PLAIN_TEXT',
-                    value: menu?.additionalInformation.description.value ?? ''
-                }
-            }
+            name: displayItem?.name ?? '',
+            actualPrice: (displayItem?.oldPrice && displayItem.price) ?? '',
+            hasActualPrice: !!(displayItem?.oldPrice && displayItem.price),
+            description: displayItem?.description ?? '',
+            orderableItemIds: displayItem?.orderableItems.map(orderableItem => orderableItem.id) ?? [],
+            categoryId: categoryId,
+            published: displayItem?.published ?? true,
         },
         defaultValues: {
             name: '',
-            price: '',
-            dishIds: [],
-            additionalInformation: {
-                description: {
-                    type: 'PLAIN_TEXT',
-                    value: ''
-                },
-            }
+            actualPrice: '',
+            hasActualPrice: false,
+            description: '',
+            orderableItemIds: [],
+            categoryId: categoryId,
+            published: true,
         }
     });
 
-    const dishes = useDishes();
+    const orderableItems = useOrderableItems();
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -70,11 +68,19 @@ const DisplayItemForm = ({ menu, onSubmit, onCancel }: Props)=> {
             onCancel();
         }
     }
-    const doSubmit = async (submittedMenu: MenuInputDTO) => {
+    const doSubmit = async (submittedDisplayItem: DisplayItemInputDTO) => {
         if (!onSubmit) {
             return;
         }
-        await onSubmit(submittedMenu, menu?.id);
+        // Clean up the form.
+        if (submittedDisplayItem.actualPrice === '') {
+            submittedDisplayItem.hasActualPrice = false;
+        }
+        if (!isNaN(parseFloat(submittedDisplayItem.actualPrice))) {
+            submittedDisplayItem.hasActualPrice = true;
+        }
+        console.log(submittedDisplayItem);
+        await onSubmit(submittedDisplayItem, displayItem?.id);
         reset();
     }
 
@@ -100,50 +106,48 @@ const DisplayItemForm = ({ menu, onSubmit, onCancel }: Props)=> {
                 )}
             />
             <Controller
-                name="price"
+                name="actualPrice"
                 control={control}
-                rules={{ required: "Bitte geben Sie einen Preis an!" }}
                 render={({ field, fieldState }) => (
                     <InputWithLabel
-                        {...field}
                         label="Preis"
-                        value={field.value}
                         placeholder="0,00"
                         type="number"
                         inputMode="decimal"
                         fieldClassName="col-span-1"
                         error={fieldState.error?.message}
+                        {...field}
                     />
                 )}
             />
             <Controller
-                name="dishIds"
+                name="orderableItemIds"
                 control={control}
-                rules={{ required: "Suchen Sie mindestens ein Gericht aus!" }}
+                rules={{ required: "Suchen Sie mindestens ein Element aus!" }}
                 render={({ field, fieldState }) => (
-                    <ComboboxWithLabel<DishOutputDTO>
-                        label="Gerichte"
+                    <ComboboxWithLabel<OrderableItemOutputDTO>
+                        label="Verknüpfte Artikel"
                         fieldClassName="col-span-3 row-start-2"
                         multiple={true}
-                        options={dishes ?? []}
+                        options={orderableItems ?? []}
                         error={fieldState.error?.message}
                         {...field}
-                        onChange={(selectedDishes) => field.onChange(
-                            Array.isArray(selectedDishes)
-                                ? selectedDishes.map(dish => dish.id)
+                        onChange={(selectedOrderableItems) => field.onChange(
+                            Array.isArray(selectedOrderableItems)
+                                ? selectedOrderableItems.map(orderableItem => orderableItem.id)
                                 : []
                         )}
-                        optionElement={dish => <DishOption dish={dish}/>}
-                        summaryElement={field.value && dishes && ((value: DishOutputDTO | DishOutputDTO[]) =>
+                        optionElement={orderableItem => <OrderableItemOption orderableItem={orderableItem}/>}
+                        summaryElement={field.value && orderableItems && ((value: OrderableItemOutputDTO | OrderableItemOutputDTO[]) =>
                             (Array.isArray(value) && value.length > 0 ? <span className="text-gray-300 text-xs">= {value.reduce(
-                                (acc, dish) => acc + parseFloat(dish.price ?? "0"),
+                                (acc, orderableItem) => acc + parseFloat(orderableItem.price ?? "0"),
                                 0).toFixed(2)}€</span> : undefined))}
-                        value={dishes?.filter(dish => field.value.includes(dish.id)) ?? []}
+                        value={orderableItems?.filter(orderableItem => field.value.includes(orderableItem.id)) ?? []}
                     />
                 )}
             />
             <Controller
-                name="additionalInformation.description.value"
+                name="description"
                 control={control}
                 render={({ field, fieldState }) => (
                     <InputWithLabel

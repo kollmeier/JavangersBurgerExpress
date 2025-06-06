@@ -1,16 +1,16 @@
-import type {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
+import type {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import DisplayItemEdit from "./display-item-edit.tsx";
-import type {MenuInputDTO} from "@/types/MenuInputDTO.ts";
+import type {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
 import DisplayItemCard from "./display-item-card.tsx";
-import {cn} from "@/util";
 
 type Props = {
     id: string;
-    menu: MenuOutputDTO;
+    displayItem: DisplayItemOutputDTO;
+    categoryId: string;
     className?: string;
-    onSubmit?: (submittedMenu: MenuInputDTO, menuId: string) => Promise<void>;
+    onSubmit?: (submittedDisplayItem: DisplayItemInputDTO, displayItemId: string) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
 }
@@ -19,11 +19,11 @@ function DisplayItemItem(props: Readonly<Props>) {
 
     /**
      * Wird aufgerufen, wenn das Menü über das Formular bearbeitet wird.
-     * @param submittedMenu Das bearbeitete Menü.
+     * @param submittedDisplayItem Das bearbeitete Menü.
      */
-    const handleSubmit = async (submittedMenu: MenuInputDTO) => {
+    const handleSubmit = async (submittedDisplayItem: DisplayItemInputDTO) => {
         if (props.onSubmit) {
-            return props.onSubmit(submittedMenu, props.menu.id);
+            return props.onSubmit(submittedDisplayItem, props.displayItem.id);
         }
         return Promise.resolve();
     }
@@ -43,23 +43,24 @@ function DisplayItemItem(props: Readonly<Props>) {
      */
     const handleDelete = async () => {
         if (props.onDelete) {
-            return props.onDelete(props.menu.id);
+            return props.onDelete(props.displayItem.id);
         }
         return Promise.resolve();
     }
-    const menuId = useParams().menuId;
+    const displayItemId = useParams().displayItemId;
 
     useEffect(() => {
-        setIsEditing(menuId === props.menu.id);
+        setIsEditing(displayItemId === props.displayItem.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [menuId]);
+    }, [displayItemId]);
 
     return (
-        <div className={cn("grow-1 basis-30 min-w-sm", props.className)} id={props.id}>
+        <div className={props.className} id={props.id}>
             {!isEditing ? (
-                <DisplayItemCard menu={props.menu} onDelete={handleDelete}/>
+                <DisplayItemCard displayItem={props.displayItem} onDelete={handleDelete}/>
             ) : (
-                <DisplayItemEdit menu={props.menu}
+                <DisplayItemEdit displayItem={props.displayItem}
+                                 categoryId={props.categoryId}
                                  onSubmit={handleSubmit}
                                  onCancel={handleCancel}/>
             )}
