@@ -2,6 +2,7 @@ package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.AdditionalInformationDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.PlainTextAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.SizeInLiterAdditionalInformation;
 
@@ -32,7 +33,7 @@ public final class AdditionalInformationConverter {
      * @return An instance of AdditionalInformation.
      * @throws IllegalArgumentException If the type in the DTO is unknown.
      */
-    public static AdditionalInformation<?> convert(final AdditionalInformationDTO additionalInformation) {
+    public static BaseAdditionalInformation convert(final AdditionalInformationDTO additionalInformation) {
         switch (additionalInformation.type()) {
             case "SIZE_IN_LITER" -> {
                 return new SizeInLiterAdditionalInformation(new BigDecimal(additionalInformation.value().replace(",", ".")));
@@ -45,22 +46,22 @@ public final class AdditionalInformationConverter {
         }
     }
 
-    public static Map<String, AdditionalInformation<?>> convert(final Map<String, AdditionalInformationDTO> additionalInformation) {
+    public static Map<String, BaseAdditionalInformation> convert(final Map<String, AdditionalInformationDTO> additionalInformation) {
         return additionalInformation.entrySet().stream()
                 .map(entry -> Map.entry(entry.getKey(), convert(entry.getValue())))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**
-     * Konvertiert eine Map von AdditionalInformationDTO in eine Map von AdditionalInformation,
-     * unter Berücksichtigung bereits existierender AdditionalInformation.
+     * Konvertiert eine Map von AdditionalInformationDTO in eine Map von BaseAdditionalInformation,
+     * unter Berücksichtigung bereits existierender BaseAdditionalInformation.
      *
      * @param additionalInformation Die Map mit AdditionalInformationDTO-Objekten, die konvertiert werden sollen.
-     * @param existingAdditionalInformation Die bereits existierenden AdditionalInformation, die beibehalten werden sollen.
-     * @return Eine neue Map, die die konvertierten AdditionalInformation enthält, kombiniert mit den bestehenden.
+     * @param existingAdditionalInformation Die bereits existierenden BaseAdditionalInformation, die beibehalten werden sollen.
+     * @return Eine neue Map, die die konvertierten BaseAdditionalInformation enthält, kombiniert mit den bestehenden.
      */
-    public static Map<String, AdditionalInformation<?>> convert(final Map<String, AdditionalInformationDTO> additionalInformation, final Map<String, AdditionalInformation<?>> existingAdditionalInformation) {
-        Map<String, AdditionalInformation<?>> newAdditionalInformation = new HashMap<>(existingAdditionalInformation);
+    public static Map<String, BaseAdditionalInformation> convert(final Map<String, AdditionalInformationDTO> additionalInformation, final Map<String, BaseAdditionalInformation> existingAdditionalInformation) {
+        Map<String, BaseAdditionalInformation> newAdditionalInformation = new HashMap<>(existingAdditionalInformation);
         newAdditionalInformation.putAll(additionalInformation.entrySet().stream()
                 .map(entry -> Map.entry(entry.getKey(), entry.getValue() != null ? convert(entry.getValue()) : existingAdditionalInformation.get(entry.getKey())))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));

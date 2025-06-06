@@ -1,6 +1,7 @@
 import axios from "axios";
 import {type DisplayCategoryOutputDTO, isDisplayCategoryOutputDTO} from "../types/DisplayCategoryOutputDTO.ts";
 import type {DisplayCategoryInputDTO, DisplayCategoryInputDTOWithId} from "../types/DisplayCategoryInputDTO.ts";
+import {throwErrorByResponse} from "@/util/errors.ts";
 
 export const DisplayCategoriesApi = {
     baseUrl: '/api/displayCategories',
@@ -54,6 +55,7 @@ export const DisplayCategoriesApi = {
             if (axios.isCancel(error)) {
                 return null;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Speichern der Kategorien");
     },
@@ -77,6 +79,7 @@ export const DisplayCategoriesApi = {
             if (axios.isCancel(error)) {
                 return null;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Speichern der Kategorien");
     },
@@ -94,6 +97,7 @@ export const DisplayCategoriesApi = {
             if (axios.isCancel(error)) {
                 return;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Löschen der Kategorien");
     }

@@ -1,7 +1,7 @@
 import type {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-    faEdit, faFolderOpen,
+    faEdit, faFileCirclePlus,
     faGripLines,
     faRemove,
 } from "@fortawesome/free-solid-svg-icons";
@@ -13,19 +13,15 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
-import {cn} from "@/util";
-
-const displayCategoryIcon = () => {
-    return faFolderOpen;
-}
+import {cn, getIconElement} from "@/util";
 
 type CardProps = {
     displayCategory: DisplayCategoryOutputDTO;
-
+    onAddDisplayItemClicked: () => void;
     onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
 
-const DisplayCategoryCard = ({displayCategory, onDelete}: CardProps) => {
+const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked}: CardProps) => {
 
     const navigate = useNavigate();
     /**
@@ -57,10 +53,11 @@ const DisplayCategoryCard = ({displayCategory, onDelete}: CardProps) => {
             image={displayCategory.imageUrl && <img src={displayCategory.imageUrl + '?size=148'} alt={displayCategory.name} className="object-contain drop-shadow-lg max-h-22"/>}
             imageClassName={cn("place-self-end")}
             actions={<>
+                <BeButton onClick={onAddDisplayItemClicked}><FontAwesomeIcon icon={faFileCirclePlus}/> Element hinzufügen</BeButton>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
-            typeCircle={<FontAwesomeIcon icon={displayCategoryIcon()} />}
+            typeCircle={getIconElement("displayCategory")}
             topRight={<span className="displayCategory-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
             className={cn("gap-y-1 gap-x-2")}
             headerClassName="row-span-1"

@@ -5,16 +5,25 @@ import DisplayCategoryEdit from "./display-category-edit.tsx";
 import type {DisplayCategoryInputDTO} from "@/types/DisplayCategoryInputDTO.ts";
 import DisplayCategoryCard from "./display-category-card.tsx";
 import {cn} from "@/util";
+import {rectSortingStrategy, SortableContext} from "@dnd-kit/sortable";
+import DisplayItemItem from "@/features/manager/display-items/components/display-item-item.tsx";
+import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
+import {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
 
 type Props = {
     id: string;
     displayCategory: DisplayCategoryOutputDTO;
+    displayItemsOrder: string[];
+    setDisplayItemsOrder: (order: string[]) => void;
     className?: string;
     onSubmit?: (submittedDisplayCategory: DisplayCategoryInputDTO, displayCategoryId: string) => Promise<void>;
+    onDisplayItemSubmit?: (submittedDisplayItem: DisplayItemInputDTO, displayItemId: string) => Promise<void>;
+    onDisplayItemDelete?: (id: string) => Promise<void>;
+    onAddDisplayItemClicked: () => void;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
 }
-function DisplayCategoryItem(props: Readonly<Props>) {
+function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItemsOrder, ...props}: Readonly<Props>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     /**
@@ -23,7 +32,7 @@ function DisplayCategoryItem(props: Readonly<Props>) {
      */
     const handleSubmit = async (submittedDisplayCategory: DisplayCategoryInputDTO) => {
         if (props.onSubmit) {
-            return props.onSubmit(submittedDisplayCategory, props.displayCategory.id);
+            return props.onSubmit(submittedDisplayCategory, displayCategory.id);
         }
         return Promise.resolve();
     }
@@ -43,27 +52,51 @@ function DisplayCategoryItem(props: Readonly<Props>) {
      */
     const handleDelete = async () => {
         if (props.onDelete) {
-            return props.onDelete(props.displayCategory.id);
+            return props.onDelete(displayCategory.id);
         }
         return Promise.resolve();
     }
     const displayCategoryId = useParams().displayCategoryId;
 
     useEffect(() => {
-        setIsEditing(displayCategoryId === props.displayCategory.id);
+        setIsEditing(displayCategoryId === displayCategory.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [displayCategoryId]);
 
+    useEffect(() => {
+        if (displayItemsOrder && displayItemsOrder.length > 0) {
+            setDisplayItemsOrder(displayCategory.displayItems.map((displayItem: DisplayItemOutputDTO) => displayItem.id));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [displayCategory.displayItems]);
+
     return (
-        <div className={cn("h-39 transition-[height]", isEditing && "h-58", props.className)} id={props.id}>
-            {!isEditing ? (
-                <DisplayCategoryCard displayCategory={props.displayCategory} onDelete={handleDelete}/>
-            ) : (
-                <DisplayCategoryEdit displayCategory={props.displayCategory}
-                                     onSubmit={handleSubmit}
-                                     onCancel={handleCancel}/>
-            )}
-        </div>
+        <>
+            <div className={cn("h-39 transition-[height]", isEditing && "h-58", props.className)} id={props.id}>
+                {!isEditing ? (
+                    <DisplayCategoryCard displayCategory={displayCategory} onDelete={handleDelete} onAddDisplayItemClicked={props.onAddDisplayItemClicked}/>
+                ) : (
+                    <DisplayCategoryEdit displayCategory={displayCategory}
+                                         onSubmit={handleSubmit}
+                                         onCancel={handleCancel}/>
+                )}
+            </div>
+            <SortableContext items={displayItemsOrder} strategy={rectSortingStrategy}>
+                {displayCategory.displayItems.map((displayItem) => (
+                    <div key={displayItem.id}>
+                        <DisplayItemItem
+                            id={displayItem.id}
+                            categoryId={displayCategory.id}
+                            displayItem={displayItem}
+                            onCancel={props.onCancel}
+                            onSubmit={props.onDisplayItemSubmit}
+                            onDelete={props.onDisplayItemDelete}
+                            className="w-full h-full"
+                        />
+                    </div>
+                ))}
+            </SortableContext>
+        </>
     );
 }
 

@@ -9,7 +9,7 @@ export type BeButtonProps = ButtonProps & {
 
 const BeButton = ({className, variant, ...props}: BeButtonProps) => {
     return (
-        <Button {...props} className={cn("rounded-2xl h-2xl px-4 py-1 shadow-xs hover:shadow-sm", variant ? buttonColors[variant] : buttonColors.neutral, className)} />
+        <Button {...props} className={cn("btn btn-" + variant, variant ? buttonColors[variant] : buttonColors.neutral, className)} />
     )
 }
 

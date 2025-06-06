@@ -1,5 +1,7 @@
 export type ColorVariantsType = keyof typeof colorVariants;
 
+export type ColorVariantStyle = keyof ColorVariant;
+
 export type ColorVariant = {
     light: string,
     normal: string,

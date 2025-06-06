@@ -1,7 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.AdditionalInformationDTO;
-import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
+import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.PlainTextAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.SizeInLiterAdditionalInformation;
 import org.junit.jupiter.api.DisplayName;
@@ -40,9 +40,9 @@ class AdditionalInformationDTOConverterTest {
     }
 
     @Test
-    @DisplayName("convert(Map<String, AdditionalInformation<?>>) gibt korrektes DTO-Map zurück")
+    @DisplayName("convert(Map<String, BaseAdditionalInformation>) gibt korrektes DTO-Map zurück")
     void convert_map_gibtKorrektesDTOMap() {
-        Map<String, AdditionalInformation<?>> infos = new HashMap<>();
+        Map<String, BaseAdditionalInformation> infos = new HashMap<>();
         infos.put("desc", new PlainTextAdditionalInformation("Bio"));
         infos.put("amount", new SizeInLiterAdditionalInformation(new BigDecimal("1.5")));
 

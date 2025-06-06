@@ -4,6 +4,7 @@ import de.ckollmeier.burgerexpress.backend.converter.DisplayCategoryOutputDTOCon
 import de.ckollmeier.burgerexpress.backend.dto.DisplayCategoryInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.DisplayCategoryOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
+import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
 import de.ckollmeier.burgerexpress.backend.repository.DisplayCategoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,6 +32,9 @@ class DisplayCategoryServiceTest {
     @Mock
     private ValidatedItemService<DisplayCategory> validatedDisplayCategoryService;
 
+    @Mock
+    private DisplayItemService displayItemService;
+
     @InjectMocks
     private DisplayCategoryService displayCategoryService;
 
@@ -47,8 +51,13 @@ class DisplayCategoryServiceTest {
             List<DisplayCategory> categories = List.of(cat1, cat2);
             when(displayCategoryRepository.findAllByOrderByPositionAsc()).thenReturn(categories);
 
-            DisplayCategoryOutputDTO dto1 = mock(DisplayCategoryOutputDTO.class);
-            DisplayCategoryOutputDTO dto2 = mock(DisplayCategoryOutputDTO.class);
+            // Create real DisplayCategoryOutputDTO instances instead of mocking them
+            DisplayCategoryOutputDTO dto1 = new DisplayCategoryOutputDTO(
+                "id1", "Category 1", "Description 1", 
+                Collections.emptyList(), "image1.jpg", true);
+            DisplayCategoryOutputDTO dto2 = new DisplayCategoryOutputDTO(
+                "id2", "Category 2", "Description 2", 
+                Collections.emptyList(), "image2.jpg", false);
             List<DisplayCategoryOutputDTO> dtos = List.of(dto1, dto2);
             try (MockedStatic<DisplayCategoryOutputDTOConverter> mock = mockStatic(DisplayCategoryOutputDTOConverter.class)) {
                 mock.when(() -> DisplayCategoryOutputDTOConverter.convert(categories)).thenReturn(dtos);
@@ -95,11 +104,15 @@ class DisplayCategoryServiceTest {
             when(validatedDisplayCategoryService.validatedItemOrThrow(
                     eq(DisplayCategory.class), anyString(), anyString(), eq(inputDTO), isNull(), anyString()
             )).thenReturn(validated);
+            when(validated.withId(anyString())).thenReturn(validated);
 
             DisplayCategory saved = mock(DisplayCategory.class);
             when(displayCategoryRepository.save(validated)).thenReturn(saved);
 
-            DisplayCategoryOutputDTO outputDTO = mock(DisplayCategoryOutputDTO.class);
+            // Create a real DisplayCategoryOutputDTO instead of mocking it
+            DisplayCategoryOutputDTO outputDTO = new DisplayCategoryOutputDTO(
+                "test-id", "Test Category", "Test Description", 
+                Collections.emptyList(), "test-image.jpg", true);
             try (MockedStatic<DisplayCategoryOutputDTOConverter> mock = mockStatic(DisplayCategoryOutputDTOConverter.class)) {
                 mock.when(() -> DisplayCategoryOutputDTOConverter.convert(saved)).thenReturn(outputDTO);
 
@@ -148,7 +161,10 @@ class DisplayCategoryServiceTest {
             DisplayCategory saved = mock(DisplayCategory.class);
             when(displayCategoryRepository.save(validated)).thenReturn(saved);
 
-            DisplayCategoryOutputDTO outputDTO = mock(DisplayCategoryOutputDTO.class);
+            // Create a real DisplayCategoryOutputDTO instead of mocking it
+            DisplayCategoryOutputDTO outputDTO = new DisplayCategoryOutputDTO(
+                "updated-id", "Updated Category", "Updated Description", 
+                Collections.emptyList(), "updated-image.jpg", true);
             try (MockedStatic<DisplayCategoryOutputDTOConverter> mockStatic = mockStatic(DisplayCategoryOutputDTOConverter.class)) {
                 mockStatic.when(() -> DisplayCategoryOutputDTOConverter.convert(saved)).thenReturn(outputDTO);
 
@@ -203,6 +219,37 @@ class DisplayCategoryServiceTest {
             verify(validatedDisplayCategoryService).validatedItemOrThrow(
                     eq(DisplayCategory.class), anyString(), anyString(), isNull(), eq(id), anyString());
             verify(displayCategoryRepository).deleteById(id);
+            verify(displayItemService, never()).removeDisplayItem(anyString());
+        }
+
+        @Test
+        @DisplayName("shouldRemoveDisplayCategory_whenExists")
+        void removeDisplayCategory_shouldRemoveDisplayItems_whenDisplayItemsWithCategoryExist() {
+            // given
+            String id = "dc-2";
+            DisplayCategory cat = mock(DisplayCategory.class);
+            DisplayItem item1 = mock(DisplayItem.class);
+            when(item1.getId()).thenReturn("item1-id");
+            DisplayItem item2 = mock(DisplayItem.class);
+            when(item2.getId()).thenReturn("item2-id");
+
+            when(cat.getDisplayItems()).thenReturn(List.of(item1, item2));
+
+            when(validatedDisplayCategoryService.validatedItemOrThrow(
+                    eq(DisplayCategory.class), anyString(), anyString(), isNull(), eq(id), anyString()))
+            .thenReturn(cat);
+            doNothing().when(displayCategoryRepository).deleteById(id);
+            doNothing().when(displayItemService).removeDisplayItem(anyString());
+
+            // when
+            displayCategoryService.removeDisplayCategory(id);
+
+            // then
+            verify(validatedDisplayCategoryService).validatedItemOrThrow(
+                    eq(DisplayCategory.class), anyString(), anyString(), isNull(), eq(id), anyString());
+            verify(displayCategoryRepository).deleteById(id);
+            verify(displayItemService).removeDisplayItem("item1-id");
+            verify(displayItemService).removeDisplayItem("item2-id");
         }
 
         @Test
@@ -216,6 +263,7 @@ class DisplayCategoryServiceTest {
             // when/then
             assertThatThrownBy(() -> displayCategoryService.removeDisplayCategory(id)).isInstanceOf(IllegalArgumentException.class);
             verify(displayCategoryRepository, never()).deleteById(any());
+            verify(displayItemService, never()).removeDisplayItem(anyString());
         }
     }
 }

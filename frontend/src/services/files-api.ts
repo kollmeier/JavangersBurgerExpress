@@ -1,6 +1,7 @@
 import axios from "axios";
 import {isFileInfoDTO} from "../types/FileInfoDTO.ts";
 import {QueryFunctionContext} from "@tanstack/react-query";
+import {throwErrorByResponse} from "@/util/errors.ts";
 
 export const FilesApi = {
     baseUrl: '/api/files',
@@ -17,6 +18,7 @@ export const FilesApi = {
             if (axios.isCancel(error)) {
                 return [];
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Laden der Bilder");
     },
@@ -39,6 +41,11 @@ export const FilesApi = {
                     return response.data;
                 }
                 throw new TypeError("Ungültige Antwort beim Upload");
+            }).catch((error) => {
+                if (axios.isCancel(error)) {
+                    return null;
+                }
+                throwErrorByResponse(error);
             });
         });
         return await Promise.all(uploadPromises);
