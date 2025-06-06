@@ -51,7 +51,6 @@ const ImagePickerDialog: React.FC<ImagePickerDialogProps> = ({
     };
 
     const handleSelectSingle = (url: string) => {
-        console.log(url);
         setSelectedFiles([url]);
     }
 
