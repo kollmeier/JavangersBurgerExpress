@@ -1,6 +1,5 @@
 package de.ckollmeier.burgerexpress.backend.model;
 
-import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
