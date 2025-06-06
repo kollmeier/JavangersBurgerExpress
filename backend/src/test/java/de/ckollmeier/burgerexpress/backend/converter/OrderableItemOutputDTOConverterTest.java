@@ -1,23 +1,38 @@
 package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.OrderableItemOutputDTO;
-import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.PlainTextAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.model.SizeInLiterAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OrderableItemOutputDTOConverterTest {
+
+    private static Locale originalLocale;
+
+    @BeforeAll
+    static void setUpLocale() {
+        originalLocale = Locale.getDefault();
+        Locale.setDefault(Locale.GERMAN);
+    }
+
+    @AfterAll
+    static void restoreLocale() {
+        Locale.setDefault(originalLocale);
+    }
 
     @Test
     @DisplayName("Konvertiere OrderableItem zu OrderableItemOutputDTO (ohne AdditionalInformation und ohne alte Preise)")
