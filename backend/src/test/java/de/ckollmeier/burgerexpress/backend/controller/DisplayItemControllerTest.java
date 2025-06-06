@@ -235,5 +235,128 @@ class DisplayItemControllerTest {
                     .andExpect(jsonPath("$[0].id").value(item2.getId()))
                     .andExpect(jsonPath("$[1].id").value(item1.getId()));
         }
+
+        @Test
+        @DisplayName("aktualisiert die Kategorie eines Display Items und gibt neue Liste zurück")
+        void should_updateDisplayItemCategory_WhenNewCategoryIdProvided() throws Exception {
+            // Create a new category
+            DisplayCategory newCategory = DisplayCategory.builder()
+                    .name("New Test Category")
+                    .description("New Test Category Description")
+                    .position(2)
+                    .build();
+            newCategory = displayCategoryRepository.save(newCategory);
+
+            List<SortedInputDTO> sorted = Arrays.asList(
+                    new SortedInputDTO(1, item1.getId()),
+                    new SortedInputDTO(2, item2.getId())
+            );
+
+            mockMvc.perform(put("/api/displayItems/positions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(sorted))
+                            .param("newCategoryId", newCategory.getId())
+                            .param("forId", item1.getId()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)));
+
+            // Verify that the item's category has been updated
+            DisplayItem updatedItem = displayItemRepository.findById(item1.getId()).orElseThrow();
+            Assertions.assertEquals(newCategory.getId(), updatedItem.getCategoryId().toString());
+        }
+
+        @Test
+        @DisplayName("gibt 404 zurück, wenn das zu ändernde Display Item nicht existiert")
+        void should_return404_WhenChangingCategoryOfNonExistingItem() throws Exception {
+            String nonExistentId = new ObjectId().toString();
+            List<SortedInputDTO> sorted = Arrays.asList(
+                    new SortedInputDTO(1, item1.getId()),
+                    new SortedInputDTO(2, item2.getId())
+            );
+
+            mockMvc.perform(put("/api/displayItems/positions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(sorted))
+                            .param("newCategoryId", category.getId())
+                            .param("forId", nonExistentId))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("gibt 404 zurück, wenn die neue Kategorie nicht existiert")
+        void should_return404_WhenNewCategoryDoesNotExist() throws Exception {
+            String nonExistentCategoryId = new ObjectId().toString();
+            List<SortedInputDTO> sorted = Arrays.asList(
+                    new SortedInputDTO(1, item1.getId()),
+                    new SortedInputDTO(2, item2.getId())
+            );
+
+            mockMvc.perform(put("/api/displayItems/positions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(sorted))
+                            .param("newCategoryId", nonExistentCategoryId)
+                            .param("forId", item1.getId()))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("aktualisiert nur die Kategorie ohne die orderableItems zu ändern")
+        void should_updateOnlyCategory_WithoutChangingOrderableItems() throws Exception {
+            // Create a new category
+            DisplayCategory newCategory = DisplayCategory.builder()
+                    .name("Another Test Category")
+                    .description("Another Test Category Description")
+                    .position(3)
+                    .build();
+            newCategory = displayCategoryRepository.save(newCategory);
+
+            // Add some orderable items to item1
+            Dish orderableItem = Dish.builder()
+                    .name("test-orderable-item-special")
+                    .type(DishType.MAIN)
+                    .price(BigDecimal.valueOf(12.99))
+                    .build();
+            orderableItem = dishRepository.save(orderableItem);
+
+            // Update item1 to have this orderable item
+            DisplayItemInputDTO updateDto = new DisplayItemInputDTO(
+                    item1.getName(),
+                    item1.getDescription(),
+                    false,
+                    null,
+                    List.of(orderableItem.getId()),
+                    true,
+                    item1.getCategoryId().toString()
+            );
+            mockMvc.perform(put("/api/displayItems/" + item1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(updateDto)))
+                    .andExpect(status().isOk());
+
+            // Verify item1 has the orderable item
+            DisplayItem updatedItem = displayItemRepository.findById(item1.getId()).orElseThrow();
+            Assertions.assertEquals(1, updatedItem.getOrderableItems().size());
+            Assertions.assertEquals(orderableItem.getId(), updatedItem.getOrderableItems().getFirst().getId());
+
+            // Now update only the category
+            List<SortedInputDTO> sorted = Arrays.asList(
+                    new SortedInputDTO(1, item1.getId()),
+                    new SortedInputDTO(2, item2.getId())
+            );
+
+            mockMvc.perform(put("/api/displayItems/positions")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(sorted))
+                            .param("newCategoryId", newCategory.getId())
+                            .param("forId", item1.getId()))
+                    .andExpect(status().isOk());
+
+            // Verify that only the category was updated, not the orderable items
+            DisplayItem categoryUpdatedItem = displayItemRepository.findById(item1.getId()).orElseThrow();
+            Assertions.assertEquals(newCategory.getId(), categoryUpdatedItem.getCategoryId().toString());
+            Assertions.assertEquals(1, categoryUpdatedItem.getOrderableItems().size());
+            Assertions.assertEquals(orderableItem.getId(), categoryUpdatedItem.getOrderableItems().getFirst().getId());
+        }
+
     }
 }

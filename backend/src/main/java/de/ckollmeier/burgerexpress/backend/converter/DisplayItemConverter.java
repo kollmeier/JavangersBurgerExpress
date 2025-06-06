@@ -31,9 +31,9 @@ public final class DisplayItemConverter {
             .description(displayItem.description())
             .categoryId(new org.bson.types.ObjectId(displayItem.categoryId()))
             .actualPrice(Boolean.TRUE.equals(displayItem.hasActualPrice()) ? new BigDecimal(displayItem.actualPrice().replace(",", ".")) : null)
-            .orderableItems(displayItem.orderableItemIds().stream()
+            .orderableItems(displayItem.orderableItemIds() != null ? displayItem.orderableItemIds().stream()
                     .map(itemResolver)
-                    .toList())
+                    .toList() : null)
             .published(Boolean.TRUE.equals(displayItem.published()))
             .build();
     }
@@ -49,9 +49,9 @@ public final class DisplayItemConverter {
             .description(displayItem.description() == null ? existingDisplayItem.getDescription() : displayItem.description())
             .categoryId(displayItem.categoryId() != null ? new org.bson.types.ObjectId(displayItem.categoryId()) : existingDisplayItem.getCategoryId())
             .actualPrice(actualPrice)
-            .orderableItems(displayItem.orderableItemIds().stream()
+            .orderableItems(displayItem.orderableItemIds() != null ? displayItem.orderableItemIds().stream()
                     .map(itemResolver)
-                    .toList())
+                    .toList() : existingDisplayItem.getOrderableItems())
             .published(displayItem.published() != null ? displayItem.published() : existingDisplayItem.isPublished())
             .build();
     }

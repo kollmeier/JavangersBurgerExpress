@@ -73,7 +73,23 @@ public class DisplayItemController {
      * @return die DisplayItems in der neuen Reihenfolge
      */
     @PutMapping("/positions")
-    public ResponseEntity<List<DisplayItemOutputDTO>> updateDisplayItemPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
+    public ResponseEntity<List<DisplayItemOutputDTO>> updateDisplayItemPositions(
+            final @RequestBody List<SortedInputDTO> sortedInputDTOs,
+            final @RequestParam(required = false) String newCategoryId,
+            final @RequestParam(required = false) String forId
+    ) {
+        if (newCategoryId != null) {
+            DisplayItemInputDTO itemToChange = new DisplayItemInputDTO(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null, // Use null to indicate no changes in this field
+                    null,
+                    newCategoryId
+            );
+            displayItemService.updateDisplayItem(forId, itemToChange);
+        }
         return new ResponseEntity<>(
                 DisplayItemOutputDTOConverter.convert(sortableService.reorder(DisplayItem.class, sortedInputDTOs)),
                 HttpStatus.OK
