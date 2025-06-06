@@ -1,6 +1,7 @@
 import axios from "axios";
 import {type DishOutputDTO, isDishOutputDTO} from "../types/DishOutputDTO.ts";
 import type {DishInputDTO, DishInputDTOWithId} from "../types/DishInputDTO.ts";
+import {throwErrorByResponse} from "@/util/errors.ts";
 
 export const DishesApi = {
     baseUrl: '/api/dishes',
@@ -54,6 +55,7 @@ export const DishesApi = {
             if (axios.isCancel(error)) {
                 return null;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
     },
@@ -77,6 +79,7 @@ export const DishesApi = {
             if (axios.isCancel(error)) {
                 return null;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Speichern des Gerichts");
     },
@@ -94,6 +97,7 @@ export const DishesApi = {
             if (axios.isCancel(error)) {
                 return;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Löschen des Gerichts");
     }

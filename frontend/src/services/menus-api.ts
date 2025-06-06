@@ -1,6 +1,7 @@
 import axios from "axios";
 import {type MenuOutputDTO, isMenuOutputDTO} from "../types/MenuOutputDTO.ts";
 import type {MenuInputDTO, MenuInputDTOWithId} from "../types/MenuInputDTO.ts";
+import {throwErrorByResponse} from "@/util/errors.ts";
 
 export const MenusApi = {
     baseUrl: '/api/menus',
@@ -54,6 +55,7 @@ export const MenusApi = {
             if (axios.isCancel(error)) {
                 return null;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Speichern des Menüs");
     },
@@ -77,6 +79,7 @@ export const MenusApi = {
             if (axios.isCancel(error)) {
                 return null;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Speichern des Menüs");
     },
@@ -94,6 +97,7 @@ export const MenusApi = {
             if (axios.isCancel(error)) {
                 return;
             }
+            throwErrorByResponse(error);
         }
         throw new TypeError("Ungültige Antwort beim Löschen des Menüs");
     }
