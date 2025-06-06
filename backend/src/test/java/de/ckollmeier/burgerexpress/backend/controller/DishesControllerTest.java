@@ -227,10 +227,10 @@ class DishesControllerTest {
         void updateDishPositions_shouldUpdateDishPositions_whenAllDishesExist() throws Exception {
             // Given
             List<SortedInputDTO> sortedInputDTOS = List.of(
-                    new SortedInputDTO(0, beverageDish1.getId()),
-                    new SortedInputDTO(3, mainDish1.getId()),
-                    new SortedInputDTO(1, mainDish2.getId()),
-                    new SortedInputDTO(2, sideDish1.getId())
+                    new SortedInputDTO(0, beverageDish1.getId(), null),
+                    new SortedInputDTO(3, mainDish1.getId(), null),
+                    new SortedInputDTO(1, mainDish2.getId(), null),
+                    new SortedInputDTO(2, sideDish1.getId(), null)
             );
 
             mockMvc.perform(put("/api/dishes/positions")
@@ -257,10 +257,10 @@ class DishesControllerTest {
         void updateDishPositions_shouldUpdateDishPositions_whenAllSomeDishesDontExistAnymore() throws Exception {
             // Given
             List<SortedInputDTO> sortedInputDTOS = List.of(
-                    new SortedInputDTO(0, beverageDish1.getId()),
-                    new SortedInputDTO(3, mainDish1.getId()),
-                    new SortedInputDTO(1, mainDish2.getId()),
-                    new SortedInputDTO(2, sideDish1.getId())
+                    new SortedInputDTO(0, beverageDish1.getId(), null),
+                    new SortedInputDTO(3, mainDish1.getId(), null),
+                    new SortedInputDTO(1, mainDish2.getId(), null),
+                    new SortedInputDTO(2, sideDish1.getId(), null)
             );
 
             dishRepository.deleteById(beverageDish1.getId()); // Beverage Dish 1 is not present anymore
@@ -286,9 +286,9 @@ class DishesControllerTest {
         void updateDishPositions_shouldUpdateDishPositions_whenMoreDishesExist() throws Exception {
             // Given
             List<SortedInputDTO> sortedInputDTOS = List.of(
-                    new SortedInputDTO(0, beverageDish1.getId()),
-                    new SortedInputDTO(1, mainDish2.getId()),
-                    new SortedInputDTO(2, sideDish1.getId())
+                    new SortedInputDTO(0, beverageDish1.getId(), null),
+                    new SortedInputDTO(1, mainDish2.getId(), null),
+                    new SortedInputDTO(2, sideDish1.getId(), null)
             );
 
             mockMvc.perform(put("/api/dishes/positions")

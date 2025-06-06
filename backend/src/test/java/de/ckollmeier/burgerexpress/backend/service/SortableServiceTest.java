@@ -30,6 +30,17 @@ class SortableServiceTest {
     }
 
     @Test
+    @DisplayName("reorderAndSave gibt leere Liste zurück, wenn Input leer ist")
+    void reorderAndSave_leer() {
+        List<SortedInputDTO> inputs = List.of();
+        when(sortableRepository.saveAll(anyList())).thenReturn(List.of());
+        List<SortableMock> result = sortableService.reorderAndSave(SortableMock.class, inputs);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(sortableRepository).saveAll(List.of());
+    }
+
+    @Test
     @DisplayName("reorder gibt leere Liste zurück, wenn Input leer ist")
     void reorder_leer() {
         List<SortedInputDTO> inputs = List.of();
@@ -40,12 +51,12 @@ class SortableServiceTest {
     }
 
     @Test
-    @DisplayName("reorder ordnet und speichert korrekt")
-    void reorder_erfolgreich() {
+    @DisplayName("reorderAndSave ordnet und speichert korrekt")
+    void reorderAndSave_erfolgreich() {
         List<SortedInputDTO> inputs = List.of(
-                new SortedInputDTO(2, "a"),
-                new SortedInputDTO(0, "b"),
-                new SortedInputDTO(1, "c")
+                new SortedInputDTO(2, "a", null),
+                new SortedInputDTO(0, "b", null),
+                new SortedInputDTO(1, "c", null)
         );
 
         // Vorbereitung: Items aus Repository zurückliefern
@@ -61,7 +72,7 @@ class SortableServiceTest {
         ArgumentCaptor<List<SortableMock>> captor = ArgumentCaptor.forClass(List.class);
         when(sortableRepository.saveAll(anyList())).thenAnswer(i -> i.getArguments()[0]);
 
-        List<SortableMock> result = sortableService.reorder(SortableMock.class, inputs);
+        List<SortableMock> result = sortableService.reorderAndSave(SortableMock.class, inputs);
 
         // Prüfe, ob alle IDs übernommen wurden und Positionen entsprechend zugewiesen wurden
         assertEquals(3, result.size());
@@ -80,12 +91,45 @@ class SortableServiceTest {
     }
 
     @Test
-    @DisplayName("reorder ordnet und speichert korrekt, wenn angefragte Liste kleiner")
-    void reorder_erfolgreich_wenn_liste_kleiner() {
+    @DisplayName("reorder ordnet korrekt")
+    void reorder_erfolgreich() {
         List<SortedInputDTO> inputs = List.of(
-                new SortedInputDTO(2, "a"),
-                new SortedInputDTO(0, "b"),
-                new SortedInputDTO(1, "d")
+                new SortedInputDTO(2, "a", null),
+                new SortedInputDTO(0, "b", null),
+                new SortedInputDTO(1, "c", null)
+        );
+
+        // Vorbereitung: Items aus Repository zurückliefern
+        List<SortableMock> repoItems = List.of(
+                new SortableMock("a", 0),
+                new SortableMock("b", 1),
+                new SortableMock("c", 2)
+        );
+        when(sortableRepository.findAll(SortableMock.class)).thenReturn(repoItems);
+
+        List<SortableMock> result = sortableService.reorder(SortableMock.class, inputs);
+
+        // Prüfe, ob alle IDs übernommen wurden und Positionen entsprechend zugewiesen wurden
+        assertEquals(3, result.size());
+        for (SortableMock mock : result) {
+            int expectedPosition = inputs.stream()
+                    .filter(in -> in.id().equals(mock.getId()))
+                    .findFirst().orElseThrow().index();
+            assertEquals(expectedPosition, mock.getPosition());
+        }
+
+        // Repository-Methoden geprüft:
+        verify(sortableRepository).findAll(SortableMock.class);
+        verify(sortableRepository, never()).saveAll(any());
+    }
+
+    @Test
+    @DisplayName("reorderAndSave ordnet und speichert korrekt, wenn angefragte Liste kleiner")
+    void reorderAndSave_erfolgreich_wenn_liste_kleiner() {
+        List<SortedInputDTO> inputs = List.of(
+                new SortedInputDTO(2, "a", null),
+                new SortedInputDTO(0, "b", null),
+                new SortedInputDTO(1, "d", null)
         );
 
         // Vorbereitung: Items aus Repository zurückliefern
@@ -102,7 +146,7 @@ class SortableServiceTest {
         ArgumentCaptor<List<SortableMock>> captor = ArgumentCaptor.forClass(List.class);
         when(sortableRepository.saveAll(anyList())).thenAnswer(i -> i.getArguments()[0]);
 
-        List<SortableMock> result = sortableService.reorder(SortableMock.class, inputs);
+        List<SortableMock> result = sortableService.reorderAndSave(SortableMock.class, inputs);
 
         // Prüfe, ob neue IDs auch zurückgegeben wurden und Positionen entsprechend zugewiesen wurden
         // Dabei bleiben die neuen Elemente einfach an der alten Position.
@@ -113,7 +157,7 @@ class SortableServiceTest {
                     .findFirst().orElse(
                             repoItems.stream()
                                     .filter(item -> item.getId().equals(mock.getId()))
-                                    .map(m -> new SortedInputDTO(m.getPosition(), m.getId()))
+                                    .map(m -> new SortedInputDTO(m.getPosition(), m.getId(), null))
                                     .findFirst().orElseThrow()
                     ).index();
             assertEquals(expectedPosition, mock.getPosition());
@@ -127,12 +171,52 @@ class SortableServiceTest {
     }
 
     @Test
-    @DisplayName("reorder ordnet und speichert korrekt, wenn angefragte Liste größer")
-    void reorder_erfolgreich_wenn_liste_groesser() {
+    @DisplayName("reorder ordnet korrekt, wenn angefragte Liste kleiner")
+    void reorder_erfolgreich_wenn_liste_kleiner() {
         List<SortedInputDTO> inputs = List.of(
-                new SortedInputDTO(2, "a"),
-                new SortedInputDTO(0, "b"),
-                new SortedInputDTO(1, "d")
+                new SortedInputDTO(2, "a", null),
+                new SortedInputDTO(0, "b", null),
+                new SortedInputDTO(1, "d", null)
+        );
+
+        // Vorbereitung: Items aus Repository zurückliefern
+        List<SortableMock> repoItems = List.of(
+                new SortableMock("a", 0),
+                new SortableMock("b", 1),
+                new SortableMock("c", 2),
+                new SortableMock("d", 3)
+        );
+        when(sortableRepository.findAll(SortableMock.class)).thenReturn(repoItems);
+
+        List<SortableMock> result = sortableService.reorder(SortableMock.class, inputs);
+
+        // Prüfe, ob neue IDs auch zurückgegeben wurden und Positionen entsprechend zugewiesen wurden
+        // Dabei bleiben die neuen Elemente einfach an der alten Position.
+        assertEquals(4, result.size());
+        for (SortableMock mock : result) {
+            int expectedPosition = inputs.stream()
+                    .filter(in -> in.id().equals(mock.getId()))
+                    .findFirst().orElse(
+                            repoItems.stream()
+                                    .filter(item -> item.getId().equals(mock.getId()))
+                                    .map(m -> new SortedInputDTO(m.getPosition(), m.getId(), null))
+                                    .findFirst().orElseThrow()
+                    ).index();
+            assertEquals(expectedPosition, mock.getPosition());
+        }
+
+        // Repository-Methoden geprüft:
+        verify(sortableRepository).findAll(SortableMock.class);
+        verify(sortableRepository, never()).saveAll(any());
+    }
+
+    @Test
+    @DisplayName("reorderAndSave ordnet und speichert korrekt, wenn angefragte Liste größer")
+    void reorderAndSave_erfolgreich_wenn_liste_groesser() {
+        List<SortedInputDTO> inputs = List.of(
+                new SortedInputDTO(2, "a", null),
+                new SortedInputDTO(0, "b", null),
+                new SortedInputDTO(1, "d", null)
         );
 
         // Vorbereitung: Items aus Repository zurückliefern
@@ -147,7 +231,7 @@ class SortableServiceTest {
         ArgumentCaptor<List<SortableMock>> captor = ArgumentCaptor.forClass(List.class);
         when(sortableRepository.saveAll(anyList())).thenAnswer(i -> i.getArguments()[0]);
 
-        List<SortableMock> result = sortableService.reorder(SortableMock.class, inputs);
+        List<SortableMock> result = sortableService.reorderAndSave(SortableMock.class, inputs);
 
         // Prüfe, ob neue IDs auch zurückgegeben wurden und Positionen entsprechend zugewiesen wurden
         // Dabei werden die nicht mehr vorhandenen Elemente ignoriert.
@@ -164,6 +248,39 @@ class SortableServiceTest {
         verify(sortableRepository).saveAll(captor.capture());
         List<SortableMock> savedMocks = captor.getValue();
         assertEquals(2, savedMocks.size());
+    }
+
+    @Test
+    @DisplayName("reorder ordnet korrekt, wenn angefragte Liste größer")
+    void reorder_erfolgreich_wenn_liste_groesser() {
+        List<SortedInputDTO> inputs = List.of(
+                new SortedInputDTO(2, "a", null),
+                new SortedInputDTO(0, "b", null),
+                new SortedInputDTO(1, "d", null)
+        );
+
+        // Vorbereitung: Items aus Repository zurückliefern
+        List<SortableMock> repoItems = List.of(
+                new SortableMock("a", 0),
+                new SortableMock("b", 1)
+        );
+        when(sortableRepository.findAll(SortableMock.class)).thenReturn(repoItems);
+
+        List<SortableMock> result = sortableService.reorder(SortableMock.class, inputs);
+
+        // Prüfe, ob neue IDs auch zurückgegeben wurden und Positionen entsprechend zugewiesen wurden
+        // Dabei werden die nicht mehr vorhandenen Elemente ignoriert.
+        assertEquals(2, result.size());
+        for (SortableMock mock : result) {
+            int expectedPosition = inputs.stream()
+                    .filter(in -> in.id().equals(mock.getId()))
+                    .findFirst().orElseThrow().index();
+            assertEquals(expectedPosition, mock.getPosition());
+        }
+
+        // Repository-Methoden geprüft:
+        verify(sortableRepository).findAll(SortableMock.class);
+        verify(sortableRepository, never()).saveAll(any());
     }
 
     // Hilfsklasse zur Simulation des Sortable-Objekts

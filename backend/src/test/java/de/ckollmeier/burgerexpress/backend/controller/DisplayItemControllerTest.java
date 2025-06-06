@@ -223,8 +223,8 @@ class DisplayItemControllerTest {
         @DisplayName("aktualisiert Positionen aller Display Items und gibt neue Liste zurück")
         void should_updateDisplayItemPositions_WhenAllItemsExist() throws Exception {
             List<SortedInputDTO> sorted = Arrays.asList(
-                    new SortedInputDTO(1, item2.getId()),
-                    new SortedInputDTO(2, item1.getId())
+                    new SortedInputDTO(1, item2.getId(), category.getId()),
+                    new SortedInputDTO(2, item1.getId(), category.getId())
             );
 
             mockMvc.perform(put("/api/displayItems/positions")
@@ -248,15 +248,13 @@ class DisplayItemControllerTest {
             newCategory = displayCategoryRepository.save(newCategory);
 
             List<SortedInputDTO> sorted = Arrays.asList(
-                    new SortedInputDTO(1, item1.getId()),
-                    new SortedInputDTO(2, item2.getId())
+                    new SortedInputDTO(1, item1.getId(), newCategory.getId()),
+                    new SortedInputDTO(2, item2.getId(), category.getId())
             );
 
             mockMvc.perform(put("/api/displayItems/positions")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(sorted))
-                            .param("newCategoryId", newCategory.getId())
-                            .param("forId", item1.getId()))
+                            .content(objectMapper.writeValueAsString(sorted)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)));
 
@@ -270,15 +268,14 @@ class DisplayItemControllerTest {
         void should_return404_WhenChangingCategoryOfNonExistingItem() throws Exception {
             String nonExistentId = new ObjectId().toString();
             List<SortedInputDTO> sorted = Arrays.asList(
-                    new SortedInputDTO(1, item1.getId()),
-                    new SortedInputDTO(2, item2.getId())
+                    new SortedInputDTO(1, item1.getId(), category.getId()),
+                    new SortedInputDTO(2, item2.getId(), category.getId()),
+                    new SortedInputDTO(3, nonExistentId, category.getId())
             );
 
             mockMvc.perform(put("/api/displayItems/positions")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(sorted))
-                            .param("newCategoryId", category.getId())
-                            .param("forId", nonExistentId))
+                            .content(objectMapper.writeValueAsString(sorted)))
                     .andExpect(status().isNotFound());
         }
 
@@ -287,15 +284,13 @@ class DisplayItemControllerTest {
         void should_return404_WhenNewCategoryDoesNotExist() throws Exception {
             String nonExistentCategoryId = new ObjectId().toString();
             List<SortedInputDTO> sorted = Arrays.asList(
-                    new SortedInputDTO(1, item1.getId()),
-                    new SortedInputDTO(2, item2.getId())
+                    new SortedInputDTO(1, item1.getId(), nonExistentCategoryId),
+                    new SortedInputDTO(2, item2.getId(), category.getId())
             );
 
             mockMvc.perform(put("/api/displayItems/positions")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(sorted))
-                            .param("newCategoryId", nonExistentCategoryId)
-                            .param("forId", item1.getId()))
+                            .content(objectMapper.writeValueAsString(sorted)))
                     .andExpect(status().isNotFound());
         }
 
@@ -340,15 +335,13 @@ class DisplayItemControllerTest {
 
             // Now update only the category
             List<SortedInputDTO> sorted = Arrays.asList(
-                    new SortedInputDTO(1, item1.getId()),
-                    new SortedInputDTO(2, item2.getId())
+                    new SortedInputDTO(1, item1.getId(), newCategory.getId()),
+                    new SortedInputDTO(2, item2.getId(), category.getId())
             );
 
             mockMvc.perform(put("/api/displayItems/positions")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(sorted))
-                            .param("newCategoryId", newCategory.getId())
-                            .param("forId", item1.getId()))
+                            .content(objectMapper.writeValueAsString(sorted)))
                     .andExpect(status().isOk());
 
             // Verify that only the category was updated, not the orderable items

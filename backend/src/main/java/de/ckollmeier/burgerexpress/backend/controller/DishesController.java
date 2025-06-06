@@ -82,7 +82,7 @@ public class DishesController {
     @PutMapping("/positions")
     public ResponseEntity<List<DishOutputDTO>> updateDishPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
         return new ResponseEntity<>(
-                DishOutputDTOConverter.convert(sortableService.reorder(Dish.class, sortedInputDTOs)),
+                DishOutputDTOConverter.convert(sortableService.reorderAndSave(Dish.class, sortedInputDTOs)),
                 HttpStatus.OK
         );
     }

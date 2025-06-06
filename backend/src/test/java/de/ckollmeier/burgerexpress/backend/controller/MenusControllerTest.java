@@ -247,10 +247,10 @@ class MenusControllerTest {
         void updateMenuPositions_shouldUpdateMenuPositions_whenAllMenusExist() throws Exception {
             // Given
             List<SortedInputDTO> sortedInputDTOS = List.of(
-                    new SortedInputDTO(0, menu4.getId()),
-                    new SortedInputDTO(3, menu1.getId()),
-                    new SortedInputDTO(1, menu2.getId()),
-                    new SortedInputDTO(2, menu3.getId())
+                    new SortedInputDTO(0, menu4.getId(), null),
+                    new SortedInputDTO(3, menu1.getId(), null),
+                    new SortedInputDTO(1, menu2.getId(), null),
+                    new SortedInputDTO(2, menu3.getId(), null)
             );
 
             mockMvc.perform(put("/api/menus/positions")
@@ -277,10 +277,10 @@ class MenusControllerTest {
         void updateMenuPositions_shouldUpdateMenuPositions_whenAllSomeMenusDontExistAnymore() throws Exception {
             // Given
             List<SortedInputDTO> sortedInputDTOS = List.of(
-                    new SortedInputDTO(0, menu4.getId()),
-                    new SortedInputDTO(3, menu1.getId()),
-                    new SortedInputDTO(1, menu2.getId()),
-                    new SortedInputDTO(2, menu3.getId())
+                    new SortedInputDTO(0, menu4.getId(), null),
+                    new SortedInputDTO(3, menu1.getId(), null),
+                    new SortedInputDTO(1, menu2.getId(), null),
+                    new SortedInputDTO(2, menu3.getId(), null)
             );
 
             menuRepository.deleteById(menu4.getId()); // Beverage Menu 1 is not present anymore
@@ -306,9 +306,9 @@ class MenusControllerTest {
         void updateMenuPositions_shouldUpdateMenuPositions_whenMoreMenusExist() throws Exception {
             // Given
             List<SortedInputDTO> sortedInputDTOS = List.of(
-                    new SortedInputDTO(0, menu4.getId()),
-                    new SortedInputDTO(1, menu2.getId()),
-                    new SortedInputDTO(2, menu3.getId())
+                    new SortedInputDTO(0, menu4.getId(), null),
+                    new SortedInputDTO(1, menu2.getId(), null),
+                    new SortedInputDTO(2, menu3.getId(), null)
             );
 
             mockMvc.perform(put("/api/menus/positions")

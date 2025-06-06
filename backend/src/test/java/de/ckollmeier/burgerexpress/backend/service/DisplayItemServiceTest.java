@@ -4,6 +4,7 @@ import de.ckollmeier.burgerexpress.backend.converter.DisplayItemOutputDTOConvert
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
+import de.ckollmeier.burgerexpress.backend.repository.DisplayCategoryRepository;
 import de.ckollmeier.burgerexpress.backend.repository.DisplayItemRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +30,21 @@ class DisplayItemServiceTest {
     @Mock
     private ConverterService converterService;
 
+    @Mock
+    private DisplayCategoryRepository displayCategoryRepository;
+
+    @Mock
+    private SortableService<DisplayItem> sortableService;
+
     @InjectMocks
     private DisplayItemService displayItemService;
+
+    @BeforeEach
+    void setUp() {
+        // Mock displayCategoryRepository.existsById to return true for any category ID
+        // Use lenient() to avoid UnnecessaryStubbingException for tests that don't use this mock
+        lenient().when(displayCategoryRepository.existsById(anyString())).thenReturn(true);
+    }
 
     @Nested
     @DisplayName("getAllDisplayItems()")

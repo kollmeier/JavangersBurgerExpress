@@ -6,7 +6,7 @@ import de.ckollmeier.burgerexpress.backend.repository.SortableRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList; // Importieren
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,17 @@ public class SortableService<T extends Sortable> {
      * @param sortedInputDTOS The list of DTOs containing the new order of items.
      * @return sortedList The list of items with the updated order.
      */
+    public List<T> reorderAndSave(final Class<T> theClass, final List<SortedInputDTO> sortedInputDTOS) {
+        return sortableRepository.saveAll(reorder(theClass, sortedInputDTOS));
+    }
+    /**
+     * Reorders a list of items based on the provided sorted input DTOs
+     *
+     * @param theClass       The class of the items to reorder.
+     * @param sortedInputDTOS The list of DTOs containing the new order of items.
+     * @return sortedList The list of items with the updated order.
+     */
+
     public List<T> reorder(final Class<T> theClass, final List<SortedInputDTO> sortedInputDTOS) {
         if (sortedInputDTOS.isEmpty()) {
             return List.of();
@@ -46,7 +57,7 @@ public class SortableService<T extends Sortable> {
             sortedItems.add(updatedItem);
         }
         sortedItems.sort(T::compareWith);
-
-        return sortableRepository.saveAll(sortedItems);
+        return sortedItems;
     }
+
 }

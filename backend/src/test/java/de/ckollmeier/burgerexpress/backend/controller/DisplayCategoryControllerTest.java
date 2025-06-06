@@ -211,9 +211,9 @@ class DisplayCategoryControllerTest {
         @DisplayName("aktualisiert Positionen aller DisplayCategories und gibt neue Liste zurück")
         void should_updateDisplayCategoryPositions_WhenAllCategoriesExist() throws Exception {
             List<SortedInputDTO> sorted = Arrays.asList(
-                    new SortedInputDTO(1, category3.getId()),
-                    new SortedInputDTO(2, category1.getId()),
-                    new SortedInputDTO(3, category2.getId())
+                    new SortedInputDTO(1, category3.getId(), null),
+                    new SortedInputDTO(2, category1.getId(), null),
+                    new SortedInputDTO(3, category2.getId(), null)
             );
 
             mockMvc.perform(put("/api/displayCategories/positions")

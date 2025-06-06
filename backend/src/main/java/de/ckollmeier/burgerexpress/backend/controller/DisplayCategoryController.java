@@ -75,7 +75,7 @@ public class DisplayCategoryController {
     @PutMapping("/positions")
     public ResponseEntity<List<DisplayCategoryOutputDTO>> updateDisplayCategoryPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
         return new ResponseEntity<>(
-                DisplayCategoryOutputDTOConverter.convert(sortableService.reorder(DisplayCategory.class, sortedInputDTOs)),
+                DisplayCategoryOutputDTOConverter.convert(sortableService.reorderAndSave(DisplayCategory.class, sortedInputDTOs)),
                 HttpStatus.OK
         );
     }

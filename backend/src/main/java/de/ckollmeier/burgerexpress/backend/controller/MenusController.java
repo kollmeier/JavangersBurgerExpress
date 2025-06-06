@@ -75,7 +75,7 @@ public class MenusController {
     @PutMapping("/positions")
     public ResponseEntity<List<MenuOutputDTO>> updateMenuPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
         return new ResponseEntity<>(
-                MenuOutputDTOConverter.convert(sortableService.reorder(Menu.class, sortedInputDTOs)),
+                MenuOutputDTOConverter.convert(sortableService.reorderAndSave(Menu.class, sortedInputDTOs)),
                 HttpStatus.OK
         );
     }
