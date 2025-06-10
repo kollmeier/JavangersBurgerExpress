@@ -2,7 +2,9 @@ package de.ckollmeier.burgerexpress.backend.repository;
 
 import de.ckollmeier.burgerexpress.backend.interfaces.Sortable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -48,6 +50,13 @@ public class SortableRepositoryImplementation<T extends Sortable> implements Sor
      */
     @Override
     public List<T> findAll(final Class<T> theClass) {
-        return mongoTemplate.findAll(theClass);
+        return mongoTemplate.find(new Query()
+                .with(Sort
+                        .by("position")
+                        .ascending()
+                        .and(Sort
+                                .by("createdAt")
+                                .descending())),
+                theClass);
     }
 }

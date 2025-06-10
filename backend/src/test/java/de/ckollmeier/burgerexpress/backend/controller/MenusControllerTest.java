@@ -166,6 +166,46 @@ class MenusControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/menus should add a new menu and return it first in the list when retrieving all menus")
+    void addMenu_shouldReturnNewlyAddedMenuFirstInList() throws Exception {
+        // Given
+        // Create a new menu with the same position as an existing menu
+        MenuInputDTO newMenuInput = new MenuInputDTO(
+                "New Test Menu",
+                "12.99",
+                List.of(mainDish1.getId()),
+                Map.of()
+        );
+        String newMenuJson = objectMapper.writeValueAsString(newMenuInput);
+
+        // When - Add the new menu
+        MvcResult postResult = mockMvc.perform(post("/api/menus")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newMenuJson))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        // Extract the ID of the newly created menu
+        String responseBody = postResult.getResponse().getContentAsString();
+        MenuOutputDTO resultMenu = objectMapper.readValue(responseBody, MenuOutputDTO.class);
+        String createdId = resultMenu.id();
+
+        // Then - Get all menus and verify the newly added menu appears first among menus with the same position
+        mockMvc.perform(get("/api/menus"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(5))) // Now we have 5 menus
+                .andExpect(jsonPath("$[0].id").value(createdId)); // The newly added menu should be first
+
+        // Verify that the new menu has the same position as menu1 but appears first due to createdAt ordering
+        Menu newMenu = menuRepository.findById(createdId).orElseThrow();
+        assertThat(newMenu.getPosition()).isEqualTo(menu1.getPosition());
+
+        // Verify that the createdAt timestamp of the new menu is after the createdAt of menu1
+        assertThat(newMenu.getCreatedAt()).isAfter(menu1.getCreatedAt());
+    }
+
+    @Test
     @DisplayName("PUT /{menuId} aktualisiert ein Menü und gibt aktualisiertes MenuOutputDTO zurück")
     void updateMenu_putEndpoint_returnsUpdatedMenu() throws Exception {
         // Erstellt zuerst ein Menü oder stelle sicher, dass ein bekanntes Menü existiert

@@ -138,6 +138,54 @@ class DisplayItemControllerTest {
         Assertions.assertTrue(displayItemRepository.findAll().stream().anyMatch(i -> "New Test Item".equals(i.getName())));
     }
 
+    @Test
+    @DisplayName("POST /api/displayItems should add a new item and return it first in the list when retrieving all items")
+    void should_returnNewlyAddedItemFirstInList_WhenAddingItemWithSamePosition() throws Exception {
+        // Given
+        // Create a new display item with the same position as an existing item
+        DisplayItemInputDTO inputDTO = new DisplayItemInputDTO(
+                "New Test Item For Ordering",
+                "Test Description For Ordering",
+                false,
+                null,
+                List.of(orderableItemId),
+                true,
+                category.getId()
+        );
+        String inputJson = objectMapper.writeValueAsString(inputDTO);
+
+        // When - Add the new display item
+        String responseJson = mockMvc.perform(post("/api/displayItems")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(inputJson))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Extract the ID of the newly created display item
+        String createdId = objectMapper.readTree(responseJson).get("id").asText();
+
+        // Then - Get all display items and verify the newly added item appears first
+        mockMvc.perform(get("/api/displayItems"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(3))) // Now we have 3 items
+                .andExpect(jsonPath("$[0].id").value(createdId)); // The newly added item should be first
+
+        // Verify that the new item has position 0 (default) and appears first due to createdAt ordering
+        DisplayItem newItem = displayItemRepository.findById(createdId).orElseThrow();
+
+        // Find another item with the same position
+        displayItemRepository.findAll().stream()
+                .filter(i -> i.getPosition() == newItem.getPosition() && !i.getId().equals(createdId))
+                .findFirst().ifPresent(
+                        existingItemWithSamePosition -> Assertions.assertTrue(
+                                newItem.getCreatedAt()
+                                        .isAfter(existingItemWithSamePosition.getCreatedAt()))
+                );
+
+    }
+
     @Nested
     @DisplayName("PUT /{displayItemId}")
     class UpdateDisplayItemTests {

@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface DisplayItemRepository extends MongoRepository<DisplayItem, String> {
-    List<DisplayItem> findAllByOrderByPositionAsc();
+    List<DisplayItem> findAllByOrderByPositionAscCreatedAtDesc();
 }

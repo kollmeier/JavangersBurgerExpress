@@ -140,6 +140,46 @@ class DishesControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/dishes should add a new dish and return it first in the list when retrieving all dishes")
+    void addDish_shouldReturnNewlyAddedDishFirstInList() throws Exception {
+        // Given
+        // Create a new dish with the same position as an existing dish
+        DishInputDTO newDishInput = new DishInputDTO(
+                DishType.MAIN.name(),
+                "New Test Burger",
+                "11.99",
+                Map.of(),
+                "new-test-image-url.jpg"
+        );
+        String newDishJson = objectMapper.writeValueAsString(newDishInput);
+
+        // When - Add the new dish
+        MvcResult postResult = mockMvc.perform(post("/api/dishes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newDishJson))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        // Extract the ID of the newly created dish
+        String responseBody = postResult.getResponse().getContentAsString();
+        String createdId = objectMapper.readTree(responseBody).get("id").asText();
+
+        // Then - Get all dishes and verify the newly added dish appears first among dishes with the same position
+        mockMvc.perform(get("/api/dishes"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(5))) // Now we have 5 dishes
+                .andExpect(jsonPath("$[0].id").value(createdId)); // The newly added dish should be first
+
+        // Verify that the new dish has the same position as mainDish1 but appears first due to createdAt ordering
+        Dish newDish = dishRepository.findById(createdId).orElseThrow();
+        assertThat(newDish.getPosition()).isEqualTo(mainDish1.getPosition());
+
+        // Verify that the createdAt timestamp of the new dish is after the createdAt of mainDish1
+        assertThat(newDish.getCreatedAt()).isAfter(mainDish1.getCreatedAt());
+    }
+
+    @Test
     @DisplayName("PUT /{dishId} aktualisiert ein Gericht und gibt aktualisiertes DishOutputDTO zurück")
     void updateDish_putEndpoint_returnsUpdatedDish() throws Exception {
         // Erstellt zuerst ein Gericht oder stelle sicher, dass ein bekanntes Gericht existiert

@@ -25,7 +25,7 @@ public class DisplayCategoryService {
     private static final String ERROR_PATH_BASE = "displayCategories";
 
     public List<DisplayCategoryOutputDTO> getAllDisplayCategories() {
-        return DisplayCategoryOutputDTOConverter.convert(displayCategoryRepository.findAllByOrderByPositionAsc());
+        return DisplayCategoryOutputDTOConverter.convert(displayCategoryRepository.findAllByOrderByPositionAscCreatedAtDesc());
     }
 
     public DisplayCategoryOutputDTO addDisplayCategory(@NonNull DisplayCategoryInputDTO displayCategory) {

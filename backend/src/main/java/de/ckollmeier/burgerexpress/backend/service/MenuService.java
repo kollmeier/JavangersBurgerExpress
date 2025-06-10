@@ -31,7 +31,7 @@ public class MenuService {
      * @return A list of all menus as MenuOutputDTOs.
      */
     public List<MenuOutputDTO> getAllMenus() {
-        return MenuOutputDTOConverter.convert(menuRepository.findAllByOrderByPositionAsc());
+        return MenuOutputDTOConverter.convert(menuRepository.findAllByOrderByPositionAscCreatedAtDesc());
     }
 
     /**
