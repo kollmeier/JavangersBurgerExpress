@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface DisplayCategoryRepository extends MongoRepository<DisplayCategory, String> {
     List<DisplayCategory> findAllByOrderByPositionAscCreatedAtDesc();
-    DisplayCategory getReferenceById(String id);
 }
