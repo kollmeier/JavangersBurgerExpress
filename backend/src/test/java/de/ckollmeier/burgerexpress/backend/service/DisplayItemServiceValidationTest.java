@@ -195,7 +195,10 @@ class DisplayItemServiceValidationTest {
             DisplayItem savedItem = mock(DisplayItem.class);
             when(displayItemRepository.save(any(DisplayItem.class))).thenReturn(savedItem);
 
-            DisplayItemOutputDTO expectedDTO = mock(DisplayItemOutputDTO.class);
+            // Create a real DisplayItemOutputDTO instead of mocking it
+            DisplayItemOutputDTO expectedDTO = new DisplayItemOutputDTO(
+                "test-id", validCategoryId, "Test Item", "Test Description", 
+                Collections.emptyList(), "10.00", null, true);
 
             try (MockedStatic<DisplayItemOutputDTOConverter> mockStatic = mockStatic(DisplayItemOutputDTOConverter.class)) {
                 mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(savedItem)).thenReturn(expectedDTO);
@@ -240,7 +243,10 @@ class DisplayItemServiceValidationTest {
             DisplayItem savedItem = mock(DisplayItem.class);
             when(displayItemRepository.save(convertedItem)).thenReturn(savedItem);
 
-            DisplayItemOutputDTO expectedDTO = mock(DisplayItemOutputDTO.class);
+            // Create a real DisplayItemOutputDTO instead of mocking it
+            DisplayItemOutputDTO expectedDTO = new DisplayItemOutputDTO(
+                itemId, validCategoryId, "Updated Item", "Updated Description", 
+                Collections.emptyList(), "9.99", null, true);
 
             try (MockedStatic<DisplayItemOutputDTOConverter> mockStatic = mockStatic(DisplayItemOutputDTOConverter.class)) {
                 mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(savedItem)).thenReturn(expectedDTO);
