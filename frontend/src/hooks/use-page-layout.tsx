@@ -11,7 +11,8 @@ export default function usePageLayout() {
         footer: undefined,
         mainNav: [],
         actions: undefined,
-        header: undefined
+        header: undefined,
+        sidebar: undefined
     });
 
     const render = (content: ReactNode) => {
@@ -21,7 +22,8 @@ export default function usePageLayout() {
                 subHeader={state.subHeader}
                 mainNav={state.mainNav}
                 actions={state.actions}
-                footer={state.footer} >{content}</PageLayout>)
+                footer={state.footer}
+                sidebar={state.sidebar}>{content}</PageLayout>)
     }
 
     return {
@@ -30,11 +32,13 @@ export default function usePageLayout() {
         actions: state.actions,
         footer: state.footer,
         mainNav: state.mainNav,
+        sidebar: state.sidebar,
         render,
         setHeader: (header: ReactNode) => setState(prev => ({ ...prev, header })),
         setSubHeader: (subHeader?: ReactNode) => setState(prev => ({ ...prev, subHeader })),
         setFooter: (footer: ReactNode) => setState(prev => ({ ...prev, footer })),
         setMainNav: (mainNav: NavItem[]) => setState(prev => ({ ...prev, mainNav })),
         setActions: (actions: ReactNode) => setState(prev => ({ ...prev, actions })),
+        setSidebar: (sidebar: ReactNode) => setState(prev => ({ ...prev, sidebar })),
     };
 }

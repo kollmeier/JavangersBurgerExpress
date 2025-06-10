@@ -11,6 +11,7 @@ export type PageLayoutProps = {
     actions?: ReactNode;
     mainNav?: NavItem[];
     footer?: ReactNode;
+    sidebar?: ReactNode;
 };
 
 export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
@@ -19,6 +20,7 @@ export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
     actions,
     mainNav,
     footer,
+    sidebar,
     children
 }) => (
     <div className="flex flex-col min-h-screen">
@@ -45,13 +47,20 @@ export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
             </nav>
         )}
         <div className="flex-1 flex flex-wrap justify-center items-stretch bg-[#f7f7f9]">
-            <main className="flex gap-2 flex-col max-w-[1378px] flex-1 p-4">
-                {actions && <div
-                    className="flex flex-row justify-end flex-1 bg-white text-black rounded-xl p-2 shadow-[0_2px_8px_rgba(80,90,110,0.04)]">{actions}</div>}
-                <div className="flex-1 bg-white rounded-xl p-4 shadow-[0_2px_8px_rgba(80,90,110,0.04)]">
-                    {children}
-                </div>
-            </main>
+            <div className="flex flex-row max-w-[1378px] flex-1">
+                {sidebar && (
+                    <aside className="w-64 p-4">
+                        {sidebar}
+                    </aside>
+                )}
+                <main className={`flex gap-2 flex-col flex-1 p-4 ${sidebar ? 'w-[calc(100%-16rem)]' : 'w-full'}`}>
+                    {actions && <div
+                        className="flex flex-row justify-end flex-1 bg-white text-black rounded-xl p-2 shadow-[0_2px_8px_rgba(80,90,110,0.04)]">{actions}</div>}
+                    <div className="flex-1 bg-white rounded-xl p-4 shadow-[0_2px_8px_rgba(80,90,110,0.04)]">
+                        {children}
+                    </div>
+                </main>
+            </div>
         </div>
         {footer && (
             <footer className="text-center bg-[#292c36] text-white px-8 py-4">
