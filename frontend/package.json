@@ -13,7 +13,6 @@
     "@dnd-kit/dom": "^0.1.19-beta-20250602151825",
     "@dnd-kit/helpers": "^0.1.19-beta-20250602151825",
     "@dnd-kit/react": "^0.1.19-beta-20250602151825",
-    "@dnd-kit/sortable": "^10.0.0",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.4",
