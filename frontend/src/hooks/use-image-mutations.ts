@@ -9,7 +9,9 @@ export function useImageMutations() {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         onSuccess: (savedFiles, _submittedFiles) => {
             savedFiles.forEach(savedFile => {
-                queryClient.setQueryData(['imagesData', savedFile.id], savedFile);
+                if (savedFile) {
+                    queryClient.setQueryData(['imagesData', savedFile.id], savedFile);
+                }
             })
         },
         onSettled: () => queryClient.invalidateQueries({queryKey: ['imagesData']}),

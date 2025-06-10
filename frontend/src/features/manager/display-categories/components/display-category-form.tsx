@@ -58,7 +58,7 @@ const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
                         isLoading: false,
                         autoClose: 5000,
                     });
-                    const editedDisplayCategory = {...submittedDisplayCategory, imageUrl: files[0].uri ?? null};
+                    const editedDisplayCategory = {...submittedDisplayCategory, imageUrl: files[0]?.uri ?? ''};
                     if (onSubmit) {
                         (async () => {
                             await onSubmit(editedDisplayCategory, displayCategory?.id);
