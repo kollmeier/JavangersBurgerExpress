@@ -128,6 +128,51 @@ class DisplayCategoryControllerTest {
         Assertions.assertTrue(displayCategoryRepository.findAll().stream().anyMatch(c -> "Salate".equals(c.getName())));
     }
 
+    @Test
+    @DisplayName("POST /api/displayCategories should add a new category and return it first in the list when retrieving all categories")
+    void should_returnNewlyAddedCategoryFirstInList_WhenAddingCategoryWithSamePosition() throws Exception {
+        // Given
+        // Create a new category with the same position as an existing category
+        DisplayCategoryInputDTO inputDTO = new DisplayCategoryInputDTO(
+                "New Test Category",
+                "Test Description",
+                "https://example.com/test.jpg",
+                true
+        );
+        String inputJson = objectMapper.writeValueAsString(inputDTO);
+
+        // When - Add the new category
+        String responseJson = mockMvc.perform(post("/api/displayCategories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(inputJson))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Extract the ID of the newly created category
+        String createdId = objectMapper.readTree(responseJson).get("id").asText();
+
+        // Then - Get all categories and verify the newly added category appears first
+        mockMvc.perform(get("/api/displayCategories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(4))) // Now we have 4 categories
+                .andExpect(jsonPath("$[0].id").value(createdId)); // The newly added category should be first
+
+        // Verify that the new category has position 0 (default) and appears first due to createdAt ordering
+        DisplayCategory newCategory = displayCategoryRepository.findById(createdId).orElseThrow();
+
+        // Find another category with the same position
+        displayCategoryRepository.findAll().stream()
+                .filter(c -> c.getPosition() == newCategory.getPosition() && !c.getId().equals(createdId))
+                .findFirst().ifPresent(
+                        existingCategoryWithSamePosition -> Assertions.assertTrue(
+                                newCategory.getCreatedAt()
+                                .isAfter(existingCategoryWithSamePosition.getCreatedAt()))
+                );
+
+    }
+
     @Nested
     @DisplayName("PUT /{displayCategoryId}")
     class UpdateDisplayCategoryTests {
