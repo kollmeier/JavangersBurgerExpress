@@ -84,6 +84,28 @@ class DisplayItemConverterTest {
     }
 
     @Test
+    @DisplayName("Konvertiere DisplayItemInputDTO zu DisplayItem (mit null orderableItemIds)")
+    void convertDisplayItemInputDTO_to_DisplayItem_withNullOrderableItemIds() {
+        DisplayItemInputDTO input = new DisplayItemInputDTO(
+                "Test-Null-Items",
+                "Burger mit null Items",
+                true,
+                "5.99",
+                null,
+                true,
+                "000000000000000000000000"
+        );
+        Function<String, OrderableItem> resolver = id -> new StubOrderableItem(id, "Sollte-nicht-aufgerufen-werden", BigDecimal.ZERO);
+
+        DisplayItem result = DisplayItemConverter.convert(input, resolver);
+
+        assertThat(result.getName()).isEqualTo("Test-Null-Items");
+        assertThat(result.getDescription()).isEqualTo("Burger mit null Items");
+        assertThat(result.getActualPrice()).isEqualTo(new BigDecimal("5.99"));
+        assertThat(result.getOrderableItems()).isNull();
+    }
+
+    @Test
     @DisplayName("Konvertiert und überschreibt nur geänderte Werte in bestehendem DisplayItem")
     void convertDisplayItemInputDTO_withExistingDisplayItem_overrideFields() {
         DisplayItem existing = DisplayItem.builder()

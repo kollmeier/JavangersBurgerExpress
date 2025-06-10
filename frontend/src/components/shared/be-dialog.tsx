@@ -24,10 +24,10 @@ type DialogPanelWithIconProps = DialogPanelProps & {
 
 const DialogPanelWithIcon = ({icon, iconClassName, children, actions, className}: DialogPanelWithIconProps) => {
     return (
-        <DialogPanel className={cn("grid gap-6 auto-cols-max", actions && "grid-rows-2", className)}>
+        <DialogPanel className={cn("grid gap-6 min-w-0", actions && "grid-rows-2", className)}>
             <FontAwesomeIcon icon={icon} className={cn("w-14 text-6xl", iconClassName)}/>
-            <div className="col-start-2 min-w-0">{children}</div>
-            {actions && <div className="flex justify-end gap-2 row-start-2 col-span-2 place-self-end">
+            <div className="col-start-2 min-w-0 w-auto">{children}</div>
+            {actions && <div className="flex min-w-0 justify-end gap-2 row-start-2 col-span-2 place-self-end">
                 {actions}
             </div>}
         </DialogPanel>

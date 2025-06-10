@@ -11,17 +11,25 @@ import React from "react";
 import Card from "@/components/shared/card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
-import {useSortable} from "@dnd-kit/sortable";
-import {CSS} from "@dnd-kit/utilities";
 import {cn, getIconElement} from "@/util";
 
 type CardProps = {
     displayCategory: DisplayCategoryOutputDTO;
     onAddDisplayItemClicked: () => void;
+    handleRef:  (element: (Element | null)) => void,
     onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+    isDragging?: boolean;
+    isDraggable?: boolean;
 }
 
-const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked}: CardProps) => {
+const DisplayCategoryCard = ({
+                                 displayCategory,
+                                 handleRef,
+                                 onDelete,
+                                 onAddDisplayItemClicked,
+                                 isDragging = false,
+                                 isDraggable = false,
+}: CardProps) => {
 
     const navigate = useNavigate();
     /**
@@ -31,23 +39,9 @@ const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked
         navigate(`/manage/displayItems/category/${displayCategory.id}/edit`);
     }
 
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-    } = useSortable({id: displayCategory.id});
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
 
     return (
         <Card
-            ref={setNodeRef}
-            style={style}
             colorVariant={colorMapCards['displayCategory']}
             header={displayCategory.name}
             image={displayCategory.imageUrl && <img src={displayCategory.imageUrl + '?size=148'} alt={displayCategory.name} className="object-contain drop-shadow-lg max-h-22"/>}
@@ -58,8 +52,11 @@ const DisplayCategoryCard = ({displayCategory, onDelete, onAddDisplayItemClicked
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
             </>}
             typeCircle={getIconElement("displayCategory")}
-            topRight={<span className="displayCategory-type" {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
-            className={cn("gap-y-1 gap-x-2")}
+            topRight={isDraggable && <span ref={handleRef} className="displayCategory-type" ><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            className={cn(
+                "gap-y-1 gap-x-2",
+                isDragging && "shadow-xl scale-102 z-10"
+            )}
             headerClassName="row-span-1"
             childrenClassName="col-start-middle row-span-2 -mx-1.5 max-h-9"
             actionsClassName="col-span-4 mr-4"

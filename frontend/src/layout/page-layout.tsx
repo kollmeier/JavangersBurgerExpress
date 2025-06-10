@@ -8,6 +8,7 @@ export type NavItem = {
 export type PageLayoutProps = {
     header?: ReactNode;
     subHeader?: ReactNode;
+    actions?: ReactNode;
     mainNav?: NavItem[];
     footer?: ReactNode;
 };
@@ -15,6 +16,7 @@ export type PageLayoutProps = {
 export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
     header,
     subHeader,
+    actions,
     mainNav,
     footer,
     children
@@ -27,8 +29,8 @@ export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
             </header>
         )}
         {mainNav && (
-            <nav className="bg-[#ececec] px-8 py-2">
-                <ul className="flex gap-6 list-none m-0 p-0">
+            <nav className="bg-[#ececec] px-8 py-2 flex justify-center items-stretch">
+                <ul className="flex flex-1 max-w-[1378px] gap-6 list-none m-0 px-4 py-1">
                     {mainNav.map((item, index) => (
                         <li key={item.label + index}>
                             <a
@@ -42,8 +44,10 @@ export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
                 </ul>
             </nav>
         )}
-        <div className="flex-1 flex justify-center items-stretch bg-[#f7f7f9]">
-            <main className="flex flex-col max-w-[1378px] flex-1 p-4">
+        <div className="flex-1 flex flex-wrap justify-center items-stretch bg-[#f7f7f9]">
+            <main className="flex gap-2 flex-col max-w-[1378px] flex-1 p-4">
+                {actions && <div
+                    className="flex flex-row justify-end flex-1 bg-white text-black rounded-xl p-2 shadow-[0_2px_8px_rgba(80,90,110,0.04)]">{actions}</div>}
                 <div className="flex-1 bg-white rounded-xl p-4 shadow-[0_2px_8px_rgba(80,90,110,0.04)]">
                     {children}
                 </div>

@@ -1,28 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import { useNavigate, useParams} from 'react-router-dom';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import {useNavigate, useParams} from 'react-router-dom';
+import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
 import {toast} from "react-toastify";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
 
 import {BeCircleLink} from "@/components/ui/be-circle-link.tsx";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
-import {faWarning} from "@fortawesome/free-solid-svg-icons";
+import {faMaximize, faMinimize, faWarning} from "@fortawesome/free-solid-svg-icons";
 import BeDialog from "@/components/shared/be-dialog.tsx";
 import {colorMapCards} from "@/data";
 import {cn, errorMessage, useDisplayCategories} from "@/util";
@@ -35,28 +20,23 @@ import {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
 import {useDisplayItemMutations} from "@/hooks/use-display-item-mutations.ts";
 import DisplayItemAdd from "@/features/manager/display-items/components/display-item-add.tsx";
 import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
-import {useDisplayItems} from "@/util/queries.ts";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {DragDropProvider} from "@dnd-kit/react"
+import {move} from "@dnd-kit/helpers";
 
 const DisplayItemsPage: React.FC = () => {
     const {data: displayCategories} = useDisplayCategories();
-    const [displayCategoriesOrder, setDisplayCategoriesOrder] = useState<string[]>([]);
+    const [displayItems, setDisplayItems] = useState<DisplayItemOutputDTO[]>();
 
-    const {data: displayItems} = useDisplayItems();
     const [displayItemsOrderByCategory, setDisplayItemsOrderByCategory] = useState<{[categoryId: string]: string[]}>({});
+    const [displayCategoriesOrder, setDisplayCategoriesOrder] = useState(() => Object.keys(displayItemsOrderByCategory ?? []));
 
     const setDisplayItemsOrder = (categoryId: string, displayItemsOrder: string[]) => {
         setDisplayItemsOrderByCategory({...displayItemsOrderByCategory, [categoryId]: displayItemsOrder});
     }
 
     const {updateData: setDisplayCategories, savePositionsMutation: saveCategoryPositionsMutation, addDisplayCategoryMutation, updateDisplayCategoryMutation, deleteDisplayCategoryMutation} = useDisplayCategoryMutations();
-    const {updateData: setDisplayItems, savePositionsMutation: saveItemPositionsMutation, addDisplayItemMutation, updateDisplayItemMutation, deleteDisplayItemMutation} = useDisplayItemMutations();
-
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
+    const {savePositionsMutation: saveItemPositionsMutation, addDisplayItemMutation, updateDisplayItemMutation, deleteDisplayItemMutation} = useDisplayItemMutations(setDisplayCategories);
 
     const displayCategoryId = useParams().displayCategoryId;
 
@@ -65,10 +45,11 @@ const DisplayItemsPage: React.FC = () => {
     const [displayCategoryToAddTo, setDisplayCategoryToAddTo] = React.useState<string | undefined>(undefined);
 
     const [countItemsInCategoryToDelete, setCountItemsInCategoryToDelete] = React.useState<number>(0);
+    const [areCategoriesDraggable, setAreCategoriesDraggable] = React.useState<boolean>(false);
 
     const navigate = useNavigate();
 
-    const {setSubHeader} = usePageLayoutContext();
+    const {setSubHeader, setActions} = usePageLayoutContext();
 
     useEffect(() => {
         setSubHeader("Anzeige-Elemente");
@@ -76,12 +57,28 @@ const DisplayItemsPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        setActions(
+            <BeButton 
+                onClick={() => setAreCategoriesDraggable(!areCategoriesDraggable)}
+                className="btn btn-neutral w-fit"
+            ><FontAwesomeIcon icon={areCategoriesDraggable ? faMaximize : faMinimize} /> {areCategoriesDraggable ? "Elemente verschieben" : "Kategorien verschieben"}</BeButton>
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [areCategoriesDraggable]);
+
+    useEffect(() => {
         if (displayCategories && displayCategories.length > 0) {
             setDisplayCategoriesOrder(displayCategories.map((displayCategory: DisplayCategoryOutputDTO) => displayCategory.id));
             setDisplayItems(displayCategories.flatMap((displayCategory: DisplayCategoryOutputDTO) => displayCategory.displayItems ?? []));
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [displayCategories]);
+
+    useEffect(() => {
+        if (displayCategoriesOrder && displayCategoriesOrder.length > 0) {
+            saveCategoryPositionsMutation.mutate(displayCategoriesOrder);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [displayCategoriesOrder]);
 
     useEffect(() => {
         if (displayItems && displayItems.length > 0) {
@@ -105,25 +102,6 @@ const DisplayItemsPage: React.FC = () => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [displayItems]);
-
-    useEffect(() => {
-        if (displayCategoriesOrder && displayCategoriesOrder.length > 0) {
-            saveCategoryPositionsMutation.mutate(displayCategoriesOrder, {
-                onError: () => toast.error('Fehler beim Speichern der Positionen.')
-            });
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [displayCategoriesOrder]);
-
-    useEffect(() => {
-        if (displayItemsOrderByCategory && Object.keys(displayItemsOrderByCategory).length > 0) {
-            saveItemPositionsMutation.mutate(Object.values(displayItemsOrderByCategory)
-                .flatMap((displayItems: string[]) => displayItems), {
-                onError: () => toast.error('Fehler beim Speichern der Positionen.')
-            });
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [displayItemsOrderByCategory]);
 
     useEffect(() => {
         setCountItemsInCategoryToDelete(displayCategoryToDelete && displayItemsOrderByCategory[displayCategoryToDelete] ? displayItemsOrderByCategory[displayCategoryToDelete].length : 0);
@@ -151,6 +129,14 @@ const DisplayItemsPage: React.FC = () => {
             }
         });
     };
+
+    const displayCategoryForId = (id: string) => {
+        return displayCategories?.find((category: DisplayCategoryOutputDTO) => category.id === id);
+    }
+
+    const displayItemForId = (id: string) => {
+        return displayItems?.find((item: DisplayItemOutputDTO) => item.id === id);
+    }
 
     const handleSubmitUpdateDisplayCategory = async (submittedDisplayCategory: DisplayCategoryInputDTO, displayCategoryId: string) => {
         const toastId = toast.loading('Kategorie wird gespeichert...');
@@ -289,45 +275,77 @@ const DisplayItemsPage: React.FC = () => {
         setDisplayCategoryToAddTo(undefined);
     }
 
-    function handleDragEnd(event: DragEndEvent) {
-        const {active, over} = event;
-        if (!active || !over) {
-            return;
-        }
 
-        if (active.id !== over.id) {
-            setDisplayCategoriesOrder((displayCategoriesOrder) => {
-                const oldIndex = displayCategoriesOrder.indexOf(active.id + "");
-                const newIndex = displayCategoriesOrder.indexOf(over.id + "");
-
-                return arrayMove(displayCategoriesOrder, oldIndex, newIndex);
-            });
-        }
-    }
+    // Create a flat list of all display item IDs across all categories
+    // const allDisplayItemIds = Object.values(displayItemsOrderByCategory).flatMap(ids => ids);
 
     return (
-        <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-            <SortableContext items={displayCategoriesOrder} strategy={verticalListSortingStrategy}>
+        <DragDropProvider
+            onDragOver={(event) => {
+                const {source} = event.operation;
+
+                if (source?.type === "displayCategory") {
+                    return;
+                }
+
+                setDisplayItemsOrderByCategory((items) => move(items, event))
+            }}
+            onDragEnd={(event) => {
+                const {source} = event.operation;
+
+                if (event.canceled) {
+                    return;
+                }
+
+                if (source?.type === "displayCategory") {
+                    setDisplayCategoriesOrder((categories) => move(categories, event));
+
+                    return;
+                }
+
+                if (source?.type === "displayItem") {
+                    if (displayItemsOrderByCategory && Object.values(displayItemsOrderByCategory).length > 0 && displayItems && displayItems.length > 0) {
+                        saveItemPositionsMutation.mutate(
+                            Object.values(displayItemsOrderByCategory)
+                                .flatMap(displayItemIds => displayItemIds)
+                                .map(displayItemId => displayItemForId(displayItemId))
+                                .map((displayItem, index) => (displayItem && {
+                                    index,
+                                    id: displayItem.id,
+                                    parentId: displayItem.categoryId,
+                                }))
+                                .filter(item => !!item)
+                        );
+                    }
+                }
+            }}
+        >
                 <div className="grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                    <MinimalCard className={cn("col-span-1 sm:col-span-2 xl:col-span-3 h-28 transition-[height]", displayCategoryId === 'add' && "h-58")} colorVariant={colorMapCards.displayCategory}>
-                        {displayCategoryId !== 'add' ? (
-                            <BeCircleLink icon={faPlus} to="/manage/displayItems/category/add">Kategorie hinzufügen</BeCircleLink>
-                        ) : (
-                            <DisplayCategoryAdd onSubmit={handleSubmitAddDisplayCategory} onCancel={handleCancel}/>
-                        )}
-                    </MinimalCard>
-                    {displayCategories?.map((displayCategory) => <DisplayCategoryItem key={displayCategory.id}
-                                                                                      className="col-span-1 sm:col-span-2 xl:col-span-3 min-h-5"
-                                                                                      id={displayCategory.id}
-                                                                                      displayCategory={displayCategory}
-                                                                                      displayItemsOrder={displayItemsOrderByCategory[displayCategory.id] ?? []}
-                                                                                      setDisplayItemsOrder={(order: string[]) => setDisplayItemsOrder(displayCategory.id, order)}
-                                                                                      onSubmit={handleSubmitUpdateDisplayCategory}
-                                                                                      onDisplayItemSubmit={handleSubmitUpdateDisplayItem}
-                                                                                      onDisplayItemDelete={handleDeleteDisplayItemConfirm}
-                                                                                      onAddDisplayItemClicked={() => setDisplayCategoryToAddTo(displayCategory.id)}
-                                                                                      onDelete={handleDeleteDisplayCategoryConfirm}
-                                                                                      onCancel={handleCancel}/>)}
+                    <div className="col-span-1 sm:col-span-2 xl:col-span-3">
+                        <MinimalCard className={cn("h-28 transition-[height]", displayCategoryId === 'add' && "h-58")} colorVariant={colorMapCards.displayCategory}>
+                            {displayCategoryId !== 'add' ? (
+                                <BeCircleLink icon={faPlus} to="/manage/displayItems/category/add">Kategorie hinzufügen</BeCircleLink>
+                            ) : (
+                                <DisplayCategoryAdd onSubmit={handleSubmitAddDisplayCategory} onCancel={handleCancel}/>
+                            )}
+                        </MinimalCard>
+                    </div>
+                    {displayCategoriesOrder.map(displayCategoryId => displayCategoryForId(displayCategoryId))
+                        .map((displayCategory, index) =>
+                            displayCategory && <DisplayCategoryItem key={displayCategory.id}
+                                  className="col-span-1 sm:col-span-2 xl:col-span-3 min-h-5"
+                                  id={displayCategory.id}
+                                  index={index}
+                                  displayCategory={displayCategory}
+                                  displayItemsOrder={displayItemsOrderByCategory[displayCategory.id] ?? []}
+                                  setDisplayItemsOrder={(order: string[]) => setDisplayItemsOrder(displayCategory.id, order)}
+                                  onSubmit={handleSubmitUpdateDisplayCategory}
+                                  onDisplayItemSubmit={handleSubmitUpdateDisplayItem}
+                                  onDisplayItemDelete={handleDeleteDisplayItemConfirm}
+                                  onAddDisplayItemClicked={() => setDisplayCategoryToAddTo(displayCategory.id)}
+                                  onDelete={handleDeleteDisplayCategoryConfirm}
+                                  onCancel={handleCancel}
+                                  isDraggable={areCategoriesDraggable}/>)}
                 </div>
                 <BeDialog
                     onClose={() => setDisplayCategoryToDelete(undefined)}
@@ -363,8 +381,7 @@ const DisplayItemsPage: React.FC = () => {
                       <DisplayItemAdd onSubmit={handleSubmitAddDisplayItem} onCancel={handleCancel} categoryId={displayCategoryToAddTo ?? ""} />
                     </div>
                 </BeDialog>
-            </SortableContext>
-        </DndContext>
+    </DragDropProvider>
     );
 };
 

@@ -1,12 +1,10 @@
 import {type PropsWithChildren, type ReactNode} from "react";
 import {cn} from "@/util";
-import {colorVariants, ColorVariantsType} from "@/data";
-import MinimalCard from "@/components/shared/minimal-card.tsx";
-type CardProps = Readonly<PropsWithChildren<{
-    ref?: React.Ref<HTMLDivElement>;
-    style?: React.CSSProperties;
+import {colorVariants} from "@/data";
+import MinimalCard, {MinimalCardProps} from "@/components/shared/minimal-card.tsx";
+export type CardProps = Readonly<PropsWithChildren<{
     className?: string;
-    colorVariant?: ColorVariantsType;
+    colorVariant?: string;
     header?: ReactNode;
     headerClassName?: string;
     typeCircle?: ReactNode;
@@ -19,11 +17,9 @@ type CardProps = Readonly<PropsWithChildren<{
     actions?: ReactNode;
     actionsClassName?: string;
     childrenClassName?: string;
-}>>
+}>> & MinimalCardProps;
 
 const Card = ({
-    ref,
-    style,
     className,
     colorVariant,
     header,
@@ -38,16 +34,17 @@ const Card = ({
     actions,
     actionsClassName,
     children,
-    childrenClassName
+    childrenClassName,
+    ...props
 }: CardProps) => {
 
 
     return (
         <MinimalCard
-            ref={ref}
-            style={style}
             colorVariant={colorVariant}
-            className={cn("px-0 py-0 grid grid-cols-card grid-rows-card gap-4", !!typeCircle && "rounded-tl-circle-md", !!priceCircle && "rounded-br-circle-lg", className)}>
+            {...props}
+            className={cn("px-0 py-0 grid grid-cols-card grid-rows-card gap-4", !!typeCircle && "rounded-tl-circle-md", !!priceCircle && "rounded-br-circle-lg", className)}
+        >
             {typeCircle && <div className={cn("mt-circle-offset-md ml-circle-offset-md row-start-head col-start-first w-circle-md h-circle-md rounded-circle-md flex items-center justify-center !text-tc bg-gray-300 text-gray-800", colorVariant && colorVariants[colorVariant].light)}>{typeCircle}</div>}
             {header && <div className={cn("row-start-head col-middle_end self-end pt-2 mr-4 text-lg font-medium", headerClassName)}>{header}</div>}
             {children && <div className={cn("row-start-content col-first_side ml-4 min-w-1", childrenClassName)}>{children}</div>}

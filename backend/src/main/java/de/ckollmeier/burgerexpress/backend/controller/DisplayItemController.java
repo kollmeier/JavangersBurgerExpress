@@ -1,6 +1,5 @@
 package de.ckollmeier.burgerexpress.backend.controller;
 
-import de.ckollmeier.burgerexpress.backend.converter.DisplayItemOutputDTOConverter;
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.DisplayItemOutputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.SortedInputDTO;
@@ -73,9 +72,11 @@ public class DisplayItemController {
      * @return die DisplayItems in der neuen Reihenfolge
      */
     @PutMapping("/positions")
-    public ResponseEntity<List<DisplayItemOutputDTO>> updateDisplayItemPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
+    public ResponseEntity<List<DisplayItemOutputDTO>> updateDisplayItemPositions(
+            final @RequestBody List<SortedInputDTO> sortedInputDTOs
+    ) {
         return new ResponseEntity<>(
-                DisplayItemOutputDTOConverter.convert(sortableService.reorder(DisplayItem.class, sortedInputDTOs)),
+                displayItemService.updateDisplayItemPositions(sortedInputDTOs),
                 HttpStatus.OK
         );
     }

@@ -1,20 +1,19 @@
-import type {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import DisplayItemEdit from "./display-item-edit.tsx";
 import type {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
-import DisplayItemCard from "./display-item-card.tsx";
+import DisplayItemCard, {DisplayItemCardProps} from "./display-item-card.tsx";
 
 type Props = {
-    id: string;
-    displayItem: DisplayItemOutputDTO;
     categoryId: string;
-    className?: string;
     onSubmit?: (submittedDisplayItem: DisplayItemInputDTO, displayItemId: string) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
 }
-function DisplayItemItem(props: Readonly<Props>) {
+
+export type DisplayItemItemProps = Omit<DisplayItemCardProps, keyof Props> & Props;
+
+function DisplayItemItem({categoryId, onSubmit, onDelete, onCancel, ...props}: Readonly<DisplayItemItemProps>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     /**
@@ -22,8 +21,8 @@ function DisplayItemItem(props: Readonly<Props>) {
      * @param submittedDisplayItem Das bearbeitete Menü.
      */
     const handleSubmit = async (submittedDisplayItem: DisplayItemInputDTO) => {
-        if (props.onSubmit) {
-            return props.onSubmit(submittedDisplayItem, props.displayItem.id);
+        if (onSubmit) {
+            return onSubmit(submittedDisplayItem, props.displayItem.id);
         }
         return Promise.resolve();
     }
@@ -32,8 +31,8 @@ function DisplayItemItem(props: Readonly<Props>) {
      * Wird aufgerufen, wenn das Editieren abgebrochen wird.
      */
     const handleCancel = () => {
-        if (props.onCancel) {
-            props.onCancel();
+        if (onCancel) {
+            onCancel();
         }
         setIsEditing(false);
     }
@@ -42,8 +41,8 @@ function DisplayItemItem(props: Readonly<Props>) {
      *
      */
     const handleDelete = async () => {
-        if (props.onDelete) {
-            return props.onDelete(props.displayItem.id);
+        if (onDelete) {
+            return onDelete(props.displayItem.id);
         }
         return Promise.resolve();
     }
@@ -55,16 +54,16 @@ function DisplayItemItem(props: Readonly<Props>) {
     }, [displayItemId]);
 
     return (
-        <div className={props.className} id={props.id}>
+        <>
             {!isEditing ? (
-                <DisplayItemCard displayItem={props.displayItem} onDelete={handleDelete}/>
+                <DisplayItemCard {...props} onDelete={handleDelete}/>
             ) : (
                 <DisplayItemEdit displayItem={props.displayItem}
-                                 categoryId={props.categoryId}
+                                 categoryId={categoryId}
                                  onSubmit={handleSubmit}
                                  onCancel={handleCancel}/>
             )}
-        </div>
+        </>
     );
 }
 

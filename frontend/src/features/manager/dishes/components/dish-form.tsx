@@ -65,7 +65,7 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                         isLoading: false,
                         autoClose: 5000,
                     });
-                    const editedDish = {...submittedDish, imageUrl: files[0].uri ?? null};
+                    const editedDish = {...submittedDish, imageUrl: files[0]?.uri ?? ''};
                     if (onSubmit) {
                         (async () => {
                             await onSubmit(editedDish, dish?.id);

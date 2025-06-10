@@ -2,7 +2,9 @@ package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.DisplayCategoryOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
+import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class DisplayCategoryOutputDTOConverter {
@@ -16,7 +18,10 @@ public class DisplayCategoryOutputDTOConverter {
                 displayCategory.getId(),
                 displayCategory.getName(),
                 displayCategory.getDescription(),
-                DisplayItemOutputDTOConverter.convert(displayCategory.getDisplayItems()),
+                DisplayItemOutputDTOConverter.convert(displayCategory.getDisplayItems().stream()
+                        .sorted(Comparator.comparingInt(DisplayItem::getPosition))
+                        .toList()
+                ),
                 displayCategory.getImageUrl(),
                 displayCategory.isPublished()
         );

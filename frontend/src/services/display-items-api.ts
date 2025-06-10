@@ -1,6 +1,7 @@
 import axios from "axios";
 import {type DisplayItemOutputDTO, isDisplayItemOutputDTO} from "../types/DisplayItemOutputDTO.ts";
 import type {DisplayItemInputDTO, DisplayItemInputDTOWithId} from "../types/DisplayItemInputDTO.ts";
+import type {SortedInputDTO} from "../types/SortedInputDTO.ts";
 import {throwErrorByResponse} from "@/util/errors.ts";
 
 export const DisplayItemsApi = {
@@ -23,13 +24,13 @@ export const DisplayItemsApi = {
         throw new TypeError("Ungültige Antwort beim Laden der Anzeigeelement-Liste");
     },
 
-    async saveDisplayItemsPositions(displayItemsOrder: string[]): Promise<DisplayItemOutputDTO[]> {
+    async saveDisplayItemsPositions(sortedItems: SortedInputDTO[]): Promise<DisplayItemOutputDTO[]> {
         DisplayItemsApi.cancelableGetAllRef?.abort();
         DisplayItemsApi.cancelableGetAllRef = new AbortController();
 
         const response = await axios.put(
             DisplayItemsApi.baseUrl + '/positions',
-            displayItemsOrder.map((displayItemId, index) => ({index, id: displayItemId})),
+            sortedItems,
             {
                 signal: DisplayItemsApi.cancelableGetAllRef.signal,
             }
