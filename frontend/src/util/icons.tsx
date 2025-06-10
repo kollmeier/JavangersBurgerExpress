@@ -10,7 +10,7 @@ import {
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {colorMapCards, ColorMapCardsType, colorVariants} from "@/data";
 import {ColorVariantStyle} from "@/data/color-variants.ts";
-import {cn} from "@sglara/cn";
+import {cn} from "@/util/cn.ts";
 
 export function getIcon(type: string) {
     switch (type) {

@@ -8,12 +8,16 @@ import {cn} from "@/util";
 import DisplayItemItem from "@/features/manager/display-items/components/display-item-item.tsx";
 import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
+import {CollisionPriority} from "@dnd-kit/abstract";
+import {useSortable} from "@dnd-kit/react/sortable";
 
 type Props = {
     id: string;
+    index: number;
     displayCategory: DisplayCategoryOutputDTO;
     displayItemsOrder: string[];
     setDisplayItemsOrder: (order: string[]) => void;
+    isDraggable?: boolean;
     className?: string;
     onSubmit?: (submittedDisplayCategory: DisplayCategoryInputDTO, displayCategoryId: string) => Promise<void>;
     onDisplayItemSubmit?: (submittedDisplayItem: DisplayItemInputDTO, displayItemId: string) => Promise<void>;
@@ -21,16 +25,28 @@ type Props = {
     onAddDisplayItemClicked: () => void;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
-    isDragging?: boolean;
-    isAnyCategoryDragging?: boolean;
 }
-function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItemsOrder, ...props}: Readonly<Props>) {
+function DisplayCategoryItem({
+                                 id,
+                                 index,
+                                 displayCategory,
+                                 displayItemsOrder,
+                                 setDisplayItemsOrder,
+                                 isDraggable = false,
+                                 ...props
+}: Readonly<Props>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
-    /**
-     * Wird aufgerufen, wenn die Anzeige-Kategorie über das Formular bearbeitet wird.
-     * @param submittedDisplayCategory Die bearbeitete Anzeige-Kategorie.
-     */
+    const {isDropTarget, ref, handleRef} = useSortable({
+        id,
+        index: index,
+        type: "displayCategory",
+        accept: ["displayItem", "displayCategory"],
+        collisionPriority: CollisionPriority.Low
+    })
+
+    const dropClassName = isDropTarget ? "bg-blue-500/5" : "";
+
     const handleSubmit = async (submittedDisplayCategory: DisplayCategoryInputDTO) => {
         if (props.onSubmit) {
             return props.onSubmit(submittedDisplayCategory, displayCategory.id);
@@ -38,9 +54,6 @@ function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItem
         return Promise.resolve();
     }
 
-    /**
-     * Wird aufgerufen, wenn das Editieren abgebrochen wird.
-     */
     const handleCancel = () => {
         if (props.onCancel) {
             props.onCancel();
@@ -48,9 +61,6 @@ function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItem
         setIsEditing(false);
     }
 
-    /**
-     *
-     */
     const handleDelete = async () => {
         if (props.onDelete) {
             return props.onDelete(displayCategory.id);
@@ -72,14 +82,18 @@ function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItem
     }, [displayCategory.displayItems]);
 
     return (
-        <>
-            <div className={cn("h-39 transition-[height]", isEditing && "h-58", props.className)} id={props.id}>
+        <div className={cn("col-span-3 grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6 rounded-lg transition-bg",
+            dropClassName,
+            "transition-[gap] duration-300 ease-in-out",
+            isDraggable && "gap-0")} ref={isDraggable ? ref : undefined}>
+            <div className={cn("h-39 transition-[height]", isEditing && "h-58", props.className)}>
                 {!isEditing ? (
                     <DisplayCategoryCard 
                         displayCategory={displayCategory} 
                         onDelete={handleDelete} 
                         onAddDisplayItemClicked={props.onAddDisplayItemClicked}
-                        isDragging={props.isDragging}
+                        isDraggable={isDraggable}
+                        handleRef={handleRef}
                     />
                 ) : (
                     <DisplayCategoryEdit displayCategory={displayCategory}
@@ -87,21 +101,21 @@ function DisplayCategoryItem({displayCategory, displayItemsOrder, setDisplayItem
                                          onCancel={handleCancel}/>
                 )}
             </div>
-            {displayCategory.displayItems.map((displayItem) => (
+            {displayCategory.displayItems.map((displayItem, index) => (
                 <DisplayItemItem
                     key={displayItem.id}
                     id={displayItem.id}
+                    index={index}
                     categoryId={displayCategory.id}
                     displayItem={displayItem}
                     onCancel={props.onCancel}
                     onSubmit={props.onDisplayItemSubmit}
                     onDelete={props.onDisplayItemDelete}
+                    isDraggable={!isDraggable}
                     className="w-full h-full"
-                    isDragging={props.isDragging}
-                    isAnyCategoryDragging={props.isAnyCategoryDragging}
                 />
             ))}
-        </>
+        </div>
     );
 }
 

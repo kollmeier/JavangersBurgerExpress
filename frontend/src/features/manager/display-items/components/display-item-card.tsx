@@ -8,20 +8,29 @@ import {
 
 import {useNavigate} from "react-router-dom";
 import React from "react";
-import Card from "@/components/shared/card.tsx";
+import Card, {CardProps} from "@/components/shared/card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
-import {useSortable} from "@dnd-kit/sortable";
-import {CSS} from "@dnd-kit/utilities";
 import {cn, getColoredIconElement, getIconColor, getIconElement} from "@/util";
+import {useSortable} from "@dnd-kit/react/sortable";
 
-type CardProps = {
+export type DisplayItemCardProps = {
     displayItem: DisplayItemOutputDTO;
-
+    className?: string,
+    index: number;
+    id: string;
+    isDraggable?: boolean;
     onDelete: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
-}
+} & CardProps
 
-const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
+const DisplayItemCard = ({
+                             displayItem,
+                             className,
+                             id,
+                             index,
+                             isDraggable = false,
+                             onDelete,
+                             ...props}: DisplayItemCardProps) => {
 
     const navigate = useNavigate();
     /**
@@ -31,25 +40,28 @@ const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
         navigate(`/manage/displayItems/${displayItem.id}/edit`);
     }
 
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        setActivatorNodeRef,
-        transform,
-        transition,
-    } = useSortable({id: displayItem.id});
+    const {ref, isDragging, handleRef} = useSortable({
+        id,
+        index,
+        type: "displayItem",
+        accept: "displayItem",
+        transition: {
+            idle: true,
+        },
+        group: displayItem.categoryId,
+    });
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
+    const dragClassName = isDragging ? "drop-shadow-2xl scale-105 z-10" : "";
 
     return (
         <Card
-            ref={setNodeRef}
-            style={style}
             header={displayItem.name}
+            ref={ref}
+            data-dragging={isDragging}
+            className={cn(dragClassName,
+                className,
+                "min-h-0 scale-y-100 transition-[transform,height,margin, opacity] duration-300 ease-in-out]",
+                !isDraggable && "scale-y-0 h-0 m-0 p-0")}
             colorVariant={colorMapCards['displayItem']}
             actions={<>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
@@ -62,7 +74,8 @@ const DisplayItemCard = ({displayItem, onDelete}: CardProps) => {
                 <span key={displayItem.id + orderableItem.id} className={cn("pill !text-sm", getIconColor(orderableItem.type, "light"))}>
                     {getColoredIconElement(orderableItem.type, "bg-transparent")} {orderableItem.name}
                 </span>)}</div>}
-            topRight={<span className="displayItem-type" ref={setActivatorNodeRef} {...attributes} {...listeners}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            topRight={isDraggable && <span className="displayItem-type" ref={handleRef}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-grab" /></span>}
+            {...props}
             >
             {displayItem.description &&
                 <blockquote className={cn("text-sm text-gray-500 bg-white/10 mx-2 p-2 rounded-md shadow-xs relative",
