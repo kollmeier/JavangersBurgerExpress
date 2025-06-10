@@ -53,7 +53,7 @@ class DishServiceTest {
                     .build();
             List<Dish> dishes = List.of(dish1, dish2);
 
-            when(dishRepository.findAllByOrderByPositionAsc()).thenReturn(dishes);
+            when(dishRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(dishes);
 
             List<DishOutputDTO> expectedDTOs = List.of(
                     new DishOutputDTO("1",
@@ -78,7 +78,7 @@ class DishServiceTest {
 
                 // Then
                 assertThat(result).isEqualTo(expectedDTOs);
-                verify(dishRepository).findAllByOrderByPositionAsc();
+                verify(dishRepository).findAllByOrderByPositionAscCreatedAtDesc();
                 converterMock.verify(() -> DishOutputDTOConverter.convert(dishes));
             }
         }
@@ -87,7 +87,7 @@ class DishServiceTest {
         @DisplayName("Gibt leere Liste zurück, wenn keine Gerichte existieren")
         void returnsEmptyList() {
             // Given
-            when(dishRepository.findAllByOrderByPositionAsc()).thenReturn(Collections.emptyList());
+            when(dishRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(Collections.emptyList());
 
             try (MockedStatic<DishOutputDTOConverter> converterMock = mockStatic(DishOutputDTOConverter.class)) {
                 converterMock.when(() -> DishOutputDTOConverter.convert(Collections.emptyList()))
@@ -98,7 +98,7 @@ class DishServiceTest {
 
                 // Then
                 assertThat(result).isEmpty();
-                verify(dishRepository).findAllByOrderByPositionAsc();
+                verify(dishRepository).findAllByOrderByPositionAscCreatedAtDesc();
                 converterMock.verify(() -> DishOutputDTOConverter.convert(Collections.emptyList()));
             }
         }

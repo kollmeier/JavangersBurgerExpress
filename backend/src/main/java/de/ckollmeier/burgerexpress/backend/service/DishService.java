@@ -31,7 +31,7 @@ public class DishService {
      * @return A list of all dishes as DishOutputDTOs.
      */
     public List<DishOutputDTO> getAllDishes() {
-        return DishOutputDTOConverter.convert(dishRepository.findAllByOrderByPositionAsc());
+        return DishOutputDTOConverter.convert(dishRepository.findAllByOrderByPositionAscCreatedAtDesc());
     }
 
     /**

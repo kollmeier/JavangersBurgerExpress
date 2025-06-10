@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface DishRepository extends MongoRepository<Dish, String> {
-    List<Dish> findAllByOrderByPositionAsc();
+    List<Dish> findAllByOrderByPositionAscCreatedAtDesc();
     Dish getReferenceById(String id);
 }
