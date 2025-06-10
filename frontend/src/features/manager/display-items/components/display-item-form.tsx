@@ -122,7 +122,7 @@ const DisplayItemForm = ({ displayItem, categoryId, onSubmit, onCancel }: Props)
             autoComplete="off"
             noValidate
             ref={formRef}
-            className="grid grid-cols-4 grid-rows-card gap-2 grow-1"
+            className="grid grid-cols-4 grid-rows-card gap-2"
         >
             <Controller
                 name="name"
