@@ -49,7 +49,7 @@ class DisplayCategoryServiceTest {
             DisplayCategory cat1 = mock(DisplayCategory.class);
             DisplayCategory cat2 = mock(DisplayCategory.class);
             List<DisplayCategory> categories = List.of(cat1, cat2);
-            when(displayCategoryRepository.findAllByOrderByPositionAsc()).thenReturn(categories);
+            when(displayCategoryRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(categories);
 
             // Create real DisplayCategoryOutputDTO instances instead of mocking them
             DisplayCategoryOutputDTO dto1 = new DisplayCategoryOutputDTO(
@@ -67,7 +67,7 @@ class DisplayCategoryServiceTest {
 
                 // then
                 assertThat(result).containsExactlyElementsOf(dtos);
-                verify(displayCategoryRepository).findAllByOrderByPositionAsc();
+                verify(displayCategoryRepository).findAllByOrderByPositionAscCreatedAtDesc();
             }
         }
 
@@ -75,7 +75,7 @@ class DisplayCategoryServiceTest {
         @DisplayName("shouldReturnEmptyList_whenNoDisplayCategoriesExist")
         void getAllDisplayCategories_shouldReturnEmptyList_whenNoDisplayCategoriesExist() {
             // given
-            when(displayCategoryRepository.findAllByOrderByPositionAsc()).thenReturn(Collections.emptyList());
+            when(displayCategoryRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(Collections.emptyList());
             try (MockedStatic<DisplayCategoryOutputDTOConverter> mock = mockStatic(DisplayCategoryOutputDTOConverter.class)) {
                     mock.when(() -> DisplayCategoryOutputDTOConverter.convert(Collections.emptyList()))
                         .thenReturn(Collections.emptyList());
@@ -85,7 +85,7 @@ class DisplayCategoryServiceTest {
 
                 // then
                 assertThat(result).isEmpty();
-                verify(displayCategoryRepository).findAllByOrderByPositionAsc();
+                verify(displayCategoryRepository).findAllByOrderByPositionAscCreatedAtDesc();
             }
 
         }
