@@ -2,21 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate, useParams} from 'react-router-dom';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import MenuAdd from "../components/menu-add.tsx";
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    rectSortingStrategy,
-} from '@dnd-kit/sortable';
 import {toast} from "react-toastify";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
 import MenuItem from "../components/menu-item.tsx";
@@ -32,19 +17,14 @@ import {useMenuMutations} from "@/hooks/use-menu-mutations.ts";
 import BeDialog from "@/components/shared/be-dialog.tsx";
 import {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
 import {colorMapCards} from "@/data";
+import {DragDropProvider} from "@dnd-kit/react";
+import {move} from "@dnd-kit/helpers";
 
 const MenusPage: React.FC = () => {
     const menus = useMenus();
     const [menusOrder, setMenusOrder] = useState<string[]>([]);
 
     const {savePositionsMutation, addMenuMutation, updateMenuMutation, deleteMenuMutation} = useMenuMutations();
-
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
 
     const menuId = useParams().menuId;
 
@@ -56,7 +36,7 @@ const MenusPage: React.FC = () => {
 
     useEffect(() => {
         setSubHeader("Menüs");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -69,7 +49,7 @@ const MenusPage: React.FC = () => {
         savePositionsMutation.mutate(menusOrder, {
             onError: () => toast.error('Fehler beim Speichern der Positionen.')
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [menusOrder]);
 
     const handleSubmitAddMenu = async (submittedMenu: MenuInputDTO) => {
@@ -153,41 +133,27 @@ const MenusPage: React.FC = () => {
         navigate("/manage/menus");
     }
 
-    function handleDragEnd(event: DragEndEvent) {
-        const {active, over} = event;
-        if (!active || !over) {
-            return;
-        }
-
-        if (active.id !== over.id) {
-            setMenusOrder((menusOrder) => {
-                const oldIndex = menusOrder.indexOf(active.id + "");
-                const newIndex = menusOrder.indexOf(over.id + "");
-
-                return arrayMove(menusOrder, oldIndex, newIndex);
-            });
-        }
-    }
-
     return (
-        <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-                <SortableContext items={menusOrder} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 auto-rows-fr sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            <MinimalCard className={"grow-1 basis-30 min-h-90"}  colorVariant={colorMapCards.menu}>
-                {menuId !== 'add-main' ? (
-                    <BeCircleLink icon={faPlus} to="/manage/menus/add-main">Menü hinzufügen</BeCircleLink>
-                ) : (
-                    <MenuAdd onSubmit={handleSubmitAddMenu} onCancel={handleCancel}/>
-                )}
-            </MinimalCard>
-            {menus?.map((menu) => <MenuItem key={menu.id}
-                                             className="grow-1 basis-30"
-                                             id={menu.id}
-                                             menu={menu}
-                                             onSubmit={handleSubmitUpdateMenu}
-                                             onDelete={handleDeleteMenuConfirm}
-                                             onCancel={handleCancel}/>)}
-        </div>
+        <DragDropProvider
+            onDragEnd={(event) => {
+                setMenusOrder(order => move(order, event))
+            }
+            }>
+            <div className="grid grid-cols-1 auto-rows-fr sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <MinimalCard colorVariant={colorMapCards.menu}>
+                    {menuId !== 'add-main' ? (
+                        <BeCircleLink icon={faPlus} to="/manage/menus/add-main">Menü hinzufügen</BeCircleLink>
+                    ) : (
+                        <MenuAdd onSubmit={handleSubmitAddMenu} onCancel={handleCancel}/>
+                    )}
+                </MinimalCard>
+                {menus?.map((menu, index) => <MenuItem key={menu.id}
+                                                       index={index}
+                                                       menu={menu}
+                                                       onSubmit={handleSubmitUpdateMenu}
+                                                       onDelete={handleDeleteMenuConfirm}
+                                                       onCancel={handleCancel}/>)}
+            </div>
             <BeDialog
                 onClose={() => setMenuToDelete(undefined)}
                 open={!!menuToDelete}
@@ -198,10 +164,9 @@ const MenusPage: React.FC = () => {
                     <BeButton onClick={() => setMenuToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
                     <BeButton onClick={() => handleDeleteMenu(menuToDelete)} className="btn btn-danger">Löschen</BeButton>
                 </>}>
-                    Sind Sie sicher, dass Sie das Menü löschen möchten?
+                Sind Sie sicher, dass Sie das Menü löschen möchten?
             </BeDialog>
-                </SortableContext>
-        </DndContext>
+        </DragDropProvider>
     );
 };
 

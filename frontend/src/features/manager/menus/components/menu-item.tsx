@@ -3,18 +3,18 @@ import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import MenuEdit from "./menu-edit.tsx";
 import type {MenuInputDTO} from "@/types/MenuInputDTO.ts";
-import MenuCard from "./menu-card.tsx";
-import {cn} from "@/util";
+import MenuCard, {MenuCardProps} from "./menu-card.tsx";
 
 type Props = {
-    id: string;
     menu: MenuOutputDTO;
-    className?: string;
     onSubmit?: (submittedMenu: MenuInputDTO, menuId: string) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
     onCancel?: () => void;
 }
-function MenuItem(props: Readonly<Props>) {
+
+export type MenuItemProps = Omit<MenuCardProps, keyof Props> & Props;
+
+function MenuItem({menu, onSubmit, onDelete, onCancel, ...props}: Readonly<MenuItemProps>) {
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     /**
@@ -22,8 +22,8 @@ function MenuItem(props: Readonly<Props>) {
      * @param submittedMenu Das bearbeitete Menü.
      */
     const handleSubmit = async (submittedMenu: MenuInputDTO) => {
-        if (props.onSubmit) {
-            return props.onSubmit(submittedMenu, props.menu.id);
+        if (onSubmit) {
+            return onSubmit(submittedMenu, menu.id);
         }
         return Promise.resolve();
     }
@@ -32,8 +32,8 @@ function MenuItem(props: Readonly<Props>) {
      * Wird aufgerufen, wenn das Editieren abgebrochen wird.
      */
     const handleCancel = () => {
-        if (props.onCancel) {
-            props.onCancel();
+        if (onCancel) {
+            onCancel();
         }
         setIsEditing(false);
     }
@@ -42,28 +42,26 @@ function MenuItem(props: Readonly<Props>) {
      *
      */
     const handleDelete = async () => {
-        if (props.onDelete) {
-            return props.onDelete(props.menu.id);
+        if (onDelete) {
+            return onDelete(menu.id);
         }
         return Promise.resolve();
     }
     const menuId = useParams().menuId;
 
     useEffect(() => {
-        setIsEditing(menuId === props.menu.id);
+        setIsEditing(menuId === menu.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [menuId]);
 
     return (
-        <div className={cn("grow-1 basis-30 min-w-sm", props.className)} id={props.id}>
-            {!isEditing ? (
-                <MenuCard menu={props.menu} onDelete={handleDelete}/>
-            ) : (
-                <MenuEdit menu={props.menu}
-                          onSubmit={handleSubmit}
-                          onCancel={handleCancel}/>
-            )}
-        </div>
+        !isEditing ? (
+            <MenuCard menu={menu} onDelete={handleDelete} {...props}/>
+        ) : (
+            <MenuEdit menu={menu}
+                      onSubmit={handleSubmit}
+                      onCancel={handleCancel}/>
+        )
     );
 }
 
