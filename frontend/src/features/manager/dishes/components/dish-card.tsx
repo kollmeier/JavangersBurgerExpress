@@ -3,7 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faEdit,
     faGripLines,
-    faRemove
+    faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
@@ -53,7 +53,7 @@ const DishCard = ({dish, onDelete}: CardProps) => {
             colorVariant={colorMapCards[dish.type]}
             actions={<>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
+                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
             </>}
             image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name} className="object-contain drop-shadow-lg"/>}
             typeCircle={dish.type && getIconElement(dish.type)}

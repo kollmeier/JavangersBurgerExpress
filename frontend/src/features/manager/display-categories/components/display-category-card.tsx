@@ -3,7 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faEdit, faFileCirclePlus,
     faGripLines,
-    faRemove,
+    faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
@@ -49,7 +49,7 @@ const DisplayCategoryCard = ({
             actions={<>
                 <BeButton onClick={onAddDisplayItemClicked}><FontAwesomeIcon icon={faFileCirclePlus}/> Element hinzufügen</BeButton>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
+                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
             </>}
             typeCircle={getIconElement("displayCategory")}
             topRight={isDraggable && <span ref={handleRef} className="displayCategory-type" ><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}

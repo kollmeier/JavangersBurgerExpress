@@ -86,7 +86,7 @@
 
 @layer utilities {
   .btn {
-    @apply rounded-sm h-8 px-4 py-1 shadow-sm hover:shadow-xs hover:translate-[1px] active:translate-0.5 transition-[transform,box-shadow]
+    @apply rounded-sm h-7 px-2 shadow-sm hover:shadow-xs hover:translate-[1px] active:translate-0.5 transition-[transform,box-shadow]
   }
   .btn-primary {
     @apply bg-primary text-primary-text
@@ -98,7 +98,7 @@
     @apply bg-normal text-normal-text
   }
   .btn-danger {
-    @apply bg-danger text-danger-text
+    @apply bg-danger text-white
   }
   .btn--disabled {
     @apply cursor-not-allowed
