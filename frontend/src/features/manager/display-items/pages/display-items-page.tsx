@@ -31,10 +31,6 @@ const DisplayItemsPage: React.FC = () => {
     const [displayItemsOrderByCategory, setDisplayItemsOrderByCategory] = useState<{[categoryId: string]: string[]}>({});
     const [displayCategoriesOrder, setDisplayCategoriesOrder] = useState(() => Object.keys(displayItemsOrderByCategory ?? []));
 
-    const setDisplayItemsOrder = (categoryId: string, displayItemsOrder: string[]) => {
-        setDisplayItemsOrderByCategory({...displayItemsOrderByCategory, [categoryId]: displayItemsOrder});
-    }
-
     const {updateData: setDisplayCategories, savePositionsMutation: saveCategoryPositionsMutation, addDisplayCategoryMutation, updateDisplayCategoryMutation, deleteDisplayCategoryMutation} = useDisplayCategoryMutations();
     const {savePositionsMutation: saveItemPositionsMutation, addDisplayItemMutation, updateDisplayItemMutation, deleteDisplayItemMutation} = useDisplayItemMutations(setDisplayCategories);
 
@@ -275,10 +271,6 @@ const DisplayItemsPage: React.FC = () => {
         setDisplayCategoryToAddTo(undefined);
     }
 
-
-    // Create a flat list of all display item IDs across all categories
-    // const allDisplayItemIds = Object.values(displayItemsOrderByCategory).flatMap(ids => ids);
-
     return (
         <DragDropProvider
             onDragOver={(event) => {
@@ -337,8 +329,6 @@ const DisplayItemsPage: React.FC = () => {
                                   id={displayCategory.id}
                                   index={index}
                                   displayCategory={displayCategory}
-                                  displayItemsOrder={displayItemsOrderByCategory[displayCategory.id] ?? []}
-                                  setDisplayItemsOrder={(order: string[]) => setDisplayItemsOrder(displayCategory.id, order)}
                                   onSubmit={handleSubmitUpdateDisplayCategory}
                                   onDisplayItemSubmit={handleSubmitUpdateDisplayItem}
                                   onDisplayItemDelete={handleDeleteDisplayItemConfirm}
