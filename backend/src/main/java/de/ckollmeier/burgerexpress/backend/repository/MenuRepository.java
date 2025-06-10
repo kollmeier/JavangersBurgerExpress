@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MenuRepository extends MongoRepository<Menu, String> {
-    List<Menu> findAllByOrderByPositionAsc();
+    List<Menu> findAllByOrderByPositionAscCreatedAtDesc();
 }

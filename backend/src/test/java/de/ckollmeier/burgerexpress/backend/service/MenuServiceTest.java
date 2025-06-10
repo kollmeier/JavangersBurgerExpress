@@ -66,7 +66,7 @@ class MenuServiceTest {
                     .build();
             List<Menu> menus = List.of(menu1, menu2);
 
-            when(menuRepository.findAllByOrderByPositionAsc()).thenReturn(menus);
+            when(menuRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(menus);
 
             List<MenuOutputDTO> expectedDTOs = List.of(
                     new MenuOutputDTO("1",
@@ -89,7 +89,7 @@ class MenuServiceTest {
 
                 // Then
                 assertThat(result).isEqualTo(expectedDTOs);
-                verify(menuRepository).findAllByOrderByPositionAsc();
+                verify(menuRepository).findAllByOrderByPositionAscCreatedAtDesc();
                 converterMock.verify(() -> MenuOutputDTOConverter.convert(menus));
             }
         }
@@ -98,7 +98,7 @@ class MenuServiceTest {
         @DisplayName("Gibt leere Liste zurück, wenn keine Menüs existieren")
         void returnsEmptyList() {
             // Given
-            when(menuRepository.findAllByOrderByPositionAsc()).thenReturn(Collections.emptyList());
+            when(menuRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(Collections.emptyList());
 
             try (MockedStatic<MenuOutputDTOConverter> converterMock = mockStatic(MenuOutputDTOConverter.class)) {
                 converterMock.when(() -> MenuOutputDTOConverter.convert(Collections.emptyList())).thenReturn(Collections.emptyList());
@@ -108,7 +108,7 @@ class MenuServiceTest {
 
                 // Then
                 assertThat(result).isEmpty();
-                verify(menuRepository).findAllByOrderByPositionAsc();
+                verify(menuRepository).findAllByOrderByPositionAscCreatedAtDesc();
                 converterMock.verify(() -> MenuOutputDTOConverter.convert(Collections.emptyList()));
             }
         }
