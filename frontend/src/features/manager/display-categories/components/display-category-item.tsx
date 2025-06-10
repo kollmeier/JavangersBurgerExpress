@@ -6,7 +6,6 @@ import type {DisplayCategoryInputDTO} from "@/types/DisplayCategoryInputDTO.ts";
 import DisplayCategoryCard from "./display-category-card.tsx";
 import {cn} from "@/util";
 import DisplayItemItem from "@/features/manager/display-items/components/display-item-item.tsx";
-import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
 import {CollisionPriority} from "@dnd-kit/abstract";
 import {useSortable} from "@dnd-kit/react/sortable";
@@ -15,8 +14,6 @@ type Props = {
     id: string;
     index: number;
     displayCategory: DisplayCategoryOutputDTO;
-    displayItemsOrder: string[];
-    setDisplayItemsOrder: (order: string[]) => void;
     isDraggable?: boolean;
     className?: string;
     onSubmit?: (submittedDisplayCategory: DisplayCategoryInputDTO, displayCategoryId: string) => Promise<void>;
@@ -30,8 +27,6 @@ function DisplayCategoryItem({
                                  id,
                                  index,
                                  displayCategory,
-                                 displayItemsOrder,
-                                 setDisplayItemsOrder,
                                  isDraggable = false,
                                  ...props
 }: Readonly<Props>) {
@@ -73,13 +68,6 @@ function DisplayCategoryItem({
         setIsEditing(displayCategoryId === displayCategory.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [displayCategoryId]);
-
-    useEffect(() => {
-        if (displayItemsOrder && displayItemsOrder.length > 0) {
-            setDisplayItemsOrder(displayCategory.displayItems.map((displayItem: DisplayItemOutputDTO) => displayItem.id));
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [displayCategory.displayItems]);
 
     return (
         <div className={cn("col-span-3 grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6 rounded-lg transition-bg",
