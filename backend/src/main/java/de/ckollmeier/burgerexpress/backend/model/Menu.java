@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,10 @@ public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem
     @NonNull
     @Builder.Default
     private final Map<String, BaseAdditionalInformation> additionalInformation = new HashMap<>();
+
+    @Builder.Default
+    private final Instant createdAt = Instant.now();
+    private final Instant updatedAt;
 
     @Override
     public Map<String, List<String>> getImageUrls () {
