@@ -4,11 +4,14 @@ import de.ckollmeier.burgerexpress.backend.interfaces.*;
 import de.ckollmeier.burgerexpress.backend.types.DishType;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,7 @@ public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem
      */
     @Id
     private final String id;
+
     /**
      * Der Name des Gerichts.
      */
@@ -51,12 +55,15 @@ public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem
     @Builder.Default
     private final Map<String, BaseAdditionalInformation> additionalInformation = new HashMap<>();
 
+    private final String imageUrl;
+
     @Builder.Default
-    private final String imageUrl = null;
+    private final Instant createdAt = Instant.now();
+
+    private final Instant updatedAt;
 
     @Override
     public Map<String, List<String>> getImageUrls () {
-        //noinspection ConstantValue
         return imageUrl != null ? Map.of(type.name(), List.of(imageUrl)) : Map.of();
     }
 
