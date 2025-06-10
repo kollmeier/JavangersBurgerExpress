@@ -56,7 +56,7 @@ class DisplayItemServiceTest {
             DisplayItem item1 = mock(DisplayItem.class);
             DisplayItem item2 = mock(DisplayItem.class);
             List<DisplayItem> items = List.of(item1, item2);
-            when(displayItemRepository.findAllByOrderByPositionAsc()).thenReturn(items);
+            when(displayItemRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(items);
 
             // Create real DisplayItemOutputDTO instances instead of mocking them
             DisplayItemOutputDTO dto1 = new DisplayItemOutputDTO(
@@ -73,21 +73,21 @@ class DisplayItemServiceTest {
                 List<DisplayItemOutputDTO> result = displayItemService.getAllDisplayItems();
 
                 assertThat(result).containsExactlyElementsOf(dtos);
-                verify(displayItemRepository).findAllByOrderByPositionAsc();
+                verify(displayItemRepository).findAllByOrderByPositionAscCreatedAtDesc();
             }
         }
 
         @Test
         @DisplayName("shouldReturnEmptyList_whenNoDisplayItemsExist")
         void getAllDisplayItems_shouldReturnEmptyList_whenNoDisplayItemsExist() {
-            when(displayItemRepository.findAllByOrderByPositionAsc()).thenReturn(Collections.emptyList());
+            when(displayItemRepository.findAllByOrderByPositionAscCreatedAtDesc()).thenReturn(Collections.emptyList());
             try (MockedStatic<DisplayItemOutputDTOConverter> mockStatic = mockStatic(DisplayItemOutputDTOConverter.class)) {
                 mockStatic.when(() -> DisplayItemOutputDTOConverter.convert(Collections.emptyList())).thenReturn(Collections.emptyList());
 
                 List<DisplayItemOutputDTO> result = displayItemService.getAllDisplayItems();
 
                 assertThat(result).isEmpty();
-                verify(displayItemRepository).findAllByOrderByPositionAsc();
+                verify(displayItemRepository).findAllByOrderByPositionAscCreatedAtDesc();
             }
         }
     }

@@ -94,7 +94,7 @@ public class DisplayItemService {
     }
 
     public List<DisplayItemOutputDTO> getAllDisplayItems() {
-        return DisplayItemOutputDTOConverter.convert(displayItemRepository.findAllByOrderByPositionAsc());
+        return DisplayItemOutputDTOConverter.convert(displayItemRepository.findAllByOrderByPositionAscCreatedAtDesc());
     }
 
     public DisplayItemOutputDTO addDisplayItem(@NonNull DisplayItemInputDTO displayItem) {
