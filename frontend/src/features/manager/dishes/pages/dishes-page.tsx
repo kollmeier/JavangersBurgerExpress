@@ -139,21 +139,21 @@ const DishesPage: React.FC = () => {
             }}
         >
                 <div className="grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            <MinimalCard className={"grow-1 basis-30 min-h-64"}  colorVariant="red">
+            <MinimalCard className={"min-h-64"} colorVariant="red">
                 {dishId !== 'add-main' ? (
                     <BeCircleLink icon={faPlus} to="/manage/dishes/add-main">Hauptgericht hinzufügen</BeCircleLink>
                 ) : (
                     <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="main"/>
                 )}
             </MinimalCard>
-            <MinimalCard className={"grow-1 basis-30 min-h-64 h-full"}  colorVariant="green">
+            <MinimalCard className={"min-h-64"} colorVariant="green">
                 {dishId !== 'add-side' ? (
                     <BeCircleLink icon={faPlus} to="/manage/dishes/add-side">Beilage hinzufügen</BeCircleLink>
                 ) : (
                     <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="side"/>
                 )}
             </MinimalCard>
-            <MinimalCard className={"grow-1 basis-30 min-h-64 h-full"}  colorVariant="blue">
+            <MinimalCard className={"min-h-64"} colorVariant="blue">
                 {dishId !== 'add-beverage' ? (
                     <BeCircleLink icon={faPlus} to="/manage/dishes/add-beverage">Getränk hinzufügen</BeCircleLink>
                 ) : (

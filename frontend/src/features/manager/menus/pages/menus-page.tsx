@@ -140,7 +140,7 @@ const MenusPage: React.FC = () => {
             }
             }>
             <div className="grid grid-cols-1 auto-rows-fr sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                <MinimalCard colorVariant={colorMapCards.menu}>
+                <MinimalCard className={"min-h-64"} colorVariant={colorMapCards.menu}>
                     {menuId !== 'add-main' ? (
                         <BeCircleLink icon={faPlus} to="/manage/menus/add-main">Menü hinzufügen</BeCircleLink>
                     ) : (
