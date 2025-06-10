@@ -49,7 +49,7 @@ export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
         <div className="flex-1 flex flex-wrap justify-center items-stretch bg-[#f7f7f9]">
             <div className="flex flex-row max-w-[1378px] flex-1">
                 {sidebar && (
-                    <aside className="w-64 p-4">
+                    <aside className="w-64 p-4 text-black">
                         {sidebar}
                     </aside>
                 )}
