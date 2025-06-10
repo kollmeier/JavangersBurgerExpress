@@ -2,21 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate, useParams} from 'react-router-dom';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DishAdd from "../components/dish-add.tsx";
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    rectSortingStrategy,
-} from '@dnd-kit/sortable';
 import {toast} from "react-toastify";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
 import DishItem from "../components/dish-item.tsx";
@@ -31,19 +16,14 @@ import {useDishes} from "@/util";
 import {useDishMutations} from "@/hooks/use-dish-mutations.ts";
 import BeDialog from "@/components/shared/be-dialog.tsx";
 import {DishOutputDTO} from "@/types/DishOutputDTO.ts";
+import {DragDropProvider} from "@dnd-kit/react";
+import {move} from "@dnd-kit/helpers";
 
 const DishesPage: React.FC = () => {
     const dishes = useDishes();
     const [dishesOrder, setDishesOrder] = useState<string[]>([]);
 
     const {savePositionsMutation, addDishMutation, updateDishMutation, deleteDishMutation} = useDishMutations();
-
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
 
     const dishId = useParams().dishId;
 
@@ -152,25 +132,12 @@ const DishesPage: React.FC = () => {
         navigate("/manage/dishes");
     }
 
-    function handleDragEnd(event: DragEndEvent) {
-        const {active, over} = event;
-        if (!active || !over) {
-            return;
-        }
-
-        if (active.id !== over.id) {
-            setDishesOrder((dishesOrder) => {
-                const oldIndex = dishesOrder.indexOf(active.id + "");
-                const newIndex = dishesOrder.indexOf(over.id + "");
-
-                return arrayMove(dishesOrder, oldIndex, newIndex);
-            });
-        }
-    }
-
     return (
-        <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-                <SortableContext items={dishesOrder} strategy={rectSortingStrategy}>
+        <DragDropProvider
+            onDragEnd={(event) => {
+                setDishesOrder(order => move(order, event))
+            }}
+        >
                 <div className="grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6">
             <MinimalCard className={"grow-1 basis-30 min-h-64"}  colorVariant="red">
                 {dishId !== 'add-main' ? (
@@ -193,9 +160,8 @@ const DishesPage: React.FC = () => {
                     <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="beverage"/>
                 )}
             </MinimalCard>
-            {dishes?.map((dish) => <DishItem key={dish.id}
-                                                className="grow-1 basis-30"
-                                                id={dish.id}
+            {dishes?.map((dish, index) => <DishItem key={dish.id}
+                                                index={index}
                                                 dish={dish}
                                                 onSubmit={handleSubmitUpdateDish}
                                                 onDelete={handleDeleteDishConfirm}
@@ -213,8 +179,7 @@ const DishesPage: React.FC = () => {
                 </>}>
                     Sind Sie sicher, dass Sie das Gericht löschen möchten?
             </BeDialog>
-                </SortableContext>
-        </DndContext>
+        </DragDropProvider>
     );
 };
 
