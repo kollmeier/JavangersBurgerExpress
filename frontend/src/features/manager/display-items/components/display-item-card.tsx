@@ -3,7 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faEdit,
     faGripLines,
-    faRemove,
+    faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
@@ -65,7 +65,7 @@ const DisplayItemCard = ({
             colorVariant={colorMapCards['displayItem']}
             actions={<>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faRemove}/> Löschen</BeButton>
+                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
             </>}
             typeCircle={getIconElement('displayItem')}
             priceCircle={<div className="flex flex-col items-center">{displayItem.oldPrice && <span
