@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,6 +49,7 @@ public class FilesController {
      * @return ResponseEntity mit der URL der hochgeladenen Datei oder einem Fehlerhinweis.
      */
     @PostMapping("/upload")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<FileInfoDTO> uploadFile(final @RequestParam("file") MultipartFile file) {
         if (file.isEmpty() || file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("Keine Datei ausgewählt");
@@ -75,6 +77,7 @@ public class FilesController {
      * @return ResponseEntity mit den Bilddaten im gewünschten/zugelassenen Format.
      */
     @GetMapping("/{id}/{size}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<byte[]> getCroppedImageDynamic(
             final @PathVariable String id,
             final @PathVariable int size,
@@ -115,6 +118,7 @@ public class FilesController {
      * @return ResponseEntity mit den Binärdaten und Content-Type des Bildes.
      */
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<byte[]> getFileById(
             final @PathVariable String id,
             final @RequestParam(defaultValue = "0") int size,
@@ -136,6 +140,7 @@ public class FilesController {
      * @return ResponseEntity mit einer Liste aller Bild-DTOs im JSON-Format.
      */
     @GetMapping()
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<FileInfoDTO>> getAllImages() {
         List<FileInfoDTO> filesDTO = filesService.getAllImages();
         return ResponseEntity.ok()

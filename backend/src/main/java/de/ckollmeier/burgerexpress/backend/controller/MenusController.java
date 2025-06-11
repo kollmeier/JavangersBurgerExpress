@@ -10,6 +10,7 @@ import de.ckollmeier.burgerexpress.backend.service.SortableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class MenusController {
      * @return Liste aller Menüs
      */
     @GetMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public List<MenuOutputDTO> getAllMenus() {
         return menuService.getAllMenus();
     }
@@ -46,6 +48,7 @@ public class MenusController {
      * @return das Hauptmenü
      */
     @PostMapping()
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<MenuOutputDTO> addMenu(final @RequestBody MenuInputDTO menu) {
         return new ResponseEntity<>(
                 menuService.addMenu(menu),
@@ -60,6 +63,7 @@ public class MenusController {
      * @return das neue Menü
      */
     @PutMapping("/{menuId}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<MenuOutputDTO> updateMenu(final @PathVariable String menuId, final @RequestBody MenuInputDTO menu) {
         return new ResponseEntity<>(
                 menuService.updateMenu(menuId, menu),
@@ -73,6 +77,7 @@ public class MenusController {
      * @return die Menüs in der neuen Reihenfolge
      */
     @PutMapping("/positions")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<MenuOutputDTO>> updateMenuPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
         return new ResponseEntity<>(
                 MenuOutputDTOConverter.convert(sortableService.reorderAndSave(Menu.class, sortedInputDTOs)),
@@ -86,6 +91,7 @@ public class MenusController {
      * @return No-Content Status
      */
     @DeleteMapping("/{menuId}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> removeMenu(final @PathVariable String menuId) {
         menuService.removeMenu(menuId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
