@@ -6,7 +6,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -16,7 +15,7 @@ import java.util.Map;
 public class RestExceptionHandler {
 
     @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
-    public ResponseEntity<Object> handleAccessDeniedException(Exception ex, WebRequest request) {
+    public ResponseEntity<Object> handleAccessDeniedException(Exception ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getClass().getSimpleName());
         body.put("message", "Access Denied");

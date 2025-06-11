@@ -74,7 +74,7 @@ function DisplayCategoryItem({
             dropClassName,
             "transition-[gap] duration-300 ease-in-out",
             isDraggable && "gap-0")} ref={isDraggable ? ref : undefined}>
-            <div className={cn("h-39 transition-[height]", isEditing && "h-58", props.className)}>
+            <div className={cn("h-fit max-h-40 transition-[max-height] duration-300 ease-in-out", isEditing && "max-h-50", props.className)}>
                 {!isEditing ? (
                     <DisplayCategoryCard 
                         displayCategory={displayCategory} 

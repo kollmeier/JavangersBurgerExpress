@@ -70,15 +70,52 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/static/**", "/*.js", "/*.json", "/*.ico").permitAll()
                         // Public API endpoints
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/displayCategories/**", "/api/orderable-items/**", "/api/files/**").permitAll()
+                        // Auth endpoints
+                        .requestMatchers("/api/auth/user").permitAll()
                         // Any other request requires authentication
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.realmName("Burger Express"))
+                .formLogin(formLogin -> formLogin
+                        .loginProcessingUrl("/api/auth/login")
+                        .successHandler((request, response, authentication) -> {
+                            response.setStatus(200);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\":\"Login successful\"}");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\":\"Authentication failed\",\"status\":\"UNAUTHORIZED\"}");
+                        })
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(200);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\":\"Logout successful\"}");
+                        })
+                        .permitAll()
+                )
                 .exceptionHandling(exceptionHandling -> 
-                        exceptionHandling.accessDeniedHandler((request, response, accessDeniedException) -> {
+                        exceptionHandling
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(403);
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\":\"Access Denied\",\"status\":\"FORBIDDEN\"}");
+                        })
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // For API requests, return JSON response instead of redirecting to login page
+                            if (request.getRequestURI().startsWith("/api/")) {
+                                response.setStatus(401);
+                                response.setContentType("application/json");
+                                response.getWriter().write("{\"error\":\"Unauthorized\",\"status\":\"UNAUTHORIZED\"}");
+                            } else {
+                                // For non-API requests, redirect to login page (default behavior)
+                                response.sendRedirect("/login");
+                            }
                         })
                 );
 

@@ -20,7 +20,7 @@ const DisplayCategoryEdit = ({ onSubmit, displayCategory, onCancel }: Props) => 
     }
 
     return (
-        <MinimalCard colorVariant={colorMapCards['displayCategory']} className={"min-w-sm"}>
+        <MinimalCard colorVariant={colorMapCards['displayCategory']}>
             <DisplayCategoryForm displayCategory={displayCategory} onSubmit={handleSubmit} onCancel={onCancel} />
         </MinimalCard>
     );
