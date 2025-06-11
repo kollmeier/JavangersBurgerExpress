@@ -45,7 +45,7 @@ const DisplayCategoryCard = ({
             colorVariant={colorMapCards['displayCategory']}
             header={displayCategory.name}
             image={displayCategory.imageUrl && <img src={displayCategory.imageUrl + '?size=148'} alt={displayCategory.name} className="object-contain drop-shadow-lg max-h-22"/>}
-            imageClassName={cn("place-self-end")}
+            imageClassName={cn("row-head_foot place-self-end")}
             actions={<>
                 <BeButton onClick={onAddDisplayItemClicked}><FontAwesomeIcon icon={faFileCirclePlus}/> Element hinzufügen</BeButton>
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>

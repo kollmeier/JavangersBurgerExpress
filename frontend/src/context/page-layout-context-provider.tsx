@@ -10,10 +10,11 @@ export const PageLayoutContextProvider: React.FC<PageLayoutContextProps> = ({
     subHeader,
     mainNav,
     footer,
+    sidebar,
     children
 }) => {
     const pageLayout = usePageLayout();
-    const { setHeader, setSubHeader, setMainNav, setFooter, render} = pageLayout
+    const { setHeader, setSubHeader, setMainNav, setFooter, setSidebar, render} = pageLayout
 
     useEffect(() => {
         if (header) {
@@ -27,6 +28,9 @@ export const PageLayoutContextProvider: React.FC<PageLayoutContextProps> = ({
         }
         if (footer) {
             setFooter(footer);
+        }
+        if (sidebar) {
+            setSidebar(sidebar);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

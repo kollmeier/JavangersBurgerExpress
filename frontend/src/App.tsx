@@ -17,7 +17,9 @@ function App() {
               <ReactQueryDevtools initialIsOpen={true} />
               <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<CustomerLayout />} />
+                    <Route path="/" element={<CustomerLayout />}>
+                        <Route path="*"/>
+                    </Route>
                     <Route path="manage//*" element={<AdministrationLayout />}>
                         <Route path="dishes//*" element={<DishesPage />} />
                         <Route path="dishes/:dishId/*" element={<DishesPage />} />

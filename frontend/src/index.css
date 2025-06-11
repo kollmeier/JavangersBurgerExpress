@@ -127,3 +127,48 @@
     @apply bg-normal text-normal-text
   }
 }
+
+@layer components {
+  .dish-images {
+    @apply relative drop-shadow-lg;
+  }
+  .dish-images .dish-images_main,
+  .dish-images .dish-images_side,
+  .dish-images .dish-images_beverage {
+    @apply h-full w-full absolute;
+  }
+
+  .dish-images img {
+    @apply absolute w-auto h-auto drop-shadow-sm;
+  }
+
+  .dish-images .dish-images_main img:first-child {
+    @apply bottom-10 z-10;
+  }
+  .dish-images .dish-images_main img:nth-child(2) {
+    @apply bottom-14 left-8 z-9 scale-95;
+  }
+  .dish-images .dish-images_main img:nth-child(3) {
+    @apply bottom-16 right-20 z-8 scale-90;
+  }
+
+  .dish-images .dish-images_side img:first-child {
+    @apply right-20 bottom-0 z-13 scale-95;
+  }
+  .dish-images .dish-images_side img:nth-child(2) {
+    @apply bottom-4 left-6 z-12 scale-90;
+  }
+  .dish-images .dish-images_side img:nth-child(3) {
+    @apply bottom-6 right-26 z-11 scale-80;
+  }
+
+  .dish-images .dish-images_beverage img:first-child {
+    @apply bottom-12 right-35 z-7 scale-70;
+  }
+  .dish-images .dish-images_beverage img:nth-child(2) {
+    @apply bottom-13 right-40 z-6 scale-60;
+  }
+  .dish-images .dish-images_beverage img:nth-child(3) {
+    @apply bottom-14 right-45 z-5 scale-55;
+  }
+}

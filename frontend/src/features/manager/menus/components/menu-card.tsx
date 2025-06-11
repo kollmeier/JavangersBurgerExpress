@@ -13,6 +13,7 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {getIconElement} from "@/util";
 import {useSortable} from "@dnd-kit/react/sortable";
+import DishImages from "@/components/ui/dish-images.tsx";
 
 export type MenuCardProps = {
     menu: MenuOutputDTO;
@@ -49,6 +50,13 @@ const MenuCard = ({menu, index, onDelete, ...props}: MenuCardProps) => {
             typeCircle={getIconElement('menu')}
             priceCircle={<div className="flex flex-col items-center"><span className="text-[0.6em] line-through">{menu.dishes.reduce((s,d) => s + parseFloat(d.price), 0).toFixed(2)}€</span>{menu.price.replace('.', ',')}€</div>}
             footer={<div className="flex flex-wrap gap-1">{menu.dishes.map(dish => <span key={menu.id + dish.id} className="not-last:after:content-[',_']">{dish.name}</span>)}</div>}
+            image={<DishImages
+                className="w-full h-full top-0 object-contain"
+                mainImages={menu.dishes.filter(dish => dish.type === "main").map(dish => dish.imageUrl)}
+                sideImages={menu.dishes.filter(dish => dish.type === "side").map(dish => dish.imageUrl)}
+                beverageImages={menu.dishes.filter(dish => dish.type === "beverage").map(dish => dish.imageUrl)}
+            />}
+            imageClassName="w-full h-full"
             topRight={<span className="menu-type" ref={handleRef}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
             {...props}
             >

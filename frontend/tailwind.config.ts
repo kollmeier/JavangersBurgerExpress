@@ -26,7 +26,10 @@ export default {
             },
             gridRow: {
                 head: 'head',
+                head_foot: 'head / foot',
                 content: 'content',
+                content_foot: 'content / foot',
+                content_actions: 'content / actions',
                 foot: 'foot',
                 foot_actions: 'foot / actions',
                 foot_end: 'foot / -1',
