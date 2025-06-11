@@ -68,10 +68,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Static resources
                         .requestMatchers("/", "/index.html", "/static/**", "/*.js", "/*.json", "/*.ico").permitAll()
-                        // Any other request requires authentication unless annotated with @PreAuthorize("permitAll")
+                        // Public API endpoints
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/displayCategories/**", "/api/orderable-items/**", "/api/files/**").permitAll()
+                        // Any other request requires authentication
                         .anyRequest().authenticated()
                 )
-                .httpBasic(httpBasic -> {});
+                .httpBasic(httpBasic -> httpBasic.realmName("Burger Express"))
+                .exceptionHandling(exceptionHandling -> 
+                        exceptionHandling.accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(403);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\":\"Access Denied\",\"status\":\"FORBIDDEN\"}");
+                        })
+                );
 
         return http.build();
     }
