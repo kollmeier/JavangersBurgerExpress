@@ -49,7 +49,7 @@ const CustomerDisplayPage: React.FC = () => {
     } else {
       // Filter items by selected category
       const category = displayCategories.find(c => c.id === categoryId);
-      setDisplayItems(category?.displayItems || []);
+      setDisplayItems(category?.displayItems ?? []);
       setCategory(category);
     }
   }, [displayCategories, categoryId]);
