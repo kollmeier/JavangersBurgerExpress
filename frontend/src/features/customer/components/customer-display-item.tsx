@@ -1,27 +1,39 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { DisplayItemOutputDTO } from '@/types/DisplayItemOutputDTO.ts';
-import Card from '@/components/shared/card.tsx';
-import { cn, getColoredIconElement, getIconColor, getIconElement } from '@/util';
+import Card, {CardProps} from '@/components/shared/card.tsx';
+import { cn, getColoredIconElement, getIconColor } from '@/util';
 import { colorMapCards } from '@/data';
+import BeButton from "@/components/ui/be-button.tsx";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faAdd, faSubtract} from "@fortawesome/free-solid-svg-icons";
+import DishImages from "@/components/ui/dish-images.tsx";
 
 type CustomerDisplayItemProps = {
   displayItem: DisplayItemOutputDTO;
-  className?: string;
-};
+} & CardProps;
 
 const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
-  displayItem,
-  className,
+    displayItem,
+    className,
+    ...props
 }) => {
+  const [amount, setAmount] = useState(1);
+
+  function increaseAmount() {
+      setAmount(a => a + 1);
+  }
+
+  function decreaseAmount() {
+      setAmount(a => a > 2 ? a - 1 : 1);
+  }
+
   return (
     <Card
       header={displayItem.name}
-      className={cn(
-        className,
-        "min-h-0 transition-[transform] duration-300 ease-in-out hover:scale-105"
-      )}
+      headerClassName="self-start"
+      className={cn("bg-transparent text-gray-600 drop-shadow-none rounded-none h-auto mb-6",
+          className)}
       colorVariant={colorMapCards['displayItem']}
-      typeCircle={getIconElement('displayItem')}
       priceCircle={
         <div className="flex flex-col items-center">
           {displayItem.oldPrice && (
@@ -32,6 +44,13 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
           {displayItem.price.replace('.', ',')}€
         </div>
       }
+      image={<DishImages
+          className="w-full h-full top-0 object-contain"
+          mainImages={displayItem.orderableItems.flatMap(o => o.imageUrls["MAIN"] ?? [])}
+          sideImages={displayItem.orderableItems.flatMap(o => o.imageUrls["SIDE"] ?? [])}
+          beverageImages={displayItem.orderableItems.flatMap(o => o.imageUrls["BEVERAGE"] ?? [])}
+      />}
+      imageClassName="w-full h-full row-start-head row-end-actions row-head_actions row-span-2"
       footer={
         <div className="flex flex-wrap gap-1">
           {displayItem.orderableItems.map(orderableItem => (
@@ -44,20 +63,18 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
           ))}
         </div>
       }
+      actions={
+        <div className="flex flex-wrap gap-2">
+            <BeButton onClick={decreaseAmount}><FontAwesomeIcon icon={faSubtract}/></BeButton>
+            <span className="pt-1">{amount}</span>
+            <BeButton onClick={increaseAmount}><FontAwesomeIcon icon={faAdd}/></BeButton>
+            <BeButton variant="primary">Bestellen</BeButton>
+        </div>
+      }
+      {...props}
     >
       {displayItem.description && (
-        <blockquote 
-          className={cn(
-            "text-sm text-gray-500 bg-white/10 mx-2 p-2 rounded-md shadow-xs relative",
-            "before:absolute before:-bottom-6 before:-left-2 before:content-[open-quote] before:text-3xl before:text-shadow-sm",
-            "after:absolute after:-top-2 after:-right-2 after:content-[close-quote] after:text-3xl after:text-shadow-sm",
-            "hover:bg-gray-50 max-h-9 hover:max-h-24 transition-[max-height,background-color] duration-300 ease-in-out]"
-          )}
-        >
-          <div className="not-hover:text-nowrap not-hover:text-ellipsis overflow-hidden transition-[overflow] hover:delay-300 hover:overflow-y-scroll max-h-20">
-            {displayItem.description}
-          </div>
-        </blockquote>
+        <div>{displayItem.description}</div>
       )}
     </Card>
   );

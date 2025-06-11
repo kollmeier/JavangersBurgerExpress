@@ -13,6 +13,7 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {cn, getColoredIconElement, getIconColor, getIconElement} from "@/util";
 import {useSortable} from "@dnd-kit/react/sortable";
+import DishImages from "@/components/ui/dish-images.tsx";
 
 export type DisplayItemCardProps = {
     displayItem: DisplayItemOutputDTO;
@@ -67,6 +68,13 @@ const DisplayItemCard = ({
                 <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
                 <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
             </>}
+            image={<DishImages
+                className="w-full h-full top-0 object-contain scale-70"
+                mainImages={displayItem.orderableItems.flatMap(o => o.imageUrls["MAIN"] ?? [])}
+                sideImages={displayItem.orderableItems.flatMap(o => o.imageUrls["SIDE"] ?? [])}
+                beverageImages={displayItem.orderableItems.flatMap(o => o.imageUrls["BEVERAGE"] ?? [])}
+            />}
+            imageClassName="w-full h-full"
             typeCircle={getIconElement('displayItem')}
             priceCircle={<div className="flex flex-col items-center">{displayItem.oldPrice && <span
                 className="text-[0.6em] line-through">{displayItem.oldPrice.replace('.', ',')}€</span>}{displayItem.price.replace('.', ',')}€</div>}

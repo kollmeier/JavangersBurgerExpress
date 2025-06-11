@@ -5,9 +5,12 @@ import CategoriesSidebar from '../components/categories-sidebar';
 import DisplayItemsGrid from '../components/display-items-grid';
 import { useDisplayCategories } from '@/util';
 import { DisplayItemOutputDTO } from '@/types/DisplayItemOutputDTO.ts';
+import {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts";
+import Card from "@/components/shared/card.tsx";
 
 const CustomerDisplayPage: React.FC = () => {
   const [displayItems, setDisplayItems] = useState<DisplayItemOutputDTO[]>([]);
+  const [category, setCategory] = useState<DisplayCategoryOutputDTO | undefined>();
   const { categoryId } = useParams<{ categoryId?: string }>();
   const navigate = useNavigate();
 
@@ -42,16 +45,25 @@ const CustomerDisplayPage: React.FC = () => {
     if (!categoryId) {
       // If no category is selected yet (before redirect), don't show any items
       setDisplayItems([]);
+      setCategory(undefined);
     } else {
       // Filter items by selected category
       const category = displayCategories.find(c => c.id === categoryId);
       setDisplayItems(category?.displayItems || []);
+      setCategory(category);
     }
   }, [displayCategories, categoryId]);
 
   return (
     <div>
-      <h1 className="text-2xl text-black font-bold mb-6">Unser Angebot</h1>
+      <Card
+          colorVariant="primary"
+          className="mb-6"
+          header={"Unser Angebot: " + category?.name}
+          headerClassName={"text-red-900"}
+          image={<img src={category?.imageUrl} alt={category?.name} className="w-full h-full" />}
+          imageClassName="row-start-head row-end-foot row-head_foot self-center"
+      >{category?.description}</Card>
       <DisplayItemsGrid
         displayItems={displayItems}
         isLoading={isLoading}

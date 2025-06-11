@@ -14,24 +14,24 @@ const DisplayItemsGrid: React.FC<DisplayItemsGridProps> = ({
   error,
 }) => {
   if (isLoading) {
-    return <div className="p-4">Loading items...</div>;
+    return <div className="p-4">Laden...</div>;
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">Error loading items</div>;
+    return <div className="p-4 text-red-500">Fehler beim Laden!</div>;
   }
 
   if (!displayItems || displayItems.length === 0) {
-    return <div className="p-4">No items available</div>;
+    return <div className="p-4">Nichts zu bestellen, sorry!</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 auto-rows-min gap-6">
       {displayItems.map((item) => (
         <CustomerDisplayItem
           key={item.id}
           displayItem={item}
-          className="h-full"
+          className="h-fit"
         />
       ))}
     </div>
