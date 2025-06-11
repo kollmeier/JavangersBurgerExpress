@@ -19,7 +19,8 @@ public class DisplayCategoryOutputDTOConverter {
                 displayCategory.getName(),
                 displayCategory.getDescription(),
                 DisplayItemOutputDTOConverter.convert(displayCategory.getDisplayItems().stream()
-                        .sorted(Comparator.comparingInt(DisplayItem::getPosition))
+                        .sorted(Comparator.comparingInt(DisplayItem::getPosition)
+                                .thenComparing(DisplayItem::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                         .toList()
                 ),
                 displayCategory.getImageUrl(),
