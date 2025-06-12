@@ -54,10 +54,10 @@ const DisplayItemsPage: React.FC = () => {
 
     useEffect(() => {
         setActions(
-            <BeButton 
+            <BeButton
                 onClick={() => setAreCategoriesDraggable(!areCategoriesDraggable)}
                 className="btn btn-neutral w-fit"
-            ><FontAwesomeIcon icon={areCategoriesDraggable ? faMaximize : faMinimize} /> {areCategoriesDraggable ? "Elemente verschieben" : "Kategorien verschieben"}</BeButton>
+            ><FontAwesomeIcon icon={areCategoriesDraggable ? faMaximize : faMinimize} /> {areCategoriesDraggable ? "Elemente anordnen" : "Kategorien anordnen"}</BeButton>
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [areCategoriesDraggable]);
@@ -314,11 +314,11 @@ const DisplayItemsPage: React.FC = () => {
         >
                 <div className="grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     <div className="col-span-1 sm:col-span-2 xl:col-span-3">
-                        <MinimalCard className={cn("h-28 transition-[height]", displayCategoryId === 'add' && "h-58")} colorVariant={colorMapCards.displayCategory}>
+                        <MinimalCard className={cn("h-fit max-h-30 transition-[max-height] duration-300 ease-in-out flex justify-center", displayCategoryId === 'add' && "max-h-50")} colorVariant={colorMapCards.displayCategory}>
                             {displayCategoryId !== 'add' ? (
                                 <BeCircleLink icon={faPlus} to="/manage/displayItems/category/add">Kategorie hinzufügen</BeCircleLink>
                             ) : (
-                                <DisplayCategoryAdd onSubmit={handleSubmitAddDisplayCategory} onCancel={handleCancel}/>
+                                <DisplayCategoryAdd onSubmit={handleSubmitAddDisplayCategory} onCancel={handleCancel} className="flex-1"/>
                             )}
                         </MinimalCard>
                     </div>

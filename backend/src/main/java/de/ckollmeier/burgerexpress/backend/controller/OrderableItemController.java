@@ -3,6 +3,7 @@ package de.ckollmeier.burgerexpress.backend.controller;
 import de.ckollmeier.burgerexpress.backend.dto.OrderableItemOutputDTO;
 import de.ckollmeier.burgerexpress.backend.service.OrderableItemService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +25,7 @@ public class OrderableItemController {
      * @return ResponseEntity with a list of OrderableItemOutputDTOs
      */
     @GetMapping
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<OrderableItemOutputDTO>> getAllOrderableItems() {
         return ResponseEntity.ok(orderableItemService.getAllOrderableItems());
     }
@@ -34,6 +36,7 @@ public class OrderableItemController {
      * @return ResponseEntity with a list of OrderableItemOutputDTOs
      */
     @GetMapping("/menus")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<OrderableItemOutputDTO>> getAllMenus() {
         return ResponseEntity.ok(orderableItemService.getAllMenus());
     }
@@ -44,6 +47,7 @@ public class OrderableItemController {
      * @return ResponseEntity with a list of OrderableItemOutputDTOs
      */
     @GetMapping("/dishes")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<OrderableItemOutputDTO>> getAllDishes() {
         return ResponseEntity.ok(orderableItemService.getAllDishes());
     }

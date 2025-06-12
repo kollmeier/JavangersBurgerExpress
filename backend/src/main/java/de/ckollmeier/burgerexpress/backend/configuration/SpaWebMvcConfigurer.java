@@ -34,7 +34,7 @@ public class SpaWebMvcConfigurer implements WebMvcConfigurer {
                         // Andernfalls (wahrscheinlich eine Frontend-Route wie /characters) gib index.html zurück.
                         // Der Check auf /api/ ist optional, da @RestController Vorrang haben sollte,
                         // aber er schadet als zusätzliche Sicherheit nicht.
-                        if (requestedResource.exists() && requestedResource.isReadable() || resourcePath.startsWith("api/")) {
+                        if (requestedResource.exists() && requestedResource.isReadable() || resourcePath.startsWith("api/") || resourcePath.contains("/api/")) {
                             return requestedResource;
                         } else {
                             // Fallback auf index.html für unbekannte Pfade (SPA-Routen)

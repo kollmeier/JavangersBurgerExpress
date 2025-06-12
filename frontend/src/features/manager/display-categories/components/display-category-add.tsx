@@ -1,16 +1,12 @@
-import type {DisplayCategoryInputDTO} from "@/types/DisplayCategoryInputDTO.ts";
-import DisplayCategoryForm from "@/features/manager/display-categories/components/display-category-form.tsx";
+import DisplayCategoryForm, {
+    DisplayCategoryFormProps
+} from "@/features/manager/display-categories/components/display-category-form.tsx";
 
-interface Props {
-    onSubmit?: (submittedDisplayCategory: DisplayCategoryInputDTO) => Promise<void>;
-    onCancel?: () => void;
-}
+export type DisplayCategoryAddProps = DisplayCategoryFormProps;
 
-const DisplayCategoryAdd = ({ onSubmit, onCancel }: Props) => {
+const DisplayCategoryAdd = (props: DisplayCategoryAddProps) => {
     return (
-        <DisplayCategoryForm
-            onSubmit={onSubmit}
-            onCancel={onCancel}/>
+        <DisplayCategoryForm {...props} />
     );
 }
 

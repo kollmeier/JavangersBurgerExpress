@@ -56,61 +56,68 @@ const InputWithLabel = forwardRef<HTMLInputElement, InputWithLabelProps>(
         const decimalPattern = pattern ?? '[0-9]*[\\.,]?[0-9]{0,2}';
         const showNumericHints = type === "number" || (inputMode ?? pattern);
         return (
-            <Field className={cn("flex flex-col flex-1 gap-1 rounded-lg", fieldClassName)}>
-                <Label className="text-sm font-medium text-gray-700">
-                    {label}
-                    {required && ' *'}
-                </Label>
-                {type === "textarea" ? (
-                    <Textarea
-                        id={name}
-                        name={name}
-                        value={value}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        onClick={onClick}
-                        onKeyDown={onKeyDown}
-                        placeholder={placeholder}
-                        required={required}
-                        disabled={disabled}
-                        ref={ref}
-                        className={cn(
-                            "rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 bg-white",
-                            error ? "border-red-500 focus:ring-red-500" : "border-secondary focus:ring-blue-500",
-                            disabled && "bg-primary cursor-not-allowed",
-                            className
-                        )}
-                    />) :
-                <Input
-                    id={name}
-                    name={name}
-                    type={type}
-                    value={value}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    onClick={onClick}
-                    onKeyDown={onKeyDown}
-                    placeholder={placeholder}
-                    required={required}
-                    disabled={disabled}
-                    ref={ref}
-                    step={step}
-                    min={min}
-                    max={max}
-                    inputMode={showNumericHints ? decimalInputMode : undefined}
-                    pattern={showNumericHints ? decimalPattern : undefined}
-                    className={cn(
-                        "input",
-                        error && "input--error",
-                        disabled && "input--disabled",
-                        className
+            <Field className={fieldClassName}>
+                <div className="relative h-[inherit]">
+                    {type === "textarea" ? (
+                            <Textarea
+                                id={name}
+                                name={name}
+                                value={value}
+                                onChange={onChange}
+                                onBlur={onBlur}
+                                onClick={onClick}
+                                onKeyDown={onKeyDown}
+                                placeholder={placeholder ?? " "}
+                                required={required}
+                                disabled={disabled}
+                                ref={ref}
+                                className={cn(
+                                    "bg-white",
+                                    "z-1 block pt-3 pb-0.5 px-2 w-full text-sm text-gray-900 rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer",
+                                    "placeholder:invisible focus:placeholder:visible",
+                                    error && "input--error",
+                                    disabled && "input--disabled",
+                                    className
+                                )}
+                            />) :
+                        <Input
+                            id={name}
+                            name={name}
+                            type={type}
+                            value={value}
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            onClick={onClick}
+                            onKeyDown={onKeyDown}
+                            placeholder={placeholder ?? " "}
+                            required={required}
+                            disabled={disabled}
+                            ref={ref}
+                            step={step}
+                            min={min}
+                            max={max}
+                            inputMode={showNumericHints ? decimalInputMode : undefined}
+                            pattern={showNumericHints ? decimalPattern : undefined}
+                            className={cn(
+                                "bg-white",
+                                "z-1 block pt-3 pb-0.5 px-2 w-full text-sm text-gray-900 rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer",
+                                "placeholder:invisible focus:placeholder:visible",
+                                error && "input--error",
+                                disabled && "input--disabled",
+                                className
+                            )}
+                        />}{children}
+                    <Label
+                        className="absolute pointer-events-none px-1.5 pt-0 text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-3.5 origin-[0] rounded-sm peer-focus:text-blue-600  peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-5 peer-focus:top-3.5 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1">
+                        {label}
+                        {required && '*'}
+                    </Label>
+                    {error && (
+                        <Description className="text-sm text-red-600" role="alert">
+                            {error}
+                        </Description>
                     )}
-                />}{children}
-                {error && (
-                    <Description className="text-sm text-red-600" role="alert">
-                        {error}
-                    </Description>
-                )}
+                </div>
             </Field>
         );
     }

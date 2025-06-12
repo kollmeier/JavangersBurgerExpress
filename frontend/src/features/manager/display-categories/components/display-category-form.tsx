@@ -10,6 +10,7 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {toast} from "react-toastify";
 import useImagePicker from "@/hooks/use-image-picker.ts";
 import ImagePickerWithLabel from "@/components/ui/image-picker-with-label.tsx";
+import {cn} from "@/util";
 
 type Props = {
     displayCategory?: DisplayCategoryOutputDTO;
@@ -17,7 +18,9 @@ type Props = {
     onCancel?: () => void;
 }
 
-const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
+export type DisplayCategoryFormProps = Props & Omit<React.ComponentPropsWithoutRef<"form">, keyof Props>;
+
+const DisplayCategoryForm = ({ displayCategory, className, onSubmit, onCancel, ...props}: DisplayCategoryFormProps)=> {
     const {
         control,
         handleSubmit,
@@ -87,7 +90,8 @@ const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
             autoComplete="off"
             noValidate
             ref={formRef}
-            className="grid grid-cols-4 grid-rows-card gap-2"
+            className={cn("grid grid-cols-4 auto-rows-min gap-2", className)}
+            {...props}
         >
             <Controller
                 name="name"
@@ -96,7 +100,7 @@ const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
                 render={({ field, fieldState }) => (
                     <InputWithLabel
                         label="Name"
-                        fieldClassName="col-start-1 -col-end-2"
+                        fieldClassName="col-start-1 col-span-3 row-start-1"
                         error={fieldState.error?.message}
                         {...field}
                     />
@@ -110,8 +114,8 @@ const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
                     <InputWithLabel
                         label="Beschreibung"
                         type="textarea"
-                        className="h-36"
-                        fieldClassName="col-span-3 row-start-2"
+                        className="h-20"
+                        fieldClassName="cols-start-1 col-span-3 row-start-2"
                         error={fieldState.error?.message}
                         {...field}
                     />
@@ -125,9 +129,9 @@ const DisplayCategoryForm = ({ displayCategory, onSubmit, onCancel }: Props)=> {
                         field={field}
                         fieldState={fieldState}
                         setImages={setImages}
-                        className="col-span-1 row-span-2 row-start-1 h-34 min-h-fit min-w-fit"/>)}
+                        className="col-span-1 row-span-2 row-start-1 h-31 min-w-fit"/>)}
             />
-            <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
+            <div className="row-start 3 col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
                 <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
                 <BeButton type="button" onClick={handleCancel}><FontAwesomeIcon icon={faClose}/> Abbrechen</BeButton>
             </div>

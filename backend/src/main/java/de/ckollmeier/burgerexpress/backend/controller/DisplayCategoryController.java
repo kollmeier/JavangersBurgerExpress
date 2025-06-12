@@ -10,6 +10,7 @@ import de.ckollmeier.burgerexpress.backend.service.SortableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class DisplayCategoryController {
      * @return Liste aller DisplayCategories
      */
     @GetMapping
+    @PreAuthorize("permitAll()")
     public List<DisplayCategoryOutputDTO> getAllDisplayCategories() {
         return displayCategoryService.getAllDisplayCategories();
     }
@@ -46,6 +48,7 @@ public class DisplayCategoryController {
      * @return das HauptdisplayCategory
      */
     @PostMapping()
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<DisplayCategoryOutputDTO> addDisplayCategory(final @RequestBody DisplayCategoryInputDTO displayCategory) {
         return new ResponseEntity<>(
                 displayCategoryService.addDisplayCategory(displayCategory),
@@ -60,6 +63,7 @@ public class DisplayCategoryController {
      * @return das neue DisplayCategory
      */
     @PutMapping("/{displayCategoryId}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<DisplayCategoryOutputDTO> updateDisplayCategory(final @PathVariable String displayCategoryId, final @RequestBody DisplayCategoryInputDTO displayCategory) {
         return new ResponseEntity<>(
                 displayCategoryService.updateDisplayCategory(displayCategoryId, displayCategory),
@@ -73,6 +77,7 @@ public class DisplayCategoryController {
      * @return die DisplayCategories in der neuen Reihenfolge
      */
     @PutMapping("/positions")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<DisplayCategoryOutputDTO>> updateDisplayCategoryPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
         return new ResponseEntity<>(
                 DisplayCategoryOutputDTOConverter.convert(sortableService.reorderAndSave(DisplayCategory.class, sortedInputDTOs)),
@@ -86,6 +91,7 @@ public class DisplayCategoryController {
      * @return No-Content Status
      */
     @DeleteMapping("/{displayCategoryId}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> removeDisplayCategory(final @PathVariable String displayCategoryId) {
         displayCategoryService.removeDisplayCategory(displayCategoryId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

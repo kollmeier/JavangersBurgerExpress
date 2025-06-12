@@ -10,6 +10,7 @@ import de.ckollmeier.burgerexpress.backend.service.SortableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,7 @@ public class DishesController {
      * @return Liste aller Gerichte
      */
     @GetMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public List<DishOutputDTO> getAllDishes() {
         return dishService.getAllDishes();
     }
@@ -53,6 +55,7 @@ public class DishesController {
      * @return das Hauptgericht
      */
     @PostMapping()
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<DishOutputDTO> addDish(final @RequestBody DishInputDTO dish) {
         return new ResponseEntity<>(
                 dishService.addDish(dish),
@@ -67,6 +70,7 @@ public class DishesController {
      * @return das neue Gericht
      */
     @PutMapping("/{dishId}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<DishOutputDTO> updateDish(final @PathVariable String dishId, final @RequestBody DishInputDTO dish) {
         return new ResponseEntity<>(
                 dishService.updateDish(dishId, dish),
@@ -80,6 +84,7 @@ public class DishesController {
      * @return die Gerichte in der neuen Reihenfolge
      */
     @PutMapping("/positions")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<DishOutputDTO>> updateDishPositions(final @RequestBody List<SortedInputDTO> sortedInputDTOs) {
         return new ResponseEntity<>(
                 DishOutputDTOConverter.convert(sortableService.reorderAndSave(Dish.class, sortedInputDTOs)),
@@ -93,6 +98,7 @@ public class DishesController {
      * @return No-Content Status
      */
     @DeleteMapping("/{dishId}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> removeDish(final @PathVariable String dishId) {
         dishService.removeDish(dishId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

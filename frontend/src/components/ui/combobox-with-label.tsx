@@ -80,11 +80,7 @@ const ComboboxWithLabel = forwardRef(
 
         return (
             <Field
-                className={cn("flex flex-col flex-1 gap-1 rounded-lg", fieldClassName)}>
-                <Label className="text-sm font-medium text-gray-700">
-                    {label}
-                    {required && ' *'}
-                </Label>
+                className={cn("flex flex-col flex-1 gap-1 rounded-lg relative", fieldClassName)}>
                 <Combobox
                     name={name}
                     value={value}
@@ -94,36 +90,58 @@ const ComboboxWithLabel = forwardRef(
                     onClose={onClose}
                     immediate={true}
                 >
-                    <div
-                        className={cn("flex flex-wrap flex-row gap-0.5 items-start justify-start input relative", error && "input--error", disabled && "input--disabled", className)}
-                    >
-                        {value && multiple && Array.isArray(value) && value.map(v => (
-                            <span key={name+ "-option-pill-" + v.id} className={cn("pill", colorVariants[v.type ?? ""] ?? colorVariants[colorMapCards[v.type ?? ""] ?? "neutral"]?.light)}>
-                                <button onClick={event => {
-                                    event.stopPropagation();
-                                    onChange(value.filter(f => f !== v))
-                                }}><FontAwesomeIcon icon={faRemove}/></button>
-                                {displayValue(v)}
-                            </span>
-                        ))}
-                        {summaryElement && value && (summaryElement(value))}
+                    <div>
+                        {value && multiple && Array.isArray(value) &&
+                            <div className="px-2 pt-2.5 z-1 relative bg-transparent">
+                                {value.map(v => (
+                                    <span key={name + "-option-pill-" + v.id}
+                                          className={cn("pill", colorVariants[v.type ?? ""] ?? colorVariants[colorMapCards[v.type ?? ""] ?? "neutral"]?.light)}>
+                                    <button onClick={event => {
+                                        event.stopPropagation();
+                                        onChange(value.filter(f => f !== v))
+                                    }}><FontAwesomeIcon icon={faRemove}/></button>
+                                        {displayValue(v)}
+                                </span>
+                                ))}
+                                {summaryElement && value && (summaryElement(value))}
+                            </div>}
                         <ComboboxInput
                             ref={ref}
                             aria-label={label}
                             displayValue={displayValue}
-                            placeholder={placeholder}
+                            placeholder={placeholder ?? " "}
                             onBlur={onBlur}
                             onChange={handleInputChange}
-                            className="focus:outline-none w-full"
+                            className="pt-3 pb-0.5 px-2 w-full text-sm text-gray-900 focus:outline-none peer"
                         />
+                        <Label
+                            className={cn("absolute z-2 pointer-events-none px-1.5 pt-0 text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-3.5 origin-[0] rounded-sm",
+                                "peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-5",
+                                "peer-focus:top-3.5 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto start-1",
+                                (value && multiple && Array.isArray(value) && value.length > 0) && "top-3.5! scale-75! -translate-y-4! rtl:translate-x-1/4! rtl:left-auto!"
+                            )}>
+                            {label}
+                            {required && '*'}
+                        </Label>
+                        <div
+                            className={cn(
+                                "absolute z-0 top-0 pointer-events-none w-full h-full",
+                                "bg-white",
+                                "block rounded-lg border-1 border-gray-300 appearance-none",
+                                "peer-focus:outline-none peer-focus:ring-0 peer-focus:border-blue-600",
+                                error && "input--error",
+                                disabled && "input--disabled",
+                                className
+                            )}
+                        />
+                        <ComboboxOptions anchor="bottom start" className="[--anchor-gap:1px] border w-[--input-width] rounded-lg bg-white border-blue-600 px-0 py-0 empty:invisible">
+                            {filteredOptions.map((value) => (
+                                <ComboboxOption key={value.id} value={value} className="data-focus:bg-blue-200 data-selected:bg-gray-200 border-gray-100 data-selected:border-b data-selected:last:border-none text-gray-700 py-1 px-2">
+                                    {optionElement(value)}
+                                </ComboboxOption>
+                            ))}
+                        </ComboboxOptions>
                     </div>
-                    <ComboboxOptions anchor="bottom start" className="[--anchor-gap:8px] border w-[calc(var(--input-width)+24px)] input px-0! py-0! empty:invisible -ml-3 -mr-3">
-                        {filteredOptions.map((value) => (
-                            <ComboboxOption key={value.id} value={value} className="data-focus:bg-blue-200 data-selected:bg-gray-200 border-gray-100 data-selected:border-b data-selected:last:border-none text-gray-700 py-1 px-2">
-                                {optionElement(value)}
-                            </ComboboxOption>
-                        ))}
-                    </ComboboxOptions>
                 </Combobox>
                 {error && (
                     <Description className="text-sm text-red-600" role="alert">

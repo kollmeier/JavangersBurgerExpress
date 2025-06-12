@@ -8,13 +8,18 @@ import de.ckollmeier.burgerexpress.backend.repository.DishRepository;
 import de.ckollmeier.burgerexpress.backend.types.AdditionalInformationType;
 import de.ckollmeier.burgerexpress.backend.types.DishType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.ckollmeier.burgerexpress.backend.configuration.SecurityConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -30,7 +35,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest // Lädt den gesamten Spring-Kontext
 @AutoConfigureMockMvc // Konfiguriert MockMvc für HTTP-Anfragen
+@WithMockUser(roles = {"MANAGER"}) // Authenticate as a user with MANAGER role
+@Import(SecurityConfig.class) // Import the security configuration
 class DishesControllerTest {
+
+    @MockitoBean
+    private UserDetailsService userDetailsService; // Mock the UserDetailsService for security
 
     @Autowired
     private MockMvc mockMvc; // Zum Senden von HTTP-Anfragen

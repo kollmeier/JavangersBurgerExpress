@@ -37,7 +37,7 @@ const ImagePickerWithLabel = <T extends FieldValues> ({
             error={fieldState.error?.message}
             {...field}
         >
-            <div className="p-0.5 relative bg-gray-200 h-full rounded-xl ">
+            <div className="p-0.5 bg-gray-200 h-full rounded-xl ">
                 <Button
                     type="button"
                     className="flex flex-col justify-center items-center rounded-xl border-2 w-full h-full border-dotted border-gray-400 p-0.5"
