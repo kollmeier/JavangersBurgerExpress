@@ -12,7 +12,7 @@ import java.time.Instant;
 @Service
 @RequiredArgsConstructor
 public class CustomerSessionService {
-    private static final long EXPIRATION_TIME_IN_SECONDS = 60L; // 5 minutes
+    private static final long EXPIRATION_TIME_IN_SECONDS = 60L * 5; // 5 minutes
     private static final String SESSION_ATTRIBUTE_NAME = "customerSession";
 
     public CustomerSessionDTO createCustomerSession(final HttpSession session) {
