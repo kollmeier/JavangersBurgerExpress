@@ -1,6 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.controller;
 
 import de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO;
+import de.ckollmeier.burgerexpress.backend.dto.OrderInputDTO;
 import de.ckollmeier.burgerexpress.backend.service.CustomerSessionService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -72,5 +73,14 @@ public class CustomerSessionController {
     public ResponseEntity<Void> removeCustomerSession(final HttpSession session) {
         customerSessionService.removeCustomerSession(session);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping
+    public ResponseEntity<CustomerSessionDTO> storeOrder(final HttpSession session, @RequestBody OrderInputDTO order) {
+        CustomerSessionDTO updatedSession = customerSessionService.storeOrder(session, order);
+        if (updatedSession == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(updatedSession, HttpStatus.OK);
     }
 }

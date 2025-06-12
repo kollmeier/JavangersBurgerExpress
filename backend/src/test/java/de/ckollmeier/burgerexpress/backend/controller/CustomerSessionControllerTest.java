@@ -1,5 +1,6 @@
 package de.ckollmeier.burgerexpress.backend.controller;
 
+import de.ckollmeier.burgerexpress.backend.model.Order;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -55,7 +58,8 @@ class CustomerSessionControllerTest {
             de.ckollmeier.burgerexpress.backend.model.CustomerSession customerSession = 
                 new de.ckollmeier.burgerexpress.backend.model.CustomerSession(
                     now,
-                    now.plusSeconds(300)
+                    now.plusSeconds(300),
+                    Order.builder().build()
                 );
             session.setAttribute("customerSession", customerSession);
 
@@ -138,7 +142,8 @@ class CustomerSessionControllerTest {
             de.ckollmeier.burgerexpress.backend.model.CustomerSession customerSession = 
                 new de.ckollmeier.burgerexpress.backend.model.CustomerSession(
                     now,
-                    now.plusSeconds(300)
+                    now.plusSeconds(300),
+                    Order.builder().build()
                 );
             session.setAttribute("customerSession", customerSession);
 
@@ -224,6 +229,101 @@ class CustomerSessionControllerTest {
                     .session(session)
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    @DisplayName("PATCH /api/customer-sessions")
+    class StoreOrderTests {
+
+        @Test
+        @DisplayName("returns 404 when no session exists")
+        void should_return404_whenNoSessionExists() throws Exception {
+            // Given
+            MockHttpSession session = new MockHttpSession();
+            String orderJson = """
+                    {
+                        "id": "order-1",
+                        "items": [
+                            {
+                                "item": "item-1",
+                                "amount": 2
+                            }
+                        ]
+                    }
+                    """;
+
+            // When & Then
+            mockMvc.perform(patch("/api/customer-sessions")
+                    .session(session)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(orderJson))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("stores order in session and returns updated session")
+        void should_storeOrderInSession_andReturnUpdatedSession() throws Exception {
+            // Given
+            MockHttpSession session = new MockHttpSession();
+            String orderJson = """
+                    {
+                        "id": "order-1",
+                        "items": [
+                            {
+                                "item": "item-1",
+                                "amount": 2
+                            }
+                        ]
+                    }
+                    """;
+
+            // First create a session
+            mockMvc.perform(post("/api/customer-sessions")
+                    .session(session)
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated());
+
+            // Create a CustomerSessionDTO to be returned by the service
+            de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO expectedDTO = 
+                new de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO(
+                    "2023-01-01 12:00:00",
+                    "2023-01-01 12:05:00",
+                    300L,
+                    false
+                );
+
+            // Use Mockito to spy on the service
+            de.ckollmeier.burgerexpress.backend.service.CustomerSessionService spyService = 
+                org.mockito.Mockito.spy(customerSessionService);
+
+            // Mock the storeOrder method to return the expected DTO
+            org.mockito.Mockito.doReturn(expectedDTO)
+                .when(spyService)
+                .storeOrder(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+
+            // Replace the service in the controller with the spy
+            de.ckollmeier.burgerexpress.backend.controller.CustomerSessionController controller = 
+                new de.ckollmeier.burgerexpress.backend.controller.CustomerSessionController(spyService);
+
+            // Create a MockMvc instance with the controller
+            MockMvc mockMvcWithSpy = org.springframework.test.web.servlet.setup.MockMvcBuilders
+                .standaloneSetup(controller)
+                .build();
+
+            // When & Then
+            mockMvcWithSpy.perform(patch("/api/customer-sessions")
+                    .session(session)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(orderJson))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.createdAt").value("2023-01-01 12:00:00"))
+                    .andExpect(jsonPath("$.expiresAt").value("2023-01-01 12:05:00"))
+                    .andExpect(jsonPath("$.expiresInSeconds").value(300))
+                    .andExpect(jsonPath("$.expired").value(false));
+
+            // Verify that the service method was called
+            org.mockito.Mockito.verify(spyService).storeOrder(eq(session), any());
         }
     }
 }

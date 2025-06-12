@@ -1,18 +1,28 @@
 package de.ckollmeier.burgerexpress.backend.service;
 
 import de.ckollmeier.burgerexpress.backend.converter.CustomerSessionDTOConverter;
+import de.ckollmeier.burgerexpress.backend.converter.OrderConverter;
 import de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO;
+import de.ckollmeier.burgerexpress.backend.dto.OrderInputDTO;
+import de.ckollmeier.burgerexpress.backend.dto.OrderItemInputDTO;
+import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.CustomerSession;
+import de.ckollmeier.burgerexpress.backend.model.Order;
+import de.ckollmeier.burgerexpress.backend.repository.GeneralRepository;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +30,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerSessionServiceTest {
+
+    @Mock
+    private GeneralRepository<OrderableItem> orderableItemRepository;
 
     @InjectMocks
     private CustomerSessionService customerSessionService;
@@ -66,7 +79,8 @@ class CustomerSessionServiceTest {
             HttpSession httpSession = mock(HttpSession.class);
             CustomerSession existingSession = new CustomerSession(
                     Instant.parse("2023-01-01T12:00:00Z"),
-                    Instant.parse("2023-01-01T12:05:00Z")
+                    Instant.parse("2023-01-01T12:05:00Z"),
+                    Order.builder().build()
             );
             when(httpSession.getAttribute("customerSession")).thenReturn(existingSession);
 
@@ -119,7 +133,8 @@ class CustomerSessionServiceTest {
             HttpSession httpSession = mock(HttpSession.class);
             CustomerSession existingSession = new CustomerSession(
                     Instant.parse("2023-01-01T12:00:00Z"),
-                    Instant.parse("2023-01-01T12:05:00Z")
+                    Instant.parse("2023-01-01T12:05:00Z"),
+                    Order.builder().build()
             );
             when(httpSession.getAttribute("customerSession")).thenReturn(existingSession);
 
@@ -177,6 +192,87 @@ class CustomerSessionServiceTest {
 
             // Then
             verify(httpSession).removeAttribute("customerSession");
+        }
+    }
+
+    @Nested
+    @DisplayName("storeOrder(final HttpSession, final OrderInputDTO)")
+    class StoreOrder {
+
+        @Test
+        @DisplayName("Returns null when no CustomerSession exists in the session")
+        void returnsNullWhenNoSessionExists() {
+            // Given
+            HttpSession httpSession = mock(HttpSession.class);
+            OrderInputDTO orderInputDTO = new OrderInputDTO("order-1", List.of(
+                    new OrderItemInputDTO("item-1", 2)
+            ));
+            when(httpSession.getAttribute("customerSession")).thenReturn(null);
+
+            // When
+            CustomerSessionDTO result = customerSessionService.storeOrder(httpSession, orderInputDTO);
+
+            // Then
+            assertThat(result).isNull();
+            verify(httpSession).getAttribute("customerSession");
+            verifyNoMoreInteractions(httpSession);
+        }
+
+        @Test
+        @DisplayName("Stores order in CustomerSession and returns updated DTO")
+        void storesOrderInCustomerSession() {
+            // Given
+            HttpSession httpSession = mock(HttpSession.class);
+            OrderInputDTO orderInputDTO = new OrderInputDTO("order-1", List.of(
+                    new OrderItemInputDTO("item-1", 2)
+            ));
+
+            CustomerSession existingSession = new CustomerSession(
+                    Instant.parse("2023-01-01T12:00:00Z"),
+                    Instant.parse("2023-01-01T12:05:00Z"),
+                    Order.builder().build()
+            );
+            when(httpSession.getAttribute("customerSession")).thenReturn(existingSession);
+
+            // Mock OrderableItem
+            OrderableItem orderableItem = mock(OrderableItem.class);
+            when(orderableItem.getId()).thenReturn("item-1");
+            when(orderableItem.getName()).thenReturn("Test Item");
+            when(orderableItem.getPrice()).thenReturn(BigDecimal.valueOf(10.99));
+            when(orderableItemRepository.findById("item-1", OrderableItem.class))
+                .thenReturn(Optional.of(orderableItem));
+
+            // Mock the converted Order
+            Order convertedOrder = Order.builder()
+                    .id("order-1")
+                    .build();
+
+            CustomerSessionDTO expectedDTO = new CustomerSessionDTO(
+                    "2023-01-01 12:00:00",
+                    "2023-01-01 12:05:00",
+                    300L,
+                    false
+            );
+
+            try (MockedStatic<OrderConverter> orderConverterMock = mockStatic(OrderConverter.class);
+                 MockedStatic<CustomerSessionDTOConverter> customerSessionDTOConverterMock = mockStatic(CustomerSessionDTOConverter.class)) {
+
+                orderConverterMock.when(() -> OrderConverter.convert(eq(orderInputDTO), any()))
+                        .thenReturn(convertedOrder);
+
+                customerSessionDTOConverterMock.when(() -> CustomerSessionDTOConverter.convert(any(CustomerSession.class)))
+                        .thenReturn(expectedDTO);
+
+                // When
+                CustomerSessionDTO result = customerSessionService.storeOrder(httpSession, orderInputDTO);
+
+                // Then
+                assertThat(result).isEqualTo(expectedDTO);
+                verify(httpSession).getAttribute("customerSession");
+                verify(httpSession).setAttribute(eq("customerSession"), any(CustomerSession.class));
+                orderConverterMock.verify(() -> OrderConverter.convert(eq(orderInputDTO), any()));
+                customerSessionDTOConverterMock.verify(() -> CustomerSessionDTOConverter.convert(any(CustomerSession.class)));
+            }
         }
     }
 }
