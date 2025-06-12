@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { DisplayItemOutputDTO } from '@/types/DisplayItemOutputDTO.ts';
 import Card, {CardProps} from '@/components/shared/card.tsx';
-import { cn, getColoredIconElement, getIconColor } from '@/util';
+import {cn, getColoredIconElement, getIconColor, useCustomerSession} from '@/util';
 import { colorMapCards } from '@/data';
 import BeButton from "@/components/ui/be-button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -18,6 +18,7 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
     ...props
 }) => {
   const [amount, setAmount] = useState(1);
+  const {renewCustomerSession} = useCustomerSession();
 
   function increaseAmount() {
       setAmount(a => a + 1);
@@ -26,6 +27,8 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
   function decreaseAmount() {
       setAmount(a => a > 2 ? a - 1 : 1);
   }
+
+  useEffect(() => { renewCustomerSession() }, [amount, renewCustomerSession]);
 
   return (
     <Card

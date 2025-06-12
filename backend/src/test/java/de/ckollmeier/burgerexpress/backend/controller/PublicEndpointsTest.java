@@ -17,13 +17,14 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({
     DisplayCategoryController.class,
     OrderableItemController.class,
-    FilesController.class
+    FilesController.class,
+    CustomerSessionController.class
 })
 @Import(SecurityConfig.class)
 @DisplayName("Public Endpoints Tests")
@@ -50,6 +51,9 @@ class PublicEndpointsTest {
     @MockitoBean
     private UserDetailsService userDetailsService;
 
+    @MockitoBean
+    private de.ckollmeier.burgerexpress.backend.service.CustomerSessionService customerSessionService;
+
     @Test
     @DisplayName("Public endpoints should be accessible without authentication")
     @WithAnonymousUser
@@ -63,5 +67,23 @@ class PublicEndpointsTest {
 
         mockMvc.perform(get("/api/files"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Customer session endpoints should be accessible without authentication")
+    @WithAnonymousUser
+    void customerSessionEndpointsShouldBeAccessibleWithoutAuthentication() throws Exception {
+        // Test access to customer session endpoints (permitAll)
+        mockMvc.perform(get("/api/customer-sessions"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/customer-sessions"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(put("/api/customer-sessions"))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(delete("/api/customer-sessions"))
+                .andExpect(status().isNoContent());
     }
 }

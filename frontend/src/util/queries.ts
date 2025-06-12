@@ -5,6 +5,7 @@ import {MenusApi} from "@/services/menus-api.ts";
 import {DisplayCategoriesApi} from "@/services/display-categories-api.ts";
 import {DisplayItemsApi} from "@/services/display-items-api.ts";
 import {OrderableItemsApi} from "@/services/orderable-items-api.ts";
+import {useCustomerSession} from "@/hooks/use-customer-session.ts";
 
 export function useDishes() {
     return useQuery({
@@ -72,3 +73,5 @@ export function useOrderableDishes() {
         queryFn: OrderableItemsApi.getAllDishes,
     }).data;
 }
+
+export { useCustomerSession };

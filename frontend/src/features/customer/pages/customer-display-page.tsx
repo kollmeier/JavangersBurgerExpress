@@ -3,10 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { usePageLayoutContext } from '@/context/page-layout-context.ts';
 import CategoriesSidebar from '../components/categories-sidebar';
 import DisplayItemsGrid from '../components/display-items-grid';
-import { useDisplayCategories } from '@/util';
+import { useDisplayCategories, useCustomerSession } from '@/util';
 import { DisplayItemOutputDTO } from '@/types/DisplayItemOutputDTO.ts';
 import {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts";
 import Card from "@/components/shared/card.tsx";
+import BeDialog from "@/components/shared/be-dialog.tsx";
+import {faBurger, faClock} from "@fortawesome/free-solid-svg-icons";
 
 const CustomerDisplayPage: React.FC = () => {
   const [displayItems, setDisplayItems] = useState<DisplayItemOutputDTO[]>([]);
@@ -16,6 +18,9 @@ const CustomerDisplayPage: React.FC = () => {
 
   const { data: displayCategories, isLoading, error } = useDisplayCategories();
   const { setSidebar } = usePageLayoutContext();
+  const [sessionInterval, setSessionInterval] = useState<number>(30);
+
+  const { customerSession, createCustomerSession, renewCustomerSession, removeCustomerSession } = useCustomerSession(sessionInterval);
 
   // Redirect to first category if no category is specified
   useEffect(() => {
@@ -52,7 +57,24 @@ const CustomerDisplayPage: React.FC = () => {
       setDisplayItems(category?.displayItems ?? []);
       setCategory(category);
     }
-  }, [displayCategories, categoryId]);
+  }, [displayCategories, categoryId, renewCustomerSession]);
+
+  useEffect(() => {
+    renewCustomerSession()
+  }, [displayCategories, categoryId, renewCustomerSession]);
+
+  useEffect(() => {
+    if (!customerSession) return;
+    if (customerSession.expired) {
+      removeCustomerSession();
+      return;
+    }
+    if (customerSession.expiresInSeconds < 30) {
+      setSessionInterval(1);
+      return;
+    }
+    setSessionInterval(30);
+  }, [customerSession, removeCustomerSession]);
 
   return (
     <div>
@@ -69,6 +91,25 @@ const CustomerDisplayPage: React.FC = () => {
         isLoading={isLoading}
         error={error}
       />
+      <BeDialog
+          icon={faBurger}
+          className="text-xl"
+          title="Jetzt bestellen!"
+          onClick={() => createCustomerSession()}
+          open={!customerSession || customerSession.expired}
+          onClose={() => createCustomerSession()}>
+          Bestellen Sie jetzt! Berühren Sie den Bildschirm, um den Bestellvorgang zu starten.
+      </BeDialog>
+      <BeDialog
+          icon={faClock}
+          className="text-xl"
+          title="Sind Sie noch da?"
+          onClick={() => createCustomerSession()}
+          open={!!customerSession && customerSession.expiresInSeconds <= 30}
+          onClose={() => renewCustomerSession()}>
+        <div>Sind Sie noch da? Berühren Sie den Bildschirm zum fortfahren!</div>
+        {customerSession && <div className="text-red-500 text-3xl">Automatisches Abmelden in {customerSession.expiresInSeconds} Sekunden</div>}
+      </BeDialog>
     </div>
   );
 };

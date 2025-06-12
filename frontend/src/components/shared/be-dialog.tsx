@@ -1,5 +1,5 @@
 import {PropsWithChildren, ReactNode} from "react";
-import {Dialog, DialogBackdrop, DialogPanel, DialogProps} from "@headlessui/react";
+import {CloseButton, Dialog, DialogBackdrop, DialogPanel, DialogProps} from "@headlessui/react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {IconProp} from "@fortawesome/fontawesome-svg-core";
 import {ClassValue} from "clsx";
@@ -10,6 +10,7 @@ type BeDialogProps = DialogProps & PropsWithChildren<{
     iconClassName?: ClassValue;
     actions?: ReactNode;
     className?: ClassValue;
+    clickToClose?: boolean;
 }>
 
 type DialogPanelProps = PropsWithChildren<{
@@ -45,12 +46,13 @@ const DialogPanelWithoutIcon = ({children, actions, className}: DialogPanelProps
     )
 }
 
-const BeDialog = ({icon, iconClassName, actions, className, children, ...props}: BeDialogProps) => {
+const BeDialog = ({icon, clickToClose, iconClassName, actions, className, children, ...props}: BeDialogProps) => {
     const defaultClassName = "max-w-xl space-y-4 bg-neutral-600 shadow-2xl rounded-xl p-10";
     return (
         <Dialog {...props}>
             <DialogBackdrop className="fixed inset-0 bg-black/50 backdrop-blur-xs" />
-            <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+            <div className={cn("fixed inset-0 flex w-screen items-center justify-center p-4", clickToClose && "relative")}>
+                <CloseButton className="absolute z-90 w-auto h-auto top-0 right-0 left-0 bottom-0 p-0 m-0" />
                 {icon ?
                     <DialogPanelWithIcon
                         icon={icon}
