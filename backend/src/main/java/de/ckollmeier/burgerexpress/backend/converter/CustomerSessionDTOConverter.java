@@ -22,10 +22,10 @@ public class CustomerSessionDTOConverter {
 
     public static CustomerSessionDTO convert(final CustomerSession customerSession) {
         return new CustomerSessionDTO(
-                dateTimeFormatter.format(customerSession.getCreatedAt().atZone(ZoneId.systemDefault())),
-                dateTimeFormatter.format(customerSession.getExpiresAt().atZone(ZoneId.systemDefault())),
-                Duration.between(Instant.now(), customerSession.getExpiresAt()).toSeconds(),
-                Instant.now().isAfter(customerSession.getExpiresAt())
+                dateTimeFormatter.format(customerSession.createdAt().atZone(ZoneId.systemDefault())),
+                dateTimeFormatter.format(customerSession.expiresAt().atZone(ZoneId.systemDefault())),
+                Duration.between(Instant.now(), customerSession.expiresAt()).toSeconds(),
+                Instant.now().isAfter(customerSession.expiresAt())
         );
     }
 
