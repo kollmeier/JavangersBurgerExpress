@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mockStatic;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrderDTOConverter")
-class OrderDTOConverterTest {
+class OrderOutputDTOConverterTest {
 
     @Test
     @DisplayName("convert(Order) converts Order to OrderOutputDTO")
@@ -41,12 +41,12 @@ class OrderDTOConverterTest {
         
         List<OrderItemOutputDTO> convertedItems = List.of();
         
-        try (MockedStatic<OrderItemDTOConverter> orderItemDTOConverterMock = mockStatic(OrderItemDTOConverter.class)) {
-            orderItemDTOConverterMock.when(() -> OrderItemDTOConverter.convert(eq(order.getItems())))
+        try (MockedStatic<OrderItemOutputDTOConverter> orderItemDTOConverterMock = mockStatic(OrderItemOutputDTOConverter.class)) {
+            orderItemDTOConverterMock.when(() -> OrderItemOutputDTOConverter.convert(eq(order.getItems())))
                     .thenReturn(convertedItems);
             
             // When
-            OrderOutputDTO result = OrderDTOConverter.convert(order);
+            OrderOutputDTO result = OrderOutputDTOConverter.convert(order);
             
             // Then
             assertThat(result).isNotNull();
@@ -57,7 +57,7 @@ class OrderDTOConverterTest {
             assertThat(result.updatedAt()).isEqualTo(DateTimeFormatter.ISO_INSTANT.format(updated));
             assertThat(result.status()).isEqualTo("PENDING");
             
-            orderItemDTOConverterMock.verify(() -> OrderItemDTOConverter.convert(eq(order.getItems())));
+            orderItemDTOConverterMock.verify(() -> OrderItemOutputDTOConverter.convert(eq(order.getItems())));
         }
     }
     
@@ -76,12 +76,12 @@ class OrderDTOConverterTest {
         
         List<OrderItemOutputDTO> convertedItems = List.of();
         
-        try (MockedStatic<OrderItemDTOConverter> orderItemDTOConverterMock = mockStatic(OrderItemDTOConverter.class)) {
-            orderItemDTOConverterMock.when(() -> OrderItemDTOConverter.convert(eq(order.getItems())))
+        try (MockedStatic<OrderItemOutputDTOConverter> orderItemDTOConverterMock = mockStatic(OrderItemOutputDTOConverter.class)) {
+            orderItemDTOConverterMock.when(() -> OrderItemOutputDTOConverter.convert(eq(order.getItems())))
                     .thenReturn(convertedItems);
             
             // When
-            OrderOutputDTO result = OrderDTOConverter.convert(order);
+            OrderOutputDTO result = OrderOutputDTOConverter.convert(order);
             
             // Then
             assertThat(result).isNotNull();
@@ -92,7 +92,7 @@ class OrderDTOConverterTest {
             assertThat(result.updatedAt()).isNull();
             assertThat(result.status()).isEqualTo("PENDING");
             
-            orderItemDTOConverterMock.verify(() -> OrderItemDTOConverter.convert(eq(order.getItems())));
+            orderItemDTOConverterMock.verify(() -> OrderItemOutputDTOConverter.convert(eq(order.getItems())));
         }
     }
 }

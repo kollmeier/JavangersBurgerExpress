@@ -2,7 +2,7 @@ package de.ckollmeier.burgerexpress.backend.dto;
 
 import java.util.List;
 
-public record OrderOutputDTO(
+public record OrderOutputDTO (
         String id,
         List<OrderItemOutputDTO> items,
         String totalPrice,

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem, OrderableItem {
+public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem, OrderableItem, Serializable {
     /**
      * Die eindeutige ID des Menüs.
      */
@@ -46,7 +47,7 @@ public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem
     @DBRef
     @NonNull
     @Builder.Default
-    private final List<Dish> dishes = new ArrayList<>();
+    private transient List<Dish> dishes = new ArrayList<>();
 
     /**
      * Eine Liste mit zusätzlichen Informationen zum Menü.

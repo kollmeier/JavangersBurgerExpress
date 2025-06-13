@@ -27,8 +27,7 @@ public class Order implements Serializable {
     @Builder.Default
     private final Instant createdAt = Instant.now();
     private final Instant updatedAt;
-    @Builder.Default
-    private final BigDecimal totalPrice = BigDecimal.ZERO;
+    private transient BigDecimal totalPrice;
     @Builder.Default
     private final OrderStatus status = OrderStatus.PENDING;
 
@@ -69,5 +68,14 @@ public class Order implements Serializable {
                 .totalPrice(this.totalPrice)
                 .status(status)
                 .build();
+    }
+
+    public BigDecimal getTotalPrice() {
+        if (totalPrice != null) {
+            return totalPrice;
+        }
+        return items.stream()
+                .map(OrderItem::getSubTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

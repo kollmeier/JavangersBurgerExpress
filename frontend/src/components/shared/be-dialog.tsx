@@ -50,9 +50,9 @@ const BeDialog = ({icon, clickToClose, iconClassName, actions, className, childr
     const defaultClassName = "max-w-xl space-y-4 bg-neutral-600 shadow-2xl rounded-xl p-10";
     return (
         <Dialog {...props}>
-            <DialogBackdrop className="fixed inset-0 bg-black/50 backdrop-blur-xs" />
-            <div className={cn("fixed inset-0 flex w-screen items-center justify-center p-4", clickToClose && "relative")}>
-                <CloseButton className="absolute z-90 w-auto h-auto top-0 right-0 left-0 bottom-0 p-0 m-0" />
+            <DialogBackdrop className="fixed inset-0 bg-black/50 backdrop-blur-md z-10" />
+            <div className={cn("fixed inset-0 flex w-screen items-center justify-center p-4 z-11", clickToClose && "relative")}>
+                <CloseButton className="absolute z-20 w-auto h-auto top-0 right-0 left-0 bottom-0 p-0 m-0" />
                 {icon ?
                     <DialogPanelWithIcon
                         icon={icon}

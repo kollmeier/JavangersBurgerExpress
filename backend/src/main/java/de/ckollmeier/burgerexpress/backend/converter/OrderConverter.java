@@ -4,7 +4,6 @@ import de.ckollmeier.burgerexpress.backend.dto.OrderInputDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 import lombok.NonNull;
-
 import java.util.function.Function;
 
 public class OrderConverter {

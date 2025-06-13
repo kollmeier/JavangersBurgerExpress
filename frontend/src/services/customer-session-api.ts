@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { CustomerSessionDTO } from '@/types/CustomerSessionDTO';
+import { OrderInputDTO } from '@/types/OrderInputDTO';
 
 /**
  * CustomerSession API service for handling customer sessions.
@@ -17,6 +18,7 @@ export const CustomerSessionApi = {
   getCustomerSession: async (): Promise<CustomerSessionDTO> => {
     try {
       const response = await axios.get(CustomerSessionApi.baseUrl, {
+        withCredentials: true
       });
       return response.data;
     } catch (error) {
@@ -70,6 +72,26 @@ export const CustomerSessionApi = {
       });
     } catch (error) {
       console.error('Error removing customer session:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Stores an order in the customer session.
+   * @param order The order to store.
+   * @returns The updated customer session or null if no session exists.
+   */
+  storeOrder: async (order: OrderInputDTO): Promise<CustomerSessionDTO | null> => {
+    try {
+      const response = await axios.patch(CustomerSessionApi.baseUrl, order, {
+        withCredentials: true
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      console.error('Error storing order in customer session:', error);
       throw error;
     }
   }

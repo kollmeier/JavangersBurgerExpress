@@ -1,5 +1,7 @@
-const ManagerFooter = () => (
-    <p>&copy; 2025 Burgerexpress / Carsten Kollmeier</p>
-)
+const ManagerFooter = () => {
+    return <div className="flex justify-between">
+      <div className="ml-auto">&copy; 2025 Burgerexpress / Carsten Kollmeier</div>
+    </div>
+}
 
 export default ManagerFooter;

@@ -18,7 +18,7 @@ const CustomerDisplayPage: React.FC = () => {
 
   const { data: displayCategories, isLoading, error } = useDisplayCategories();
   const { setSidebar } = usePageLayoutContext();
-  const [sessionInterval, setSessionInterval] = useState<number>(30);
+  const [sessionInterval, setSessionInterval] = useState<number | undefined>(undefined);
 
   const { customerSession, createCustomerSession, renewCustomerSession, removeCustomerSession } = useCustomerSession(sessionInterval);
 
@@ -64,7 +64,10 @@ const CustomerDisplayPage: React.FC = () => {
   }, [displayCategories, categoryId, renewCustomerSession]);
 
   useEffect(() => {
-    if (!customerSession) return;
+    if (!customerSession) {
+      setSessionInterval(undefined);
+      return;
+    }
     if (customerSession.expired) {
       removeCustomerSession();
       return;
@@ -104,7 +107,7 @@ const CustomerDisplayPage: React.FC = () => {
           icon={faClock}
           className="text-xl"
           title="Sind Sie noch da?"
-          onClick={() => createCustomerSession()}
+          onClick={() => renewCustomerSession()}
           open={!!customerSession && customerSession.expiresInSeconds <= 30}
           onClose={() => renewCustomerSession()}>
         <div>Sind Sie noch da? Berühren Sie den Bildschirm zum fortfahren!</div>

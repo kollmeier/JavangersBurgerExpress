@@ -4,11 +4,12 @@ import de.ckollmeier.burgerexpress.backend.dto.OrderOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 /**
  * Utility class for converting Order objects to OrderDTO objects.
  */
-public class OrderDTOConverter {
+public class OrderOutputDTOConverter {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
@@ -17,7 +18,7 @@ public class OrderDTOConverter {
      *
      * @throws UnsupportedOperationException always, as this class should not be instantiated.
      */
-    private OrderDTOConverter() {
+    private OrderOutputDTOConverter() {
         // Utility class
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
@@ -30,8 +31,8 @@ public class OrderDTOConverter {
      */
     public static OrderOutputDTO convert(final Order order) {
         return new OrderOutputDTO(
-                order.getId(),
-                OrderItemDTOConverter.convert(order.getItems()),
+                order.getId() == null ? UUID.randomUUID().toString() : order.getId(),
+                OrderItemOutputDTOConverter.convert(order.getItems()),
                 order.getTotalPrice().toPlainString().replace(".", ",") ,
                 order.getCreatedAt() != null ? DATE_TIME_FORMATTER.format(order.getCreatedAt()) : null,
                 order.getUpdatedAt() != null ? DATE_TIME_FORMATTER.format(order.getUpdatedAt()) : null,

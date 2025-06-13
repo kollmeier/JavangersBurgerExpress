@@ -7,6 +7,8 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faAdd, faSubtract} from "@fortawesome/free-solid-svg-icons";
 import DishImages from "@/components/ui/dish-images.tsx";
+import {OrderInputDTO} from "@/types/OrderInputDTO.ts";
+import {OrderItemInputDTO} from "@/types/OrderItemInputDTO.ts";
 
 type CustomerDisplayItemProps = {
   displayItem: DisplayItemOutputDTO;
@@ -18,7 +20,7 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
     ...props
 }) => {
   const [amount, setAmount] = useState(1);
-  const {renewCustomerSession} = useCustomerSession();
+  const {customerSession, renewCustomerSession, storeOrder} = useCustomerSession();
 
   function increaseAmount() {
       setAmount(a => a + 1);
@@ -26,6 +28,24 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
 
   function decreaseAmount() {
       setAmount(a => a > 2 ? a - 1 : 1);
+  }
+
+  function addToOrder() {
+      if (customerSession) {
+          const items: OrderItemInputDTO[] = (customerSession.order?.items?.map(i => ({
+              id: i.id, amount: i.amount, item: i.item?.id
+          })) ?? []);
+          const item: OrderItemInputDTO = {
+              item: displayItem.orderableItems[0].id,
+              amount: amount,
+          };
+          const order: OrderInputDTO = {
+              id: customerSession.order?.id,
+              items: items.concat(item),
+          };
+          storeOrder(order);
+          setAmount(1);
+      }
   }
 
   useEffect(() => { renewCustomerSession() }, [amount, renewCustomerSession]);
@@ -71,7 +91,7 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
             <BeButton onClick={decreaseAmount}><FontAwesomeIcon icon={faSubtract}/></BeButton>
             <span className="pt-1">{amount}</span>
             <BeButton onClick={increaseAmount}><FontAwesomeIcon icon={faAdd}/></BeButton>
-            <BeButton variant="primary">Bestellen</BeButton>
+            <BeButton variant="primary" onClick={addToOrder}>Bestellen</BeButton>
         </div>
       }
       {...props}

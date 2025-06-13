@@ -4,6 +4,7 @@ public record CustomerSessionDTO(
         String createdAt,
         String expiresAt,
         long expiresInSeconds,
-        boolean expired
+        boolean expired,
+        OrderOutputDTO order
 ) {
 }

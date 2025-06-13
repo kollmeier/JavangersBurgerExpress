@@ -20,7 +20,7 @@ public class GeneralRepositoryImplementation<T extends FindableItem> implements 
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public Optional<T> findById(String id, Class<T> theClass) {
+    public Optional<T> findById(String id, Class<? extends T> theClass) {
         return Optional.ofNullable(mongoTemplate.findById(id, theClass));
     }
 }

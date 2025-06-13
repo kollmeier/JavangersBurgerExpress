@@ -27,7 +27,7 @@ class OrderItemConverterTest {
         @DisplayName("converts OrderItemInputDTO to OrderItem")
         void should_convertOrderItemInputDTO_toOrderItem() {
             // Given
-            OrderItemInputDTO orderItemInputDTO = new OrderItemInputDTO("item-1", 2);
+            OrderItemInputDTO orderItemInputDTO = new OrderItemInputDTO(null, "item-1", 2);
 
             // Mock OrderableItem resolver
             Function<String, OrderableItem> itemResolver = mock(Function.class);
@@ -54,8 +54,8 @@ class OrderItemConverterTest {
         void should_convertListOfOrderItemInputDTO_toListOfOrderItem() {
             // Given
             List<OrderItemInputDTO> orderItemInputDTOs = List.of(
-                    new OrderItemInputDTO("item-1", 2),
-                    new OrderItemInputDTO("item-2", 3)
+                    new OrderItemInputDTO(null, "item-1", 2),
+                    new OrderItemInputDTO(null, "item-2", 3)
             );
 
             // Mock OrderableItem resolver

@@ -1,6 +1,8 @@
 package de.ckollmeier.burgerexpress.backend.controller;
 
+import de.ckollmeier.burgerexpress.backend.dto.OrderOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.Order;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,7 +71,15 @@ class CustomerSessionControllerTest {
                     "2023-01-01 12:00:00",
                     "2023-01-01 12:05:00",
                     300L,
-                    false
+                    false,
+                    new OrderOutputDTO(
+                        "order-1",
+                        List.of(),
+                        "0.00",
+                        "2023-01-01 12:00:00",
+                        "2023-01-01 12:00:00",
+                        "NEW"
+                    )
                 );
 
             // Use Mockito to spy on the service
@@ -153,7 +163,15 @@ class CustomerSessionControllerTest {
                     "2023-01-01 12:00:00",
                     "2023-01-01 12:05:00",
                     300L,
-                    false
+                    false,
+                    new OrderOutputDTO(
+                        "order-1",
+                        List.of(),
+                        "0.00",
+                        "2023-01-01 12:00:00",
+                        "2023-01-01 12:00:00",
+                        "NEW"
+                    )
                 );
 
             // Use Mockito to spy on the service
@@ -290,7 +308,15 @@ class CustomerSessionControllerTest {
                     "2023-01-01 12:00:00",
                     "2023-01-01 12:05:00",
                     300L,
-                    false
+                    false,
+                    new OrderOutputDTO(
+                        "order-1",
+                        List.of(),
+                        "0.00",
+                        "2023-01-01 12:00:00",
+                        "2023-01-01 12:00:00",
+                        "NEW"
+                    )
                 );
 
             // Use Mockito to spy on the service

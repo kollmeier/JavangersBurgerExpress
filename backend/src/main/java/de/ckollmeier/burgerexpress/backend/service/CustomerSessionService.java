@@ -7,9 +7,12 @@ import de.ckollmeier.burgerexpress.backend.dto.OrderInputDTO;
 import de.ckollmeier.burgerexpress.backend.exceptions.NotFoundException;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.CustomerSession;
+import de.ckollmeier.burgerexpress.backend.model.Dish;
 import de.ckollmeier.burgerexpress.backend.model.Order;
-import de.ckollmeier.burgerexpress.backend.repository.GeneralRepository;
+import de.ckollmeier.burgerexpress.backend.repository.DishRepository;
+import de.ckollmeier.burgerexpress.backend.repository.MenuRepository;
 import jakarta.servlet.http.HttpSession;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,8 @@ public class CustomerSessionService {
     private static final long EXPIRATION_TIME_IN_SECONDS = 60L * 5; // 5 minutes
     private static final String SESSION_ATTRIBUTE_NAME = "customerSession";
 
-    private final GeneralRepository<OrderableItem> orderableItemRepository;
+    private final DishRepository dishRepository;
+    private final MenuRepository menuRepository;
 
     public CustomerSessionDTO createCustomerSession(final HttpSession session) {
         Instant now = Instant.now();
@@ -58,8 +62,13 @@ public class CustomerSessionService {
         session.removeAttribute(SESSION_ATTRIBUTE_NAME);
     }
 
-    private OrderableItem getOrderableItem(final String id) {
-        return orderableItemRepository.findById(id, OrderableItem.class).orElseThrow(() -> new NotFoundException("Item for Order not found"));
+    private OrderableItem getOrderableItem(final @NonNull String id) {
+        Dish dish = dishRepository.findById(id).orElse(null);
+        if (dish != null) {
+            return dish;
+        }
+
+        return menuRepository.findById(id).orElseThrow(() -> new NotFoundException("Item for Order not found"));
     }
 
     public CustomerSessionDTO storeOrder(final HttpSession session, final OrderInputDTO orderInputDTO) {

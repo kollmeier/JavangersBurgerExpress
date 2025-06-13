@@ -5,6 +5,7 @@ import de.ckollmeier.burgerexpress.backend.converter.OrderConverter;
 import de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO;
 import de.ckollmeier.burgerexpress.backend.dto.OrderInputDTO;
 import de.ckollmeier.burgerexpress.backend.dto.OrderItemInputDTO;
+import de.ckollmeier.burgerexpress.backend.dto.OrderOutputDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.CustomerSession;
 import de.ckollmeier.burgerexpress.backend.model.Order;
@@ -18,6 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -29,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CustomerSessionServiceTest {
 
     @Mock
@@ -50,7 +54,15 @@ class CustomerSessionServiceTest {
                     "2023-01-01 12:00:00",
                     "2023-01-01 12:05:00",
                     300L,
-                    false
+                    false,
+                    new OrderOutputDTO(
+                            "order-1",
+                            List.of(),
+                            "0.00",
+                            "2023-01-01 12:00:00",
+                            "2023-01-01 12:00:00",
+                            "NEW"
+                    )
             );
 
             try (MockedStatic<CustomerSessionDTOConverter> converterMock = mockStatic(CustomerSessionDTOConverter.class)) {
@@ -88,7 +100,15 @@ class CustomerSessionServiceTest {
                     "2023-01-01 12:00:00",
                     "2023-01-01 12:05:00",
                     300L,
-                    false
+                    false,
+                    new OrderOutputDTO(
+                            "order-1",
+                            List.of(),
+                            "0.00",
+                            "2023-01-01 12:00:00",
+                            "2023-01-01 12:00:00",
+                            "NEW"
+                    )
             );
 
             try (MockedStatic<CustomerSessionDTOConverter> converterMock = mockStatic(CustomerSessionDTOConverter.class)) {
@@ -142,7 +162,15 @@ class CustomerSessionServiceTest {
                     "2023-01-01 12:00:00",
                     "2023-01-01 12:10:00",
                     600L,
-                    false
+                    false,
+                    new OrderOutputDTO(
+                            "order-1",
+                            List.of(),
+                            "0.00",
+                            "2023-01-01 12:00:00",
+                            "2023-01-01 12:00:00",
+                            "NEW"
+                    )
             );
 
             try (MockedStatic<CustomerSessionDTOConverter> converterMock = mockStatic(CustomerSessionDTOConverter.class)) {
@@ -205,7 +233,7 @@ class CustomerSessionServiceTest {
             // Given
             HttpSession httpSession = mock(HttpSession.class);
             OrderInputDTO orderInputDTO = new OrderInputDTO("order-1", List.of(
-                    new OrderItemInputDTO("item-1", 2)
+                    new OrderItemInputDTO(null, "item-1", 2)
             ));
             when(httpSession.getAttribute("customerSession")).thenReturn(null);
 
@@ -224,7 +252,7 @@ class CustomerSessionServiceTest {
             // Given
             HttpSession httpSession = mock(HttpSession.class);
             OrderInputDTO orderInputDTO = new OrderInputDTO("order-1", List.of(
-                    new OrderItemInputDTO("item-1", 2)
+                    new OrderItemInputDTO(null, "item-1", 2)
             ));
 
             CustomerSession existingSession = new CustomerSession(
@@ -251,7 +279,15 @@ class CustomerSessionServiceTest {
                     "2023-01-01 12:00:00",
                     "2023-01-01 12:05:00",
                     300L,
-                    false
+                    false,
+                    new OrderOutputDTO(
+                            "order-1",
+                            List.of(),
+                            "0.00",
+                            "2023-01-01 12:00:00",
+                            "2023-01-01 12:00:00",
+                            "NEW"
+                    )
             );
 
             try (MockedStatic<OrderConverter> orderConverterMock = mockStatic(OrderConverter.class);

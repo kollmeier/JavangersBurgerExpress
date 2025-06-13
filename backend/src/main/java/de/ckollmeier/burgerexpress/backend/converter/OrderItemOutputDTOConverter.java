@@ -8,14 +8,14 @@ import java.util.List;
 /**
  * Utility class for converting OrderItem objects to OrderItemDTO objects.
  */
-public class OrderItemDTOConverter {
+public class OrderItemOutputDTOConverter {
 
     /**
      * Private constructor to prevent instantiation of this utility class.
      *
      * @throws UnsupportedOperationException always, as this class should not be instantiated.
      */
-    private OrderItemDTOConverter() {
+    private OrderItemOutputDTOConverter() {
         // Utility class
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
@@ -28,6 +28,7 @@ public class OrderItemDTOConverter {
      */
     public static OrderItemOutputDTO convert(final OrderItem orderItem) {
         return new OrderItemOutputDTO(
+                orderItem.getId(),
                 OrderableItemOutputDTOConverter.convert(orderItem.getItem()),
                 orderItem.getAmount(),
                 orderItem.getPrice().toPlainString().replace(".", ",")
@@ -41,6 +42,6 @@ public class OrderItemDTOConverter {
      * @return the list of converted OrderItemDTOs
      */
     public static List<OrderItemOutputDTO> convert(final List<OrderItem> orderItems) {
-        return orderItems.stream().map(OrderItemDTOConverter::convert).toList();
+        return orderItems.stream().map(OrderItemOutputDTOConverter::convert).toList();
     }
 }

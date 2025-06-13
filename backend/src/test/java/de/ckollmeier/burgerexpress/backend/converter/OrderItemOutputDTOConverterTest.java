@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrderItemDTOConverter")
-class OrderItemDTOConverterTest {
+class OrderItemOutputDTOConverterTest {
 
     @Nested
     @DisplayName("convert(OrderItem)")
@@ -50,10 +50,11 @@ class OrderItemDTOConverterTest {
                         .thenReturn(orderableItemOutputDTO);
 
                 // When
-                OrderItemOutputDTO result = OrderItemDTOConverter.convert(orderItem);
+                OrderItemOutputDTO result = OrderItemOutputDTOConverter.convert(orderItem);
 
                 // Then
                 assertThat(result).isNotNull();
+                assertThat(result.id()).isNull();
                 assertThat(result.item()).isEqualTo(orderableItemOutputDTO);
                 assertThat(result.amount()).isEqualTo(2);
                 assertThat(result.price()).isEqualTo("21,98");
@@ -105,33 +106,35 @@ class OrderItemDTOConverterTest {
             );
 
             OrderItemOutputDTO orderItemOutputDTO1 = new OrderItemOutputDTO(
+                    null,
                     orderableItemOutputDTO1,
                     2,
                     "21,98"
             );
 
             OrderItemOutputDTO orderItemOutputDTO2 = new OrderItemOutputDTO(
+                    null,
                     orderableItemOutputDTO2,
                     3,
                     "47,97"
             );
 
-            try (MockedStatic<OrderItemDTOConverter> converterMock = mockStatic(OrderItemDTOConverter.class, CALLS_REAL_METHODS)) {
-                converterMock.when(() -> OrderItemDTOConverter.convert(orderItem1))
+            try (MockedStatic<OrderItemOutputDTOConverter> converterMock = mockStatic(OrderItemOutputDTOConverter.class, CALLS_REAL_METHODS)) {
+                converterMock.when(() -> OrderItemOutputDTOConverter.convert(orderItem1))
                         .thenReturn(orderItemOutputDTO1);
-                converterMock.when(() -> OrderItemDTOConverter.convert(orderItem2))
+                converterMock.when(() -> OrderItemOutputDTOConverter.convert(orderItem2))
                         .thenReturn(orderItemOutputDTO2);
 
                 // When
-                List<OrderItemOutputDTO> result = OrderItemDTOConverter.convert(orderItems);
+                List<OrderItemOutputDTO> result = OrderItemOutputDTOConverter.convert(orderItems);
 
                 // Then
                 assertThat(result).isNotNull();
                 assertThat(result).hasSize(2);
                 assertThat(result).containsExactly(orderItemOutputDTO1, orderItemOutputDTO2);
 
-                converterMock.verify(() -> OrderItemDTOConverter.convert(orderItem1));
-                converterMock.verify(() -> OrderItemDTOConverter.convert(orderItem2));
+                converterMock.verify(() -> OrderItemOutputDTOConverter.convert(orderItem1));
+                converterMock.verify(() -> OrderItemOutputDTOConverter.convert(orderItem2));
             }
         }
     }
