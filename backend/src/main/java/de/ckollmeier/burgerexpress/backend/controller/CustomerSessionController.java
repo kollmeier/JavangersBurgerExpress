@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 /**
  * Controller for managing customer sessions.
  */
@@ -31,9 +33,10 @@ public class CustomerSessionController {
      */
     @GetMapping
     public ResponseEntity<CustomerSessionDTO> getCustomerSession(final HttpSession session) {
+        Optional<CustomerSessionDTO> customerSessionDTO = customerSessionService.getCustomerSession(session);
         return new ResponseEntity<>(
-                customerSessionService.getCustomerSession(session),
-                HttpStatus.OK
+                customerSessionDTO.orElse(null),
+                customerSessionDTO.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK
         );
     }
 
@@ -57,10 +60,9 @@ public class CustomerSessionController {
      */
     @PutMapping
     public ResponseEntity<CustomerSessionDTO> renewCustomerSession(final HttpSession session) {
-        CustomerSessionDTO renewedSession = customerSessionService.renewCustomerSession(session);
-        if (renewedSession == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        CustomerSessionDTO renewedSession = customerSessionService.renewCustomerSession(session)
+                .orElseThrow(() -> new IllegalStateException("No customer session found"));
+
         return new ResponseEntity<>(renewedSession, HttpStatus.OK);
     }
 
@@ -77,10 +79,9 @@ public class CustomerSessionController {
 
     @PatchMapping
     public ResponseEntity<CustomerSessionDTO> storeOrder(final HttpSession session, @RequestBody OrderInputDTO order) {
-        CustomerSessionDTO updatedSession = customerSessionService.storeOrder(session, order);
-        if (updatedSession == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        CustomerSessionDTO updatedSession = customerSessionService.storeOrder(session, order)
+                .orElseThrow(() -> new IllegalStateException("No customer session found"));
+
         return new ResponseEntity<>(updatedSession, HttpStatus.OK);
     }
 }

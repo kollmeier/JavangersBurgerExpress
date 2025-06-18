@@ -13,12 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Builder
+@With
 @Document(collection = "burger-express-order")
 @TypeAlias("burger-express-order")
 @Getter
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class Order implements Serializable {
     @Id
     private final String id;
@@ -27,53 +29,11 @@ public class Order implements Serializable {
     @Builder.Default
     private final Instant createdAt = Instant.now();
     private final Instant updatedAt;
-    private transient BigDecimal totalPrice;
     @Builder.Default
     private final OrderStatus status = OrderStatus.PENDING;
-
-    public Order(
-            String id,
-            @NonNull
-            List<OrderItem> items
-    ) {
-        this.id = id;
-        this.items = new ArrayList<>(items);
-        this.totalPrice = items.stream()
-                .map(OrderItem::getSubTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.createdAt = Instant.now();
-        this.updatedAt = null;
-        this.status = OrderStatus.PENDING;
-    }
-
-    public Order withItems(List<OrderItem> items) {
-        return Order.builder()
-                .id(this.id)
-                .items(items)
-                .createdAt(this.createdAt)
-                .updatedAt(Instant.now())
-                .totalPrice(items.stream()
-                        .map(OrderItem::getSubTotal)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add))
-                .status(this.status)
-                .build();
-    }
-
-    public Order withStatus(@NonNull OrderStatus status) {
-        return Order.builder()
-                .id(this.id)
-                .items(items)
-                .createdAt(this.createdAt)
-                .updatedAt(Instant.now())
-                .totalPrice(this.totalPrice)
-                .status(status)
-                .build();
-    }
+    private final String paypalOrderId;
 
     public BigDecimal getTotalPrice() {
-        if (totalPrice != null) {
-            return totalPrice;
-        }
         return items.stream()
                 .map(OrderItem::getSubTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

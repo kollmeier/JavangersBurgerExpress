@@ -32,7 +32,10 @@ class OrderItemOutputDTOConverterTest {
             OrderableItem orderableItem = mock(OrderableItem.class);
             when(orderableItem.getPrice()).thenReturn(BigDecimal.valueOf(10.99));
 
-            OrderItem orderItem = new OrderItem(orderableItem, 2);
+            OrderItem orderItem = OrderItem.builder()
+                    .item(orderableItem)
+                    .amount(2)
+                    .build();
 
             OrderableItemOutputDTO orderableItemOutputDTO = new OrderableItemOutputDTO(
                     "item-1",
@@ -78,8 +81,14 @@ class OrderItemOutputDTOConverterTest {
             OrderableItem orderableItem2 = mock(OrderableItem.class);
             when(orderableItem2.getPrice()).thenReturn(BigDecimal.valueOf(15.99));
 
-            OrderItem orderItem1 = new OrderItem(orderableItem1, 2);
-            OrderItem orderItem2 = new OrderItem(orderableItem2, 3);
+            OrderItem orderItem1 = OrderItem.builder()
+                    .item(orderableItem1)
+                    .amount(2)
+                    .build();
+            OrderItem orderItem2 = OrderItem.builder()
+                    .item(orderableItem2)
+                    .amount(3)
+                    .build();
 
             List<OrderItem> orderItems = List.of(orderItem1, orderItem2);
 

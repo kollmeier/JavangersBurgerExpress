@@ -3,6 +3,8 @@ import CustomerSessionApi from '@/services/customer-session-api';
 import { CustomerSessionDTO } from '@/types/CustomerSessionDTO';
 import { OrderInputDTO } from '@/types/OrderInputDTO';
 
+export type CustomerSessionApi = ReturnType<typeof useCustomerSession>;
+
 /**
  * Hook for managing customer sessions.
  */
@@ -10,9 +12,10 @@ export function useCustomerSession(interValInSeconds?:number) {
   const queryClient = useQueryClient();
 
   // Query for getting the current customer session
-  const { data: customerSession, isLoading, error, refetch } = useQuery<CustomerSessionDTO>({
+  const { data: customerSession, isLoading, error, refetch } = useQuery<CustomerSessionDTO | null>({
     queryKey: ['customerSession'],
     queryFn: CustomerSessionApi.getCustomerSession,
+
     staleTime: interValInSeconds === undefined ? 5 * 60 * 1000 : interValInSeconds * 1000,
     refetchInterval: interValInSeconds === undefined ? undefined : interValInSeconds * 1000,
   });
@@ -29,9 +32,10 @@ export function useCustomerSession(interValInSeconds?:number) {
   const renewCustomerSession = useMutation({
     mutationFn: CustomerSessionApi.renewCustomerSession,
     onSuccess: (data) => {
-      if (data) {
+        if (data === undefined) {
+          return;
+        }
         queryClient.setQueryData(['customerSession'], data);
-      }
     },
   });
 
@@ -39,6 +43,7 @@ export function useCustomerSession(interValInSeconds?:number) {
   const removeCustomerSession = useMutation({
     mutationFn: CustomerSessionApi.removeCustomerSession,
     onSuccess: () => {
+      queryClient.setQueryData(['customerSession'], null);
       queryClient.invalidateQueries({ queryKey: ['customerSession'] });
     },
   });

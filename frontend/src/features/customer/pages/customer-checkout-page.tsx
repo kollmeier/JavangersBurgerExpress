@@ -1,18 +1,46 @@
-import {useCustomerSession} from "@/util";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
-import {Link} from "react-router-dom";
-import {useEffect} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
+import axios from "axios";
+import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
 
 const CustomerCheckoutPage = () => {
-    const {customerSession} = useCustomerSession()
     const {setSidebar} = usePageLayoutContext();
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const {customerSession} = useCustomerSessionContext();
 
     // Remove the sidebar with the categories
     useEffect(() => {
         setSidebar(undefined);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Function to place the order and navigate to payment page
+    const handlePlaceOrder = async () => {
+        if (!customerSession?.order) {
+            setError("No order found");
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Call the API to place the order
+            await axios.post('/api/orders', customerSession.order);
+
+            // Navigate to payment page
+            navigate('/checkout/payment');
+        } catch (err) {
+            console.error("Error placing order:", err);
+            setError("Failed to place order. Please try again.");
+            setLoading(false);
+        }
+    };
 
     return <div className="p-4 text-gray-800 flex flex-col gap-2 h-full">
         <MinimalCard className="h-min">
@@ -35,7 +63,21 @@ const CustomerCheckoutPage = () => {
                 <dd className="text-right">{customerSession.order.totalPrice}€</dd>
             </dl>
         </MinimalCard>}
-        <Link to="/checkout/payment" className="btn btn-primary block text-center w-full mt-2">Bestellung bezahlen</Link>
+
+        {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-2" role="alert">
+                <span className="block sm:inline">{error}</span>
+            </div>
+        )}
+
+        <button 
+            onClick={handlePlaceOrder} 
+            disabled={loading || !customerSession?.order?.items?.length} 
+            className="btn btn-primary block text-center w-full mt-2"
+        >
+            {loading ? 'Bestellung wird aufgegeben...' : 'Bestellung bezahlen'}
+        </button>
+
         <Link to="/" className="btn btn-neutral block text-center w-full mt-2">Zurück und Bestellung fortsetzen</Link>
     </div>
 }

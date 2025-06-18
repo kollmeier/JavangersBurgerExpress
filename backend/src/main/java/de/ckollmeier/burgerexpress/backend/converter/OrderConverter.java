@@ -4,6 +4,8 @@ import de.ckollmeier.burgerexpress.backend.dto.OrderInputDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 import lombok.NonNull;
+
+import java.util.UUID;
 import java.util.function.Function;
 
 public class OrderConverter {
@@ -14,7 +16,7 @@ public class OrderConverter {
 
     public static Order convert(final @NonNull OrderInputDTO order, Function<String, OrderableItem> itemResolver) {
         return Order.builder()
-                .id(order.id())
+                .id(order.id() == null ? UUID.randomUUID().toString() : order.id())
                 .items(OrderItemConverter.convert(order.items(), itemResolver))
                 .build();
     }

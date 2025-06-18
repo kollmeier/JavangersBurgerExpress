@@ -1,7 +1,9 @@
 package de.ckollmeier.burgerexpress.backend.controller;
 
 import de.ckollmeier.burgerexpress.backend.configuration.SecurityConfig;
+import de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO;
 import de.ckollmeier.burgerexpress.backend.model.DisplayCategory;
+import de.ckollmeier.burgerexpress.backend.service.CustomerSessionService;
 import de.ckollmeier.burgerexpress.backend.service.DisplayCategoryService;
 import de.ckollmeier.burgerexpress.backend.service.FilesService;
 import de.ckollmeier.burgerexpress.backend.service.ImagesService;
@@ -17,6 +19,11 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,7 +59,7 @@ class PublicEndpointsTest {
     private UserDetailsService userDetailsService;
 
     @MockitoBean
-    private de.ckollmeier.burgerexpress.backend.service.CustomerSessionService customerSessionService;
+    private CustomerSessionService customerSessionService;
 
     @Test
     @DisplayName("Public endpoints should be accessible without authentication")
@@ -73,6 +80,9 @@ class PublicEndpointsTest {
     @DisplayName("Customer session endpoints should be accessible without authentication")
     @WithAnonymousUser
     void customerSessionEndpointsShouldBeAccessibleWithoutAuthentication() throws Exception {
+        when(customerSessionService.getCustomerSession(any())).thenReturn(Optional.of(mock(CustomerSessionDTO.class)));
+        when(customerSessionService.renewCustomerSession(any())).thenReturn(Optional.of(mock(CustomerSessionDTO.class)));
+
         // Test access to customer session endpoints (permitAll)
         mockMvc.perform(get("/api/customer-sessions"))
                 .andExpect(status().isOk());
@@ -81,7 +91,7 @@ class PublicEndpointsTest {
                 .andExpect(status().isCreated());
 
         mockMvc.perform(put("/api/customer-sessions"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
 
         mockMvc.perform(delete("/api/customer-sessions"))
                 .andExpect(status().isNoContent());

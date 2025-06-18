@@ -47,7 +47,7 @@ public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem
     @DBRef
     @NonNull
     @Builder.Default
-    private transient List<Dish> dishes = new ArrayList<>();
+    private final List<Dish> dishes = new ArrayList<>();
 
     /**
      * Eine Liste mit zusätzlichen Informationen zum Menü.

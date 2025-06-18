@@ -11,21 +11,24 @@ import de.ckollmeier.burgerexpress.backend.model.Dish;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 import de.ckollmeier.burgerexpress.backend.repository.DishRepository;
 import de.ckollmeier.burgerexpress.backend.repository.MenuRepository;
+import de.ckollmeier.burgerexpress.backend.repository.OrderRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerSessionService {
     private static final long EXPIRATION_TIME_IN_SECONDS = 60L * 5; // 5 minutes
-    private static final String SESSION_ATTRIBUTE_NAME = "customerSession";
+    public static final String SESSION_ATTRIBUTE_NAME = "customerSession";
 
     private final DishRepository dishRepository;
     private final MenuRepository menuRepository;
+    private final OrderRepository orderRepository;
 
     public CustomerSessionDTO createCustomerSession(final HttpSession session) {
         Instant now = Instant.now();
@@ -38,24 +41,48 @@ public class CustomerSessionService {
         return CustomerSessionDTOConverter.convert(customerSession);
     }
 
-    public CustomerSessionDTO getCustomerSession(final HttpSession session) {
+    private Optional<CustomerSession> getRawCustomerSession(final HttpSession session) {
         CustomerSession customerSession = (CustomerSession) session.getAttribute(SESSION_ATTRIBUTE_NAME);
-        if (customerSession == null) {
-            return null;
+
+        if (customerSession != null && customerSession.expiresAt().isBefore(Instant.now())) {
+            session.removeAttribute(SESSION_ATTRIBUTE_NAME);
+            customerSession = null;
         }
-        return CustomerSessionDTOConverter.convert(customerSession);
+        if (customerSession != null) {
+            Order order = customerSession.order();
+            if (order != null && order.getId() != null) {
+                customerSession = customerSession.withOrder(
+                        orderRepository.findById(order.getId()).orElse(order)
+                );
+            }
+        }
+        return Optional.ofNullable(customerSession);
     }
 
-    public CustomerSessionDTO renewCustomerSession(final HttpSession session) {
-        CustomerSession customerSession = (CustomerSession) session.getAttribute(SESSION_ATTRIBUTE_NAME);
-        if (customerSession == null) {
-            return null;
-        }
-        customerSession = customerSession.withExpiresAt(
-                Instant.now().plusSeconds(EXPIRATION_TIME_IN_SECONDS)
+    public Optional<CustomerSessionDTO> getCustomerSession(final HttpSession session) {
+        return getRawCustomerSession(session).map(
+                CustomerSessionDTOConverter::convert
         );
-        session.setAttribute(SESSION_ATTRIBUTE_NAME, customerSession);
-        return CustomerSessionDTOConverter.convert(customerSession);
+    }
+
+    public Optional<Order> getOrderFromCustomerSession(final HttpSession session) {
+        return getRawCustomerSession(session).map(CustomerSession::order);
+    }
+
+    public Optional<CustomerSessionDTO> renewCustomerSession(final HttpSession session, long remainingSeconds) {
+        Optional<CustomerSession> customerSession = getRawCustomerSession(session)
+                .map(cs -> cs.withExpiresAt(Instant.now().plusSeconds(remainingSeconds)));
+
+        if (customerSession.isPresent()) {
+            session.setAttribute(SESSION_ATTRIBUTE_NAME, customerSession.orElse(null));
+
+            return customerSession.map(CustomerSessionDTOConverter::convert);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<CustomerSessionDTO> renewCustomerSession(final HttpSession session) {
+        return renewCustomerSession(session, EXPIRATION_TIME_IN_SECONDS);
     }
 
     public void removeCustomerSession(final HttpSession session) {
@@ -71,14 +98,16 @@ public class CustomerSessionService {
         return menuRepository.findById(id).orElseThrow(() -> new NotFoundException("Item for Order not found"));
     }
 
-    public CustomerSessionDTO storeOrder(final HttpSession session, final OrderInputDTO orderInputDTO) {
-        CustomerSession customerSession = (CustomerSession) session.getAttribute(SESSION_ATTRIBUTE_NAME);
-        if (customerSession == null) {
-            return null;
-        }
-        customerSession = customerSession.withOrder(OrderConverter.convert(orderInputDTO, this::getOrderableItem));
-        session.setAttribute(SESSION_ATTRIBUTE_NAME, customerSession);
+    public Optional<CustomerSessionDTO> storeOrder(final HttpSession session, final Order order) {
+        Optional<CustomerSession> customerSession = getRawCustomerSession(session)
+                .map(cs -> cs.withOrder(order));
 
-        return CustomerSessionDTOConverter.convert(customerSession);
+        session.setAttribute(SESSION_ATTRIBUTE_NAME, customerSession.orElse(null));
+
+        return customerSession.map(CustomerSessionDTOConverter::convert);
+    }
+
+    public Optional<CustomerSessionDTO> storeOrder(final HttpSession session, final OrderInputDTO orderInputDTO) {
+        return storeOrder(session, OrderConverter.convert(orderInputDTO, this::getOrderableItem));
     }
 }

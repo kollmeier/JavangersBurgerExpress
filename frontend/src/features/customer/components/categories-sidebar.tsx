@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import {cn, useCustomerSession, useDisplayCategories} from '@/util';
+import {cn, useDisplayCategories} from '@/util';
 import BeButton from "@/components/ui/be-button.tsx";
+import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
 
 type CategoriesSidebarProps = {
   selectedCategoryId?: string;
@@ -14,7 +15,13 @@ const CategoriesSidebar: React.FC<CategoriesSidebarProps> = ({
 }) => {
   const { data: displayCategories, isLoading, error } = useDisplayCategories();
 
-  const { customerSession, removeCustomerSession } = useCustomerSession();
+  const { customerSession, removeCustomerSession } = useCustomerSessionContext();
+
+  useEffect(() => {
+    if (!selectedCategoryId) {
+      onCategorySelect(displayCategories?.[0]?.id ?? '');
+    }
+  }, [displayCategories, onCategorySelect, selectedCategoryId]);
 
   if (isLoading) {
     return <div className="p-4">Loading categories...</div>;

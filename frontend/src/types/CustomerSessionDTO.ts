@@ -1,7 +1,7 @@
 /**
  * Data transfer object for customer sessions.
  */
-import { OrderOutputDTO } from './OrderOutputDTO.ts';
+import { OrderOutputDTO, isOrderOutputDTO } from './OrderOutputDTO.ts';
 
 export interface CustomerSessionDTO {
   /**
@@ -28,4 +28,18 @@ export interface CustomerSessionDTO {
    * The order associated with this session.
    */
   order?: OrderOutputDTO;
+}
+
+export function isCustomerSessionDTO(item: unknown): item is CustomerSessionDTO {
+  return item !== null
+    && typeof item === 'object'
+    && 'createdAt' in item
+    && 'expiresAt' in item
+    && 'expiresInSeconds' in item
+    && 'expired' in item
+    && typeof item.createdAt === 'string'
+    && typeof item.expiresAt === 'string'
+    && typeof item.expiresInSeconds === 'number'
+    && typeof item.expired === 'boolean'
+    && (!('order' in item) || item.order === undefined || isOrderOutputDTO(item.order));
 }

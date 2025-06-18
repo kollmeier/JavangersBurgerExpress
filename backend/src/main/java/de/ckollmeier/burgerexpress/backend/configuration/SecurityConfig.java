@@ -66,16 +66,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Static resources
-                        .requestMatchers("/", "/index.html", "/static/**", "/*.js", "/*.json", "/*.ico").permitAll()
-                        // Public API endpoints
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/displayCategories/**", "/api/orderable-items/**", "/api/files/**").permitAll()
-                        // Customer Session handling
-                        .requestMatchers("/api/customer-sessions/**").permitAll()
-                        // Auth endpoints
-                        .requestMatchers("/api/auth/user").permitAll()
-                        // Any other request requires authentication
-                        .anyRequest().authenticated()
+                        // Protected API endpoints that require authentication
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/displayCategories/**").authenticated()
+                        .requestMatchers("/api/dishes/**").authenticated()
+                        .requestMatchers("/api/menus/**").authenticated()
+                        .requestMatchers("/api/files/upload").authenticated()
+                        // Any other request is permitted for SPA application
+                        .anyRequest().permitAll()
                 )
                 .httpBasic(httpBasic -> httpBasic.realmName("Burger Express"))
                 .formLogin(formLogin -> formLogin
@@ -116,7 +113,7 @@ public class SecurityConfig {
                                 response.getWriter().write("{\"error\":\"Unauthorized\",\"status\":\"UNAUTHORIZED\"}");
                             } else {
                                 // For non-API requests, redirect to login page (default behavior)
-                                response.sendRedirect("/login");
+                                response.sendRedirect("/index.html");
                             }
                         })
                 );

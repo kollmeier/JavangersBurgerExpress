@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -33,7 +32,6 @@ class OrderOutputDTOConverterTest {
         Order order = Order.builder()
                 .id("order-1")
                 .items(List.of())
-                .totalPrice(BigDecimal.valueOf(10.99))
                 .createdAt(now)
                 .updatedAt(updated)
                 .status(OrderStatus.PENDING)
@@ -52,7 +50,7 @@ class OrderOutputDTOConverterTest {
             assertThat(result).isNotNull();
             assertThat(result.id()).isEqualTo("order-1");
             assertThat(result.items()).isEqualTo(convertedItems);
-            assertThat(result.totalPrice()).isEqualTo("10,99");
+            assertThat(result.totalPrice()).isEqualTo("0");
             assertThat(result.createdAt()).isEqualTo(DateTimeFormatter.ISO_INSTANT.format(now));
             assertThat(result.updatedAt()).isEqualTo(DateTimeFormatter.ISO_INSTANT.format(updated));
             assertThat(result.status()).isEqualTo("PENDING");
@@ -68,7 +66,6 @@ class OrderOutputDTOConverterTest {
         Order order = Order.builder()
                 .id("order-1")
                 .items(List.of())
-                .totalPrice(BigDecimal.valueOf(10.99))
                 .createdAt(null)
                 .updatedAt(null)
                 .status(OrderStatus.PENDING)
@@ -87,7 +84,7 @@ class OrderOutputDTOConverterTest {
             assertThat(result).isNotNull();
             assertThat(result.id()).isEqualTo("order-1");
             assertThat(result.items()).isEqualTo(convertedItems);
-            assertThat(result.totalPrice()).isEqualTo("10,99");
+            assertThat(result.totalPrice()).isEqualTo("0");
             assertThat(result.createdAt()).isNull();
             assertThat(result.updatedAt()).isNull();
             assertThat(result.status()).isEqualTo("PENDING");
