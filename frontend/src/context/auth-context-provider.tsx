@@ -1,5 +1,5 @@
 import React, {createContext, useState, useEffect, ReactNode, useMemo, useCallback} from 'react';
-import authApi from '../services/auth-api';
+import AuthApi from '../services/auth-api';
 import {AuthContextType} from "@/context/auth-context.ts";
 
 const AuthContextProvider = createContext<AuthContextType | undefined>(undefined);
@@ -19,12 +19,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const userData = await authApi.getCurrentUser();
+        const userData = await AuthApi.getCurrentUser();
         if (userData.authenticated) {
           setIsAuthenticated(true);
-          setUsername(userData.username);
+          setUsername(userData.username ?? null);
           setAuthorities(
-            userData.authorities.map((auth: { authority: string }) => auth.authority)
+            userData.authorities?.map((auth: { authority: string }) => auth.authority)  ?? []
           );
         } else {
           setIsAuthenticated(false);
@@ -48,12 +48,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      await authApi.login(username, password);
-      const userData = await authApi.getCurrentUser();
+      await AuthApi.login(username, password);
+      const userData = await AuthApi.getCurrentUser();
       setIsAuthenticated(true);
-      setUsername(userData.username);
+      setUsername(userData.username ?? null);
       setAuthorities(
-        userData.authorities.map((auth: { authority: string }) => auth.authority)
+        userData.authorities?.map((auth: { authority: string }) => auth.authority) ?? []
       );
     } catch (error) {
       setError('Invalid username or password');
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      await authApi.logout();
+      await AuthApi.logout();
       setIsAuthenticated(false);
       setUsername(null);
       setAuthorities([]);

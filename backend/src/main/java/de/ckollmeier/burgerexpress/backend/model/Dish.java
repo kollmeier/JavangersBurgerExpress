@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem, OrderableItem {
+public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem, OrderableItem, Serializable {
     /**
      * Die eindeutige ID des Gerichts.
      */

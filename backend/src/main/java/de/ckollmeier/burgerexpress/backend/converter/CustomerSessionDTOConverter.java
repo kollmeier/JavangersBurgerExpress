@@ -25,7 +25,8 @@ public class CustomerSessionDTOConverter {
                 dateTimeFormatter.format(customerSession.createdAt().atZone(ZoneId.systemDefault())),
                 dateTimeFormatter.format(customerSession.expiresAt().atZone(ZoneId.systemDefault())),
                 Duration.between(Instant.now(), customerSession.expiresAt()).toSeconds(),
-                Instant.now().isAfter(customerSession.expiresAt())
+                Instant.now().isAfter(customerSession.expiresAt()),
+                customerSession.order() != null ? OrderOutputDTOConverter.convert(customerSession.order()) : null
         );
     }
 

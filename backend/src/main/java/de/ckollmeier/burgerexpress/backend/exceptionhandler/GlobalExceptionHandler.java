@@ -42,6 +42,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Behandelt IllegalStateException und gibt ein ErrorDTO zurück,
+     * das Details zur Ausnahme enthält.
+     *
+     * @param exception Die geworfene IllegalStateException.
+     * @return Ein ErrorDTO, das die Klasse, Nachricht und den Status der Ausnahme enthält.
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO catchIllegalStateException(final IllegalStateException exception) {
+        return ErrorDTO.fromException(exception);
+    }
+
+    /**
      * Catches all unhandled exceptions and returns an ErrorDTO with the exception details.
      *
      * @param exception The exception that was thrown.

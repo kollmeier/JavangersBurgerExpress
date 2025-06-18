@@ -8,5 +8,9 @@ import java.time.Instant;
 
 @Builder
 @With
-public record CustomerSession(Instant createdAt, Instant expiresAt) implements Serializable {
+public record CustomerSession(
+        Instant createdAt,
+        Instant expiresAt,
+        Order order
+) implements Serializable {
 }

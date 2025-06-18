@@ -3,11 +3,12 @@ package de.ckollmeier.burgerexpress.backend.model;
 import de.ckollmeier.burgerexpress.backend.interfaces.AdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.types.AdditionalInformationType;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 public record SizeInLiterAdditionalInformation(
         BigDecimal value
-) implements AdditionalInformation<BigDecimal> {
+) implements AdditionalInformation<BigDecimal>, Serializable {
     @Override
     public String displayString() {
         return String.format("Inhalt: %.1f Liter", value);

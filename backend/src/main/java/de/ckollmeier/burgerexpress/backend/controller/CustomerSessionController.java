@@ -1,6 +1,7 @@
 package de.ckollmeier.burgerexpress.backend.controller;
 
 import de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO;
+import de.ckollmeier.burgerexpress.backend.dto.OrderInputDTO;
 import de.ckollmeier.burgerexpress.backend.service.CustomerSessionService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * Controller for managing customer sessions.
@@ -30,9 +33,10 @@ public class CustomerSessionController {
      */
     @GetMapping
     public ResponseEntity<CustomerSessionDTO> getCustomerSession(final HttpSession session) {
+        Optional<CustomerSessionDTO> customerSessionDTO = customerSessionService.getCustomerSession(session);
         return new ResponseEntity<>(
-                customerSessionService.getCustomerSession(session),
-                HttpStatus.OK
+                customerSessionDTO.orElse(null),
+                customerSessionDTO.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK
         );
     }
 
@@ -56,10 +60,9 @@ public class CustomerSessionController {
      */
     @PutMapping
     public ResponseEntity<CustomerSessionDTO> renewCustomerSession(final HttpSession session) {
-        CustomerSessionDTO renewedSession = customerSessionService.renewCustomerSession(session);
-        if (renewedSession == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        CustomerSessionDTO renewedSession = customerSessionService.renewCustomerSession(session)
+                .orElseThrow(() -> new IllegalStateException("No customer session found"));
+
         return new ResponseEntity<>(renewedSession, HttpStatus.OK);
     }
 
@@ -72,5 +75,13 @@ public class CustomerSessionController {
     public ResponseEntity<Void> removeCustomerSession(final HttpSession session) {
         customerSessionService.removeCustomerSession(session);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping
+    public ResponseEntity<CustomerSessionDTO> storeOrder(final HttpSession session, @RequestBody OrderInputDTO order) {
+        CustomerSessionDTO updatedSession = customerSessionService.storeOrder(session, order)
+                .orElseThrow(() -> new IllegalStateException("No customer session found"));
+
+        return new ResponseEntity<>(updatedSession, HttpStatus.OK);
     }
 }
