@@ -1,5 +1,5 @@
 import {createContext, useContext} from "react";
-import {CustomerSessionProviderApi} from "@/context/customer-session-context-provider.tsx";
+import {CustomerSessionProviderApi} from "@/types/CustomerSessionProviderApi.ts";
 
 const CustomerSessionContext = createContext<CustomerSessionProviderApi | undefined>(undefined);
 

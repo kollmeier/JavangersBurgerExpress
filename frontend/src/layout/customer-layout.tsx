@@ -27,7 +27,6 @@ function CustomerLayout() {
         }
         if (customerSession.expiresInSeconds < 30) {
             setRefreshInterval(1);
-            return;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customerSession]);

@@ -1,14 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {useCustomerSession} from "@/util";
 import CustomerSessionContext from "@/context/customer-session-context.ts";
-import {CustomerSessionApi} from "@/hooks/use-customer-session.ts";
+import {CustomerSessionProviderApi} from "@/types/CustomerSessionProviderApi.ts";
 
 type CustomerSessionProviderProps = {
     children: React.ReactNode;
-}
-
-export type CustomerSessionProviderApi = CustomerSessionApi & {
-    setRefreshInterval: (interval?: number) => void;
 }
 
 const CustomerSessionProvider: React.FC<CustomerSessionProviderProps> = ({children}) => {
@@ -20,10 +16,10 @@ const CustomerSessionProvider: React.FC<CustomerSessionProviderProps> = ({childr
         console.log("Refresh interval changed to", refreshInterval);
     }, [refreshInterval]);
 
-    const customerSessionProviderApi: CustomerSessionProviderApi = {
+    const customerSessionProviderApi: CustomerSessionProviderApi = useMemo(() => ({
         ...customerSessionApi,
         setRefreshInterval,
-    };
+    }), [customerSessionApi, setRefreshInterval]);
 
     return (<CustomerSessionContext.Provider value={customerSessionProviderApi} >
             {children}
