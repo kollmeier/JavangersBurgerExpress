@@ -88,17 +88,12 @@ class SecurityConfigBeanTest {
     @Test
     @DisplayName("Login success handler should return 200 OK with success message")
     void loginSuccessHandler_shouldReturn200WithSuccessMessage() throws Exception {
-        // This test requires valid credentials, which we don't have in a test environment
-        // Instead, we'll mock the authentication process
-
-        // Note: This test might be challenging to implement without knowing the actual passwords
-        // In a real environment, you might need to use a test user with known credentials
-
-        // For now, we'll just verify that the login endpoint exists and accepts POST requests
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("username", "manager")
-                .param("password", "wrongpassword"))
-                .andExpect(status().isUnauthorized()); // Should fail due to wrong credentials
+                .param("password", "test-password"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("{\"success\":true}"));
     }
 }
