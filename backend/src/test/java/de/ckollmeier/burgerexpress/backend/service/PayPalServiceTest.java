@@ -1,6 +1,8 @@
 package de.ckollmeier.burgerexpress.backend.service;
 
+import de.ckollmeier.burgerexpress.backend.exceptions.CreatePaypalOrderException;
 import de.ckollmeier.burgerexpress.backend.exceptions.NotFoundException;
+import de.ckollmeier.burgerexpress.backend.exceptions.PayPalQrCodeGenerationException;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 import de.ckollmeier.burgerexpress.backend.model.OrderItem;
@@ -116,6 +118,44 @@ class PayPalServiceTest {
             assertThat(result).isEqualTo("paypal-order-123");
             verify(orderService).saveOrder(any(Order.class));
         }
+
+        @Test
+        @DisplayName("Throws CreatePaypalOrderException when PayPal API fails")
+        void throwsCreatePaypalOrderExceptionWhenPayPalApiFails() {
+            // Given
+            // Create a mock OrderableItem
+            OrderableItem mockItem = mock(OrderableItem.class);
+            when(mockItem.getId()).thenReturn("item-1");
+            when(mockItem.getName()).thenReturn("Burger");
+            when(mockItem.getPrice()).thenReturn(BigDecimal.valueOf(9.99));
+            when(mockItem.getOrderableItemType()).thenReturn(OrderableItemType.MAIN);
+
+            Order order = Order.builder()
+                    .id("order-123")
+                    .items(List.of(
+                            OrderItem.builder()
+                                    .id("item-1")
+                                    .item(mockItem)
+                                    .amount(2)
+                                    .build()
+                    ))
+                    .build();
+
+            // Mock access token response to throw exception
+            when(restTemplate.exchange(
+                    eq("https://api-test.paypal.com/v1/oauth2/token"),
+                    eq(HttpMethod.POST),
+                    any(HttpEntity.class),
+                    eq(String.class)
+            )).thenThrow(new RuntimeException("PayPal API error"));
+
+            // When/Then
+            assertThatThrownBy(() -> payPalService.createPayPalOrder(order))
+                    .isInstanceOf(CreatePaypalOrderException.class)
+                    .hasMessageContaining("Error creating PayPal order");
+
+            verify(orderService, never()).saveOrder(any(Order.class));
+        }
     }
 
     @Nested
@@ -167,6 +207,31 @@ class PayPalServiceTest {
             assertThatThrownBy(() -> payPalService.generateQrCode(paypalOrderId))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("QR code for paid order already exists");
+        }
+
+        @Test
+        @DisplayName("Throws PayPalQrCodeGenerationException when QR code generation fails")
+        void throwsPayPalQrCodeGenerationExceptionWhenQrCodeGenerationFails() {
+            // Given
+            String paypalOrderId = "paypal-order-123";
+            Order order = Order.builder()
+                    .id("order-123")
+                    .status(OrderStatus.PENDING)
+                    .paypalOrderId(paypalOrderId)
+                    .build();
+            when(orderRepository.findByPaypalOrderId(paypalOrderId)).thenReturn(order);
+
+            // Create a spy of the service to simulate QR code generation failure
+            PayPalService spyService = spy(payPalService);
+
+            // Mock the QR code generation to throw an exception
+            doThrow(new PayPalQrCodeGenerationException(new Exception("QR code generation failed")))
+                .when(spyService).generateQrCode(paypalOrderId);
+
+            // When/Then
+            assertThatThrownBy(() -> spyService.generateQrCode(paypalOrderId))
+                    .isInstanceOf(PayPalQrCodeGenerationException.class)
+                    .hasCauseInstanceOf(Exception.class);
         }
     }
 
