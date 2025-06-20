@@ -52,7 +52,7 @@ public class CustomerSessionService {
             Order order = customerSession.order();
             if (order != null && order.getId() != null) {
                 customerSession = customerSession.withOrder(
-                        orderRepository.findById(order.getId()).orElse(order)
+                    orderRepository.findById(order.getId()).orElse(order)
                 );
             }
         }

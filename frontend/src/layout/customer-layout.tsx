@@ -3,8 +3,7 @@ import CustomerHeader from "../components/layout/customer-header.tsx";
 import CustomerFooter from "../components/layout/customer-footer.tsx";
 import CustomerDisplayPage from "../features/customer/pages/customer-display-page.tsx";
 import {Routes, Route, Navigate, useNavigate} from "react-router-dom";
-import CustomerCheckoutPage from "@/features/customer/pages/customer-checkout-page.tsx";
-import CustomerPaymentPage from "@/features/customer/pages/customer-payment-page.tsx";
+import CustomerCheckoutLayout from "@/features/customer/layouts/customer-checkout-layout.tsx";
 import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
 import {useEffect} from "react";
 import BeDialog from "@/components/shared/be-dialog.tsx";
@@ -40,8 +39,7 @@ function CustomerLayout() {
                 <Route path="/" element={<Navigate to="/category" replace />} />
                 <Route path="/category/*" element={<CustomerDisplayPage />}/>
                 <Route path="/category/:categoryId/*" element={<CustomerDisplayPage />} />
-                <Route path="/checkout" element={<CustomerCheckoutPage />} />
-                <Route path="/checkout/payment" element={<CustomerPaymentPage />} />
+                <Route path="/checkout/*" element={<CustomerCheckoutLayout />} />
             </Routes>
             <BeDialog
                 icon={faBurger}

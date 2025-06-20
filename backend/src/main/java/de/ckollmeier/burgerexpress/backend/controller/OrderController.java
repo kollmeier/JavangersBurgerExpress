@@ -2,11 +2,10 @@ package de.ckollmeier.burgerexpress.backend.controller;
 
 import de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO;
 import de.ckollmeier.burgerexpress.backend.model.Order;
-import de.ckollmeier.burgerexpress.backend.repository.OrderRepository;
 import de.ckollmeier.burgerexpress.backend.service.CustomerSessionService;
+import de.ckollmeier.burgerexpress.backend.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,31 +18,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/orders")
 @PreAuthorize("permitAll()")
 @RequiredArgsConstructor
-@Slf4j
 public class OrderController {
-
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final CustomerSessionService customerSessionService;
-
     /**
      * Places a new order with status PENDING.
      * @param session the HTTP session
-     * @return the created order ID
+     * @return the session with created order
      */
     @PostMapping
     public ResponseEntity<CustomerSessionDTO> placeOrder(HttpSession session) {
-        Order order  = customerSessionService.getOrderFromCustomerSession(session)
-                .orElseThrow(() -> new IllegalStateException("No customer session found"));
+        Order savedOrder = orderService.placeOrder(session);
 
-        // Save the order to the database
-        Order savedOrder = orderRepository.save(order);
-
-        log.info("Order placed with ID: {}", savedOrder.getId());
-
-        // Return the order ID
+        // Return the new Session
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(customerSessionService.storeOrder(session, savedOrder)
                     .orElseThrow(() -> new IllegalStateException("No customer session found"))
             );
+    }
+
+    @DeleteMapping
+    public ResponseEntity<CustomerSessionDTO> removeOrder(HttpSession session) {
+        Order removedOrder = orderService.removeOrder(session);
+
+        // Return the updated Session
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(customerSessionService.storeOrder(session, removedOrder)
+                        .orElseThrow(() -> new IllegalStateException("No customer session found"))
+                );
     }
 }
