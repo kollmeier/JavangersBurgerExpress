@@ -46,6 +46,7 @@ function CustomerLayout() {
                 className="text-xl"
                 title="Jetzt bestellen!"
                 onClick={() => createCustomerSession()}
+                clickToClose
                 open={!customerSession || customerSession.expired}
                 onClose={() => createCustomerSession()}>
                 Bestellen Sie jetzt! Berühren Sie den Bildschirm, um den Bestellvorgang zu starten.
@@ -55,6 +56,7 @@ function CustomerLayout() {
                 className="text-xl"
                 title="Sind Sie noch da?"
                 onClick={() => renewCustomerSession()}
+                clickToClose
                 open={!!customerSession && customerSession.expiresInSeconds <= 30}
                 onClose={() => renewCustomerSession()}>
                 <div>Sind Sie noch da? Berühren Sie den Bildschirm zum fortfahren!</div>

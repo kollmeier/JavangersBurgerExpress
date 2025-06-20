@@ -134,7 +134,7 @@ const ComboboxWithLabel = forwardRef(
                                 className
                             )}
                         />
-                        <ComboboxOptions anchor="bottom start" className="[--anchor-gap:1px] border w-[--input-width] rounded-lg bg-white border-blue-600 px-0 py-0 empty:invisible">
+                        <ComboboxOptions anchor="bottom start" className="[--anchor-gap:1px] border w-[--input-width] rounded-lg bg-white border-blue-600 px-0 py-0 empty:invisible z-11">
                             {filteredOptions.map((value) => (
                                 <ComboboxOption key={value.id} value={value} className="data-focus:bg-blue-200 data-selected:bg-gray-200 border-gray-100 data-selected:border-b data-selected:last:border-none text-gray-700 py-1 px-2">
                                     {optionElement(value)}
