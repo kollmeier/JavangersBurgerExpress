@@ -33,7 +33,7 @@ class SecurityConfigAuthHandlersTest {
         mockMvc.perform(formLogin("/api/auth/login").user("manager").password("wrongpassword"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json("{\"error\":\"Authentication failed\",\"status\":\"UNAUTHORIZED\"}"));
+                .andExpect(content().json("{\"success\":false,\"error\":\"Bad credentials\"}"));
     }
 
     @Test
