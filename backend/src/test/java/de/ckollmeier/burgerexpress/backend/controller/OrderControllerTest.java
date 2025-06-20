@@ -75,8 +75,8 @@ class OrderControllerTest {
     class PlaceOrder {
 
         @Test
-        @DisplayName("should place an order with status PENDING")
-        void shouldPlaceOrderWithStatusPending() throws Exception {
+        @DisplayName("should place an order with status CHECKOUT")
+        void shouldPlaceOrderWithStatusCheckout() throws Exception {
             // Given
             long initialOrderCount = orderRepository.count();
 
@@ -122,7 +122,7 @@ class OrderControllerTest {
                     .hasSize(1)
                     .extracting("item.id", "item.name", "item.price", "amount", "price")
                     .containsExactlyInAnyOrder(tuple(testDish.getId(), testDish.getName(), testDish.getPrice(), 2, testDish.getPrice().multiply(BigDecimal.valueOf(2))));
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.CHECKOUT);
 
         }
 

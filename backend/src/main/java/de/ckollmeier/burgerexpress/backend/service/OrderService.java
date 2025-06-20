@@ -28,10 +28,8 @@ public class OrderService {
         Order order  = customerSessionService.getOrderFromCustomerSession(session)
                 .orElseThrow(() -> new IllegalStateException("No customer session found"));
 
-        // Save the order to the database
-        Order savedOrder = saveOrder(order.withStatus(
-                order.getStatus() == OrderStatus.PENDING ? OrderStatus.CHECKOUT : order.getStatus()
-        ));
+        // Save the order to the database with status CHECKOUT
+        Order savedOrder = saveOrder(order.withStatus(OrderStatus.CHECKOUT));
 
         log.info("Order placed with ID: {} and status {}", savedOrder.getId(), savedOrder.getStatus());
         return savedOrder;

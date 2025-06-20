@@ -22,7 +22,7 @@ public class OrderController {
     private final OrderService orderService;
     private final CustomerSessionService customerSessionService;
     /**
-     * Places a new order with status PENDING.
+     * Places a new order with status CHECKOUT.
      * @param session the HTTP session
      * @return the session with created order
      */
