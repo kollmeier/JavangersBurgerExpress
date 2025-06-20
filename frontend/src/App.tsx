@@ -9,6 +9,7 @@ import MenusPage from "@/features/manager/menus/pages/menus-page.tsx";
 import DisplayItemsPage from "@/features/manager/display-items/pages/display-items-page.tsx";
 import { AuthProvider } from "./context/auth-context-provider.tsx";
 import CustomerSessionProvider from "@/context/customer-session-context-provider.tsx";
+import CustomerCheckoutLayout from "@/features/customer/layouts/customer-checkout-layout.tsx";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,9 @@ function App() {
               <AuthProvider>
                 <BrowserRouter>
                   <Routes>
-                      <Route path="/*" element={<CustomerSessionProvider><CustomerLayout /></CustomerSessionProvider>} />
+                      <Route path="/*" element={<CustomerSessionProvider><CustomerLayout /></CustomerSessionProvider>} >
+                          <Route path="checkout/:provider/payment/*" element={<CustomerCheckoutLayout />} />
+                      </Route>
                       <Route path="manage//*" element={<AdministrationLayout />}>
                           <Route path="dishes//*" element={<DishesPage />} />
                           <Route path="dishes/:dishId/*" element={<DishesPage />} />

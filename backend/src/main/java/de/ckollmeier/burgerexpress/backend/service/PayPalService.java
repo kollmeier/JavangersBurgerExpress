@@ -5,7 +5,9 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import de.ckollmeier.burgerexpress.backend.exceptions.CreatePaypalOrderException;
 import de.ckollmeier.burgerexpress.backend.exceptions.NotFoundException;
+import de.ckollmeier.burgerexpress.backend.exceptions.PayPalQrCodeGenerationException;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 import de.ckollmeier.burgerexpress.backend.repository.OrderRepository;
 import de.ckollmeier.burgerexpress.backend.types.OrderStatus;
@@ -33,6 +35,7 @@ import java.util.Optional;
 public class PayPalService {
 
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${paypal.client.id:your-client-id}")
@@ -105,12 +108,12 @@ public class PayPalService {
 
             // Update order with PayPal order ID
             Order updatedOrder = order.withPaypalOrderId(orderId);
-            orderRepository.save(updatedOrder);
+            orderService.saveOrder(updatedOrder);
 
             return orderId;
         } catch (Exception e) {
             log.error("Error creating PayPal order", e);
-            throw new RuntimeException("Error creating PayPal order", e);
+            throw new CreatePaypalOrderException("Error creating PayPal order", e);
         }
     }
 
@@ -125,7 +128,7 @@ public class PayPalService {
 
             if (order != null && order.getStatus() == OrderStatus.PAID) {
                 log.warn("QR code for paid order {} already exists", paypalOrderId);
-                throw new RuntimeException("QR code for paid order already exists");
+                throw new IllegalArgumentException("QR code for paid order already exists");
             }
             // Create QR code content - PayPal payment URL
             String qrCodeContent = appBaseUrl + "/api/paypal/approving/" + paypalOrderId;
@@ -142,7 +145,7 @@ public class PayPalService {
             return Base64.getEncoder().encodeToString(outputStream.toByteArray());
         } catch (WriterException | IOException e) {
             log.error("Error generating QR code", e);
-            throw new RuntimeException("Error generating QR code", e);
+            throw new PayPalQrCodeGenerationException(e);
         }
     }
 
@@ -209,9 +212,8 @@ public class PayPalService {
                 // Update order status
                 Order order = orderRepository.findByPaypalOrderId(paypalOrderId);
                 if (order != null) {
-                    Order updatedOrder = order.withStatus(OrderStatus.APPROVED)
-                                             .withUpdatedAt(Instant.now());
-                    orderRepository.save(updatedOrder);
+                    Order updatedOrder = order.withStatus(OrderStatus.APPROVED);
+                    orderService.saveOrder(updatedOrder);
                     return capturePayment(paypalOrderId);
                 }
             }
@@ -225,9 +227,8 @@ public class PayPalService {
                 // Update order status
                 Order order = orderRepository.findByPaypalOrderId(paypalOrderId);
                 if (order != null) {
-                    Order updatedOrder = order.withStatus(OrderStatus.PAID)
-                                             .withUpdatedAt(Instant.now());
-                    orderRepository.save(updatedOrder);
+                    Order updatedOrder = order.withStatus(OrderStatus.PAID);
+                    orderService.saveOrder(updatedOrder);
                     return Optional.of(updatedOrder);
                 }
             }
@@ -276,9 +277,8 @@ public class PayPalService {
             throw new IllegalArgumentException("QR code for paid order already exists");
         }
 
-        Order updatedOrder = order.withStatus(OrderStatus.APPROVING)
-                .withUpdatedAt(Instant.now());
-        orderRepository.save(updatedOrder);
+        Order updatedOrder = order.withStatus(OrderStatus.APPROVING);
+        orderService.saveOrder(updatedOrder);
 
         return paypalCheckoutUrl + order.getPaypalOrderId();
     }

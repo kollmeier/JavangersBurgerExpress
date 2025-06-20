@@ -42,6 +42,9 @@ class PayPalServiceTest {
     private OrderRepository orderRepository;
 
     @Mock
+    private OrderService orderService;
+
+    @Mock
     private RestTemplate restTemplate;
 
     @InjectMocks
@@ -111,7 +114,7 @@ class PayPalServiceTest {
 
             // Then
             assertThat(result).isEqualTo("paypal-order-123");
-            verify(orderRepository).save(any(Order.class));
+            verify(orderService).saveOrder(any(Order.class));
         }
     }
 
@@ -286,7 +289,7 @@ class PayPalServiceTest {
             // Then
             assertThat(result).isPresent();
             assertThat(result.get().getStatus()).isEqualTo(OrderStatus.PAID);
-            verify(orderRepository).save(any(Order.class));
+            verify(orderService).saveOrder(any(Order.class));
             verify(spyService).capturePayment(paypalOrderId);
         }
 
@@ -320,7 +323,7 @@ class PayPalServiceTest {
             // Then
             assertThat(result).isPresent();
             assertThat(result.get().getStatus()).isEqualTo(OrderStatus.PAID);
-            verify(orderRepository).save(any(Order.class));
+            verify(orderService).saveOrder(any(Order.class));
         }
 
         @Test
@@ -362,7 +365,7 @@ class PayPalServiceTest {
 
             // Then
             assertThat(result).isEqualTo("https://www.paypal.com/checkoutnow?token=paypal-order-123");
-            verify(orderRepository).save(any(Order.class));
+            verify(orderService).saveOrder(any(Order.class));
         }
 
         @Test

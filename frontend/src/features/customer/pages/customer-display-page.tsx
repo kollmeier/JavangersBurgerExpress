@@ -19,7 +19,7 @@ const CustomerDisplayPage: React.FC = () => {
   const { data: displayCategories, isLoading, error } = useDisplayCategories();
   const { setSidebar } = usePageLayoutContext();
 
-  const {renewCustomerSession} = useCustomerSessionContext();
+  const {removeCustomerSession, renewCustomerSession, deleteOrder, customerSession} = useCustomerSessionContext();
 
   // Set the sidebar with the categories
   useEffect(() => {
@@ -47,6 +47,16 @@ const CustomerDisplayPage: React.FC = () => {
       setCategory(category);
     }
   }, [displayCategories, categoryId, renewCustomerSession]);
+
+  useEffect(() => {
+    const toRemove = customerSession?.order?.status !== "PENDING";
+
+    deleteOrder();
+
+    if (toRemove) {
+      removeCustomerSession()
+    }
+  }, [customerSession?.order?.status, deleteOrder, removeCustomerSession]);
 
   useEffect(() => {
     renewCustomerSession()

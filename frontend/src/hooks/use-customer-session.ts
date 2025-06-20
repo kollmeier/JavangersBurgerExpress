@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import CustomerSessionApi from '@/services/customer-session-api';
 import { CustomerSessionDTO } from '@/types/CustomerSessionDTO';
 import { OrderInputDTO } from '@/types/OrderInputDTO';
+import {OrderApi} from "@/services/order-api.ts";
 
 export type CustomerSessionApi = ReturnType<typeof useCustomerSession>;
 
@@ -58,6 +59,28 @@ export function useCustomerSession(interValInSeconds?:number) {
     },
   });
 
+  // Mutation for placing an order in the database
+  const placeOrder = useMutation({
+    mutationFn: () => OrderApi.placeOrder(),
+    onSuccess: (data) => {
+      if (data) {
+        queryClient.setQueryData(['customerSession'], data);
+      }
+    },
+  });
+
+  // Mutation for removing an order from the database
+  const deleteOrder = useMutation({
+    mutationFn: () => OrderApi.deleteOrder(),
+    onSuccess: (data) => {
+      if (data) {
+        queryClient.setQueryData(['customerSession'], data);
+      }
+    },
+  });
+
+
+
   return {
     customerSession,
     isLoading,
@@ -67,5 +90,7 @@ export function useCustomerSession(interValInSeconds?:number) {
     renewCustomerSession: renewCustomerSession.mutate,
     removeCustomerSession: removeCustomerSession.mutate,
     storeOrder: storeOrder.mutate,
+    placeOrder: placeOrder.mutate,
+    deleteOrder: deleteOrder.mutate,
   };
 }
