@@ -22,7 +22,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onLoginError }) =
     e.preventDefault();
 
     try {
+        console.log('Logging in with username:', username);
         await login(username, password);
+        console.log('Login successful');
         onLoginSuccess();
     } catch (error) {
         console.error('Login error:', error);

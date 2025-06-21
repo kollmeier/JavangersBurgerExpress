@@ -1,5 +1,8 @@
 package de.ckollmeier.burgerexpress.backend.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.ckollmeier.burgerexpress.backend.dto.LoginResponseDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +21,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     public static final String ROLE_MANAGER = "MANAGER";
     public static final String ROLE_KITCHEN = "KITCHEN";
     public static final String ROLE_CASHIER = "CASHIER";
     public static final String CONTENT_TYPE_JSON = "application/json";
+
+    private final ObjectMapper objectMapper;
 
     @Value("${burgerexpress.password.manager}")
     private String managerPassword;
@@ -80,12 +86,19 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             response.setStatus(200);
                             response.setContentType(CONTENT_TYPE_JSON);
-                            response.getWriter().write("{\"message\":\"Login successful\"}");
+                            response.getWriter().write(
+                                    objectMapper.writeValueAsString(
+                                            new LoginResponseDTO(true, null)
+                                    ));
                         })
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(401);
                             response.setContentType(CONTENT_TYPE_JSON);
-                            response.getWriter().write("{\"error\":\"Authentication failed\",\"status\":\"UNAUTHORIZED\"}");
+                            response.getWriter().write(
+                                    objectMapper.writeValueAsString(
+                                            new LoginResponseDTO(false, exception.getMessage())
+                                    )
+                            );
                         })
                         .permitAll()
                 )

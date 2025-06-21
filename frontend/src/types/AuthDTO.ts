@@ -84,5 +84,5 @@ export function isLoginResponseDTO(item: unknown): item is LoginResponseDTO {
     && typeof item === 'object'
     && 'success' in item
     && typeof item.success === 'boolean'
-    && (!('error' in item) || item.error === undefined || typeof item.error === 'string');
+    && (!('error' in item) || item.error === null || typeof item.error === 'string');
 }
