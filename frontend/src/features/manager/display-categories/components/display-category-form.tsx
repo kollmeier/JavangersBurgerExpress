@@ -3,14 +3,12 @@ import type {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts
 import type {DisplayCategoryInputDTO} from "@/types/DisplayCategoryInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
 import InputWithLabel from "@/components/ui/input-with-label";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
-import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
 import {toast} from "react-toastify";
 import useImagePicker from "@/hooks/use-image-picker.ts";
 import ImagePickerWithLabel from "@/components/ui/image-picker-with-label.tsx";
 import {cn} from "@/util";
+import {ArrowDownToLine, CircleX} from "lucide-react";
 
 type Props = {
     displayCategory?: DisplayCategoryOutputDTO;
@@ -132,8 +130,8 @@ const DisplayCategoryForm = ({ displayCategory, className, onSubmit, onCancel, .
                         className="col-span-1 row-span-2 row-start-1 h-31 min-w-fit"/>)}
             />
             <div className="row-start 3 col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
-                <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
-                <BeButton type="button" onClick={handleCancel}><FontAwesomeIcon icon={faClose}/> Abbrechen</BeButton>
+                <BeButton type="submit" variant="primary"><ArrowDownToLine /> Speichern</BeButton>
+                <BeButton type="button" onClick={handleCancel}><CircleX /> Abbrechen</BeButton>
             </div>
         </form>
     )};

@@ -3,14 +3,11 @@ import type {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
 import type {MenuInputDTO} from "@/types/MenuInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
 import InputWithLabel from "@/components/ui/input-with-label";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
-import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
 import ComboboxWithLabel from "@/components/ui/combobox-with-label.tsx";
 import {useDishes} from "@/util";
 import {DishOutputDTO} from "@/types/DishOutputDTO.ts";
-import {faCamera} from "@fortawesome/free-solid-svg-icons";
+import {ArrowDownToLine, Camera, CircleX} from "lucide-react";
 
 type Props = {
     menu?: MenuOutputDTO;
@@ -23,7 +20,7 @@ const DishOption = ({dish}: {dish: DishOutputDTO}) => {
         <div className="flex items-center justify-between gap-2">
             <span>{dish.imageUrl ?
                 <img className="h-fit object-contain" src={dish.imageUrl + '?size=55'} alt="Produktbild"/> :
-                <FontAwesomeIcon icon={faCamera} className="h-4 text-xl text-gray-400"/>
+                <Camera className="h-4 text-xl text-gray-400"/>
             }</span>
             <span>{dish.name}, {dish.price}€</span>
         </div>
@@ -157,8 +154,8 @@ const MenuForm = ({ menu, onSubmit, onCancel }: Props)=> {
                 )}
             />
             <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
-                <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
-                <BeButton type="button" onClick={handleCancel}><FontAwesomeIcon icon={faClose}/> Abbrechen</BeButton>
+                <BeButton type="submit" variant="primary"><ArrowDownToLine /> Speichern</BeButton>
+                <BeButton type="button" onClick={handleCancel}><CircleX /> Abbrechen</BeButton>
             </div>
         </form>
     )};

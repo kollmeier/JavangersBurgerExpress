@@ -4,12 +4,11 @@ import Card, {CardProps} from '@/components/shared/card.tsx';
 import {cn, getColoredIconElement, getIconColor} from '@/util';
 import { colorMapCards } from '@/data';
 import BeButton from "@/components/ui/be-button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAdd, faSubtract} from "@fortawesome/free-solid-svg-icons";
 import DishImages from "@/components/ui/dish-images.tsx";
 import {OrderInputDTO} from "@/types/OrderInputDTO.ts";
 import {OrderItemInputDTO} from "@/types/OrderItemInputDTO.ts";
 import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
+import {CircleMinus, CirclePlus} from "lucide-react";
 
 type CustomerDisplayItemProps = {
   displayItem: DisplayItemOutputDTO;
@@ -89,9 +88,9 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
       }
       actions={
         <div className="flex flex-wrap gap-2">
-            <BeButton onClick={decreaseAmount}><FontAwesomeIcon icon={faSubtract}/></BeButton>
+            <BeButton onClick={decreaseAmount}><CircleMinus /></BeButton>
             <span className="pt-1">{amount}</span>
-            <BeButton onClick={increaseAmount}><FontAwesomeIcon icon={faAdd}/></BeButton>
+            <BeButton onClick={increaseAmount}><CirclePlus /></BeButton>
             <BeButton variant="primary" onClick={addToOrder}>Bestellen</BeButton>
         </div>
       }

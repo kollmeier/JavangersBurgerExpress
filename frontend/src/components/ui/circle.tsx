@@ -1,26 +1,32 @@
 import {PropsWithChildren} from "react";
 import {cn} from "@/util";
-import {IconProp} from '@fortawesome/fontawesome-svg-core'
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {colorVariants, ColorVariantsType} from "@/data";
+import {LucideIcon, LucideProps} from "lucide-react";
 
-export type CircleProps = PropsWithChildren<{
+
+type Props = PropsWithChildren<{
     className?: string;
-    icon?: IconProp;
+    icon?: LucideIcon;
     size?: "sm" | "md" | "lg";
     color?: ColorVariantsType;
+    iconSize?: number
 }>
 
-export function Circle({children, className, icon, size, color}: CircleProps) {
+export type CircleProps = Props & Omit<LucideProps, keyof Props>
+
+export function Circle({children, className, icon, size, color, iconSize, ...props}: CircleProps) {
     const sizes = {
         sm: "!w-10 !h-10",
         md: "!w-12 !h-12",
         lg: "!w-16 !h-16"
     }
+
+    const Icon = icon ?? "svg";
+
     return (
         <div className={cn("flex flex-col items-center", className)}>
             <div className={cn("btn !rounded-full flex flex-col p-1", size ? sizes[size] : sizes.md, color ? colorVariants[color].normal : colorVariants.neutral.dark)}>
-                {icon ? <FontAwesomeIcon icon={icon} className="grow-1"/> : children}
+                {icon ? <Icon size={iconSize} className="flex-1 !mt-0" {...props} /> : children}
             </div>
             {children && icon && <div>{children}</div>}
         </div>

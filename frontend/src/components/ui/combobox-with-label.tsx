@@ -11,8 +11,7 @@ import {
 import {ChangeEvent, forwardRef, ReactElement, ReactNode, Ref, useEffect, useState} from "react";
 import {cn} from "@/util";
 import {colorMapCards, colorVariants} from "@/data";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faRemove} from "@fortawesome/free-solid-svg-icons";
+import {X} from "lucide-react";
 
 interface ValueInterface {
     id: string
@@ -99,7 +98,7 @@ const ComboboxWithLabel = forwardRef(
                                     <button onClick={event => {
                                         event.stopPropagation();
                                         onChange(value.filter(f => f !== v))
-                                    }}><FontAwesomeIcon icon={faRemove}/></button>
+                                    }}><X /></button>
                                         {displayValue(v)}
                                 </span>
                                 ))}

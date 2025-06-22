@@ -121,6 +121,11 @@
 }
 
 @layer utilities {
+  .lucide {
+    @apply inline-block;
+    @apply h-[1em] w-auto -mt-1
+  }
+
   .btn {
     @apply rounded-sm h-7 px-2 shadow-sm hover:shadow-xs hover:translate-[1px] active:translate-0.5 transition-[transform,box-shadow]
   }

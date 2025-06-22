@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import InputWithLabel from "@/components/ui/input-with-label.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faUser} from "@fortawesome/free-solid-svg-icons";
 import {useAuth} from "@/context/auth-context.ts";
+import {User} from "lucide-react";
 
 interface LoginFormProps {
   onLoginSuccess: () => void;
@@ -55,7 +54,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onLoginError }) =
         disabled={isLoading}
         className="h-8.5!"
       >
-          <FontAwesomeIcon icon={faUser} /> {isLoading ? 'Logge ein...' : 'Einloggen'}
+          <User /> {isLoading ? 'Logge ein...' : 'Einloggen'}
       </BeButton>
     </form>
   );

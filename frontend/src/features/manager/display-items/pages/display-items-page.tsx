@@ -1,13 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {faPlus} from '@fortawesome/free-solid-svg-icons/faPlus';
 import {toast} from "react-toastify";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
 
 import {BeCircleLink} from "@/components/ui/be-circle-link.tsx";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
-import {faMaximize, faMinimize, faWarning} from "@fortawesome/free-solid-svg-icons";
 import BeDialog from "@/components/shared/be-dialog.tsx";
 import {colorMapCards} from "@/data";
 import {cn, errorMessage, useDisplayCategories} from "@/util";
@@ -20,9 +18,9 @@ import {DisplayItemInputDTO} from "@/types/DisplayItemInputDTO.ts";
 import {useDisplayItemMutations} from "@/hooks/use-display-item-mutations.ts";
 import DisplayItemAdd from "@/features/manager/display-items/components/display-item-add.tsx";
 import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {DragDropProvider} from "@dnd-kit/react"
 import {move} from "@dnd-kit/helpers";
+import {FolderPlus, SquareDashed, SquareDashedTopSolid, TriangleAlert} from 'lucide-react';
 
 const DisplayItemsPage: React.FC = () => {
     const {data: displayCategories} = useDisplayCategories();
@@ -57,7 +55,7 @@ const DisplayItemsPage: React.FC = () => {
             <BeButton
                 onClick={() => setAreCategoriesDraggable(!areCategoriesDraggable)}
                 className="btn btn-neutral w-fit"
-            ><FontAwesomeIcon icon={areCategoriesDraggable ? faMaximize : faMinimize} /> {areCategoriesDraggable ? "Elemente anordnen" : "Kategorien anordnen"}</BeButton>
+            > {areCategoriesDraggable ? <><SquareDashed /> "Elemente anordnen"</> :<><SquareDashedTopSolid /> "Kategorien anordnen"</>}</BeButton>
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [areCategoriesDraggable]);
@@ -316,7 +314,7 @@ const DisplayItemsPage: React.FC = () => {
                     <div className="col-span-1 sm:col-span-2 xl:col-span-3">
                         <MinimalCard className={cn("h-fit max-h-30 transition-[max-height] duration-300 ease-in-out flex justify-center", displayCategoryId === 'add' && "max-h-50")} colorVariant={colorMapCards.displayCategory}>
                             {displayCategoryId !== 'add' ? (
-                                <BeCircleLink icon={faPlus} to="/manage/displayItems/category/add">Kategorie hinzufügen</BeCircleLink>
+                                <BeCircleLink icon={FolderPlus} to="/manage/displayItems/category/add">Kategorie hinzufügen</BeCircleLink>
                             ) : (
                                 <DisplayCategoryAdd onSubmit={handleSubmitAddDisplayCategory} onCancel={handleCancel} className="flex-1"/>
                             )}
@@ -340,7 +338,7 @@ const DisplayItemsPage: React.FC = () => {
                 <BeDialog
                     onClose={() => setDisplayCategoryToDelete(undefined)}
                     open={!!displayCategoryToDelete}
-                    icon={faWarning}
+                    icon={TriangleAlert}
                     iconClassName="text-danger"
                     className="border border-danger"
                     actions={<>
@@ -352,7 +350,7 @@ const DisplayItemsPage: React.FC = () => {
                 <BeDialog
                     onClose={() => setDisplayItemToDelete(undefined)}
                     open={!!displayItemToDelete}
-                    icon={faWarning}
+                    icon={TriangleAlert}
                     iconClassName="text-danger"
                     className="border border-danger"
                     actions={<>
