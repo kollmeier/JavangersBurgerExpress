@@ -130,8 +130,8 @@ const DisplayCategoryForm = ({ displayCategory, className, onSubmit, onCancel, .
                         className="col-span-1 row-span-2 row-start-1 h-31 min-w-fit"/>)}
             />
             <div className="row-start 3 col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
-                <BeButton type="submit" variant="primary"><ArrowDownToLine /> Speichern</BeButton>
-                <BeButton type="button" onClick={handleCancel}><CircleX /> Abbrechen</BeButton>
+                <BeButton type="submit" variant="primary" icon={ArrowDownToLine}>Speichern</BeButton>
+                <BeButton type="button" onClick={handleCancel} icon={CircleX}>Abbrechen</BeButton>
             </div>
         </form>
     )};

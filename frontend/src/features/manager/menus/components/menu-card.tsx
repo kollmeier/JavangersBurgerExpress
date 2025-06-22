@@ -39,8 +39,8 @@ const MenuCard = ({menu, index, onDelete, ...props}: MenuCardProps) => {
             header={menu.name}
             colorVariant={colorMapCards['menu']}
             actions={<>
-                <BeButton variant="primary" onClick={handleEdit}><Pen /> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
+                <BeButton variant="primary" onClick={handleEdit} icon={Pen}>Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete} icon={Trash}></BeButton>
             </>}
             typeCircle={getIconElement('menu')}
             priceCircle={<div className="flex flex-col items-center"><span className="text-[0.6em] line-through">{menu.dishes.reduce((s,d) => s + parseFloat(d.price), 0).toFixed(2)}€</span>{menu.price.replace('.', ',')}€</div>}

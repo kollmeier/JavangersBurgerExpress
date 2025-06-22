@@ -59,6 +59,7 @@ function DisplayItemItem({categoryId, onSubmit, onDelete, onCancel, ...props}: R
                 <DisplayItemCard {...props} onDelete={handleDelete}/>
             ) : (
                 <DisplayItemEdit displayItem={props.displayItem}
+                                 className={props.className}
                                  categoryId={categoryId}
                                  onSubmit={handleSubmit}
                                  onCancel={handleCancel}/>

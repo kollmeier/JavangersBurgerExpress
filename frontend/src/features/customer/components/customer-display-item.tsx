@@ -88,9 +88,9 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
       }
       actions={
         <div className="flex flex-wrap gap-2">
-            <BeButton onClick={decreaseAmount}><CircleMinus /></BeButton>
+            <BeButton onClick={decreaseAmount} icon={CircleMinus}></BeButton>
             <span className="pt-1">{amount}</span>
-            <BeButton onClick={increaseAmount}><CirclePlus /></BeButton>
+            <BeButton onClick={increaseAmount} icon={CirclePlus}></BeButton>
             <BeButton variant="primary" onClick={addToOrder}>Bestellen</BeButton>
         </div>
       }

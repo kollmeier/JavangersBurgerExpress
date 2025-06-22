@@ -115,7 +115,7 @@ export const CustomerCheckoutSummaryPage: React.FC<CustomerCheckoutSummaryPagePr
                 buttonType="checkout"
                 buttonLocale="de"
                 buttonSizeMode="fill"
-                className={cn("w-fit", {"pointer-events-none opacity-10": isLoading ?? true})}
+                className={cn("w-fit", {"pointer-events-none opacity-10": true})}
                 paymentRequest={{
                     apiVersion: 2,
                     apiVersionMinor: 0,

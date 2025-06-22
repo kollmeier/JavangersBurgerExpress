@@ -62,6 +62,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
                     "before:absolute before:top-2/4 before:left-full before:mt-[-50px] before:-ml-2 before:z-1",
                     "before:border-t-[50px] before:border-b-[50px] before:border-l-[30px]",
                     "before:border-t-transparent before:border-b-transparent before:border-l-white",
+                    {"pointer-events-none": !isActive},
                     {"bg-green-500 after:border-l-green-500": isActive}
                 )}
                 onClick={() => onStepClick?.(index)}

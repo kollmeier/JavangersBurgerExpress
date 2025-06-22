@@ -39,8 +39,8 @@ const DishCard = ({index, dish, onDelete, ...props}: DishCardProps) => {
             header={dish.name}
             colorVariant={colorMapCards[dish.type]}
             actions={<>
-                <BeButton variant="primary" onClick={handleEdit}><Pen /> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
+                <BeButton variant="primary" onClick={handleEdit} icon={Pen}>Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete} icon={Trash}></BeButton>
             </>}
             image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name} className="object-contain drop-shadow-lg"/>}
             typeCircle={dish.type && getIconElement(dish.type)}

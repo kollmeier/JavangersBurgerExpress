@@ -20,7 +20,7 @@ import DisplayItemAdd from "@/features/manager/display-items/components/display-
 import {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
 import {DragDropProvider} from "@dnd-kit/react"
 import {move} from "@dnd-kit/helpers";
-import {FolderPlus, SquareDashed, SquareDashedTopSolid, TriangleAlert} from 'lucide-react';
+import {CircleX, FolderPlus, SquareDashed, SquareDashedTopSolid, Trash, TriangleAlert} from 'lucide-react';
 
 const DisplayItemsPage: React.FC = () => {
     const {data: displayCategories} = useDisplayCategories();
@@ -55,7 +55,7 @@ const DisplayItemsPage: React.FC = () => {
             <BeButton
                 onClick={() => setAreCategoriesDraggable(!areCategoriesDraggable)}
                 className="btn btn-neutral w-fit"
-            > {areCategoriesDraggable ? <><SquareDashed /> "Elemente anordnen"</> :<><SquareDashedTopSolid /> "Kategorien anordnen"</>}</BeButton>
+            > {areCategoriesDraggable ? <><SquareDashed /> Elemente anordnen</> :<><SquareDashedTopSolid /> Kategorien anordnen</>}</BeButton>
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [areCategoriesDraggable]);
@@ -342,8 +342,8 @@ const DisplayItemsPage: React.FC = () => {
                     iconClassName="text-danger"
                     className="border border-danger"
                     actions={<>
-                        <BeButton onClick={() => setDisplayCategoryToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
-                        <BeButton onClick={() => handleDeleteDisplayCategory(displayCategoryToDelete)} className="btn btn-danger">Löschen</BeButton>
+                        <BeButton onClick={() => setDisplayCategoryToDelete(undefined)} className="btn btn-neutral"><CircleX />Abbrechen</BeButton>
+                        <BeButton onClick={() => handleDeleteDisplayCategory(displayCategoryToDelete)} className="btn btn-danger"><Trash />Löschen</BeButton>
                     </>}>
                     Sind Sie sicher, dass Sie die Kategorie {!!countItemsInCategoryToDelete && ("incl. " + countItemsInCategoryToDelete +" Element(en) ")}löschen möchten?
                 </BeDialog>
@@ -354,8 +354,8 @@ const DisplayItemsPage: React.FC = () => {
                     iconClassName="text-danger"
                     className="border border-danger"
                     actions={<>
-                        <BeButton onClick={() => setDisplayItemToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
-                        <BeButton onClick={() => handleDeleteDisplayItem(displayItemToDelete)} className="btn btn-danger">Löschen</BeButton>
+                        <BeButton onClick={() => setDisplayItemToDelete(undefined)} className="btn btn-neutral"><CircleX />Abbrechen</BeButton>
+                        <BeButton onClick={() => handleDeleteDisplayItem(displayItemToDelete)} className="btn btn-danger"><Trash />Löschen</BeButton>
                     </>}>
                     Sind Sie sicher, dass Sie das Anzeigeelement löschen möchten?
                 </BeDialog>
