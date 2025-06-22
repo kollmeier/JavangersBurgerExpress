@@ -1,39 +1,30 @@
-import {
-    faBowlFood,
-    faBurger,
-    faFile,
-    faFileCircleQuestion,
-    faFolderOpen,
-    faGlassWater,
-    faUtensils
-} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {colorMapCards, ColorMapCardsType, colorVariants} from "@/data";
 import {ColorVariantStyle} from "@/data/color-variants.ts";
 import {cn} from "@/util/cn.ts";
+import {CircleQuestionMark, CupSoda, Hamburger, Layers, Salad, StickyNote, Utensils} from "lucide-react";
 
 export function getIcon(type: string) {
     switch (type) {
         case 'main': {
-            return faBurger;
+            return Hamburger;
         }
         case 'side': {
-            return faBowlFood;
+            return Salad;
         }
         case 'beverage': {
-            return faGlassWater;
+            return CupSoda;
         }
         case 'menu': {
-            return faUtensils;
+            return Utensils;
         }
         case 'displayCategory': {
-            return faFolderOpen;
+            return Layers;
         }
         case 'displayItem': {
-            return faFile;
+            return StickyNote;
         }
         default: {
-            return faFileCircleQuestion;
+            return CircleQuestionMark;
         }
     }
 }
@@ -43,7 +34,8 @@ export function getIconColor(type: ColorMapCardsType, variant: ColorVariantStyle
 }
 
 export function getIconElement(type: string, className?: string) {
-    return <FontAwesomeIcon className={className} icon={getIcon(type)} />
+    const Icon = getIcon((type));
+    return <Icon className={className} />
 }
 
 export function getColoredIconElement(type: string, className?: string) {

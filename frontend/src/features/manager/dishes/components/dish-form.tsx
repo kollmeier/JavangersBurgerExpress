@@ -3,14 +3,12 @@ import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import type {DishInputDTO} from "@/types/DishInputDTO.ts";
 import {Controller, useForm} from "react-hook-form";
 import InputWithLabel from "@/components/ui/input-with-label";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSave} from "@fortawesome/free-solid-svg-icons/faSave";
-import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import BeButton from "@/components/ui/be-button.tsx";
 import {Input} from "@headlessui/react";
 import {toast} from "react-toastify";
 import useImagePicker from "@/hooks/use-image-picker.ts";
 import ImagePickerWithLabel from "@/components/ui/image-picker-with-label.tsx";
+import {ArrowDownToLine, CircleX} from "lucide-react";
 
 type Props = {
     dish?: DishOutputDTO;
@@ -175,8 +173,8 @@ const DishForm = ({ dish, dishType, onSubmit, onCancel }: Props)=> {
                         className="col-span-1 row-start-3" />)}
             />
             <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
-                <BeButton type="submit" variant="primary"><FontAwesomeIcon icon={faSave}/> Speichern</BeButton>
-                <BeButton type="button" onClick={handleCancel}><FontAwesomeIcon icon={faClose}/> Abbrechen</BeButton>
+                <BeButton type="submit" variant="primary"><ArrowDownToLine /> Speichern</BeButton>
+                <BeButton type="button" onClick={handleCancel}><CircleX /> Abbrechen</BeButton>
             </div>
         </form>
 

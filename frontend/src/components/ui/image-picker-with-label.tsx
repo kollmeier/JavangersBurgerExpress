@@ -1,12 +1,10 @@
 import InputWithLabel from "@/components/ui/input-with-label.tsx";
 import {Button} from "@headlessui/react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCamera} from "@fortawesome/free-solid-svg-icons";
-import {faClose} from "@fortawesome/free-solid-svg-icons/faClose";
 import ImagePickerDialog from "@/components/shared/image-picker-dialog.tsx";
 import {ControllerFieldState, ControllerRenderProps, FieldValues} from "react-hook-form";
 import React from "react";
 import {ImagesSelection} from "@/hooks/use-image-picker.ts";
+import {Camera, X} from "lucide-react";
 
 type ImagePickerWithLabelProps<T extends FieldValues> = {
     field: ControllerRenderProps<T>;
@@ -46,7 +44,7 @@ const ImagePickerWithLabel = <T extends FieldValues> ({
                     {field.value ?
                         <img className="object-contain max-h-full max-w-full" src={field.value} alt="Produktbild"/> :
                         <>
-                            <FontAwesomeIcon icon={faCamera} className="h-full text-3xl text-gray-400"/>
+                            <Camera className="h-full text-3xl text-gray-400"/>
                             <span className="text-sm text-gray-600">Klicken zur Auswahl</span>
                         </>}
                 </Button>
@@ -57,7 +55,7 @@ const ImagePickerWithLabel = <T extends FieldValues> ({
                         field.onChange('');
                     }}
                 >
-                    <FontAwesomeIcon icon={faClose}/>
+                    <X />
                 </Button>}
             </div>
             <ImagePickerDialog

@@ -1,16 +1,15 @@
-import {Circle} from "@/components/ui/circle.tsx";
-import {IconProp} from '@fortawesome/fontawesome-svg-core'
-import {Link, LinkProps} from "react-router-dom";
+import {Circle, CircleProps} from "@/components/ui/circle.tsx";
+import {Link} from "react-router-dom";
 import {cn} from "@/util";
+import {ComponentPropsWithRef} from "react";
 
-export type BeCircleLinkProps = LinkProps &  {
-    icon: IconProp
-};
 
-export function BeCircleLink({className, children, icon, ...props}: BeCircleLinkProps) {
+export type BeCircleLinkProps = ComponentPropsWithRef<typeof Link> & Omit<CircleProps, "ref">;
+
+export function BeCircleLink({className, children, icon, ref, ...props}: BeCircleLinkProps) {
     return (
-        <Link className={cn("flex flex-col items-center justify-center", className)} {...props}>
-            <Circle icon={icon} size="lg">{children}</Circle>
+        <Link className={cn("flex flex-col items-center justify-center", className)} ref={ref} {...props}>
+            <Circle icon={icon} size="lg" {...props}>{children}</Circle>
         </Link>
     )
 }

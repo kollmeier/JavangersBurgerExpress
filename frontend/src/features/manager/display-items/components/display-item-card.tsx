@@ -1,10 +1,4 @@
 import type {DisplayItemOutputDTO} from "@/types/DisplayItemOutputDTO.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faEdit,
-    faGripLines,
-    faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
 import React from "react";
@@ -14,6 +8,7 @@ import {colorMapCards} from "@/data";
 import {cn, getColoredIconElement, getIconColor, getIconElement} from "@/util";
 import {useSortable} from "@dnd-kit/react/sortable";
 import DishImages from "@/components/ui/dish-images.tsx";
+import {Grip, Pen, Trash} from "lucide-react";
 
 export type DisplayItemCardProps = {
     displayItem: DisplayItemOutputDTO;
@@ -65,8 +60,8 @@ const DisplayItemCard = ({
                 !isDraggable && "scale-y-0 h-0 m-0 p-0")}
             colorVariant={colorMapCards['displayItem']}
             actions={<>
-                <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
+                <BeButton variant="primary" onClick={handleEdit}><Pen /> Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
             </>}
             image={<DishImages
                 className="w-full h-full top-0 object-contain scale-70"
@@ -82,7 +77,7 @@ const DisplayItemCard = ({
                 <span key={displayItem.id + orderableItem.id} className={cn("pill !text-sm", getIconColor(orderableItem.type, "light"))}>
                     {getColoredIconElement(orderableItem.type, "bg-transparent")} {orderableItem.name}
                 </span>)}</div>}
-            topRight={isDraggable && <span className="displayItem-type" ref={handleRef}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-grab" /></span>}
+            topRight={isDraggable && <span className="displayItem-type" ref={handleRef}><Grip className="text-xl cursor-grab" /></span>}
             {...props}
             >
             {displayItem.description &&

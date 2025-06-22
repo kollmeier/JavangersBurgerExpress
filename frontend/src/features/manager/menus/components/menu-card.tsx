@@ -1,10 +1,4 @@
 import type {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faEdit,
-    faGripLines,
-    faTrashCan
-} from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
 import React from "react";
@@ -14,6 +8,7 @@ import {colorMapCards} from "@/data";
 import {getIconElement} from "@/util";
 import {useSortable} from "@dnd-kit/react/sortable";
 import DishImages from "@/components/ui/dish-images.tsx";
+import {Grip, Pen, Trash} from "lucide-react";
 
 export type MenuCardProps = {
     menu: MenuOutputDTO;
@@ -44,8 +39,8 @@ const MenuCard = ({menu, index, onDelete, ...props}: MenuCardProps) => {
             header={menu.name}
             colorVariant={colorMapCards['menu']}
             actions={<>
-                <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
+                <BeButton variant="primary" onClick={handleEdit}><Pen /> Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
             </>}
             typeCircle={getIconElement('menu')}
             priceCircle={<div className="flex flex-col items-center"><span className="text-[0.6em] line-through">{menu.dishes.reduce((s,d) => s + parseFloat(d.price), 0).toFixed(2)}€</span>{menu.price.replace('.', ',')}€</div>}
@@ -57,7 +52,7 @@ const MenuCard = ({menu, index, onDelete, ...props}: MenuCardProps) => {
                 beverageImages={menu.dishes.filter(dish => dish.type === "beverage").map(dish => dish.imageUrl)}
             />}
             imageClassName="w-full h-full"
-            topRight={<span className="menu-type" ref={handleRef}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            topRight={<span className="menu-type" ref={handleRef}><Grip className="text-xl cursor-move" /></span>}
             {...props}
             >
             {menu.additionalInformation.description &&

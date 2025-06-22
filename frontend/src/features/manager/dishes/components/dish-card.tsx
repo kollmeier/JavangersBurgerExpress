@@ -1,10 +1,4 @@
 import type {DishOutputDTO} from "@/types/DishOutputDTO.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faEdit,
-    faGripLines,
-    faTrashCan
-} from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
 import React from "react";
@@ -13,6 +7,7 @@ import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {getIconElement} from "@/util";
 import {useSortable} from "@dnd-kit/react/sortable";
+import {Grip, Pen, Trash} from "lucide-react";
 
 
 export type DishCardProps = {
@@ -44,8 +39,8 @@ const DishCard = ({index, dish, onDelete, ...props}: DishCardProps) => {
             header={dish.name}
             colorVariant={colorMapCards[dish.type]}
             actions={<>
-                <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
+                <BeButton variant="primary" onClick={handleEdit}><Pen /> Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
             </>}
             image={dish.imageUrl && <img src={dish.imageUrl + '?size=200'} alt={dish.name} className="object-contain drop-shadow-lg"/>}
             typeCircle={dish.type && getIconElement(dish.type)}
@@ -54,7 +49,7 @@ const DishCard = ({index, dish, onDelete, ...props}: DishCardProps) => {
                     <span className={"dish-info dish-info__" + dish.additionalInformation.size.type.toLowerCase()}>
                         {dish.additionalInformation.size.displayString}
                     </span>}
-            topRight={<span className="dish-type" ref={handleRef}><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            topRight={<span className="dish-type" ref={handleRef}><Grip className="text-xl cursor-move" /></span>}
             {...props}
             >
             {dish.additionalInformation.description &&

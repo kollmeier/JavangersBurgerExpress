@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate, useParams} from 'react-router-dom';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DishAdd from "../components/dish-add.tsx";
 import {toast} from "react-toastify";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
@@ -11,13 +10,13 @@ import {BeCircleLink} from "@/components/ui/be-circle-link.tsx";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
 import {isAxiosError} from "axios";
 import BeButton from "@/components/ui/be-button.tsx";
-import {faWarning} from "@fortawesome/free-solid-svg-icons";
 import {useDishes} from "@/util";
 import {useDishMutations} from "@/hooks/use-dish-mutations.ts";
 import BeDialog from "@/components/shared/be-dialog.tsx";
 import {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import {DragDropProvider} from "@dnd-kit/react";
 import {move} from "@dnd-kit/helpers";
+import {CirclePlus, TriangleAlert} from "lucide-react";
 
 const DishesPage: React.FC = () => {
     const dishes = useDishes();
@@ -141,21 +140,21 @@ const DishesPage: React.FC = () => {
                 <div className="grid grid-cols-1 auto-rows-min sm:grid-cols-2 xl:grid-cols-3 gap-6">
             <MinimalCard className={"min-h-64"} colorVariant="red">
                 {dishId !== 'add-main' ? (
-                    <BeCircleLink icon={faPlus} to="/manage/dishes/add-main">Hauptgericht hinzufügen</BeCircleLink>
+                    <BeCircleLink icon={CirclePlus} to="/manage/dishes/add-main">Hauptgericht hinzufügen</BeCircleLink>
                 ) : (
                     <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="main"/>
                 )}
             </MinimalCard>
             <MinimalCard className={"min-h-64"} colorVariant="green">
                 {dishId !== 'add-side' ? (
-                    <BeCircleLink icon={faPlus} to="/manage/dishes/add-side">Beilage hinzufügen</BeCircleLink>
+                    <BeCircleLink icon={CirclePlus} to="/manage/dishes/add-side">Beilage hinzufügen</BeCircleLink>
                 ) : (
                     <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="side"/>
                 )}
             </MinimalCard>
             <MinimalCard className={"min-h-64"} colorVariant="blue">
                 {dishId !== 'add-beverage' ? (
-                    <BeCircleLink icon={faPlus} to="/manage/dishes/add-beverage">Getränk hinzufügen</BeCircleLink>
+                    <BeCircleLink icon={CirclePlus} to="/manage/dishes/add-beverage">Getränk hinzufügen</BeCircleLink>
                 ) : (
                     <DishAdd onSubmit={handleSubmitAddDish} onCancel={handleCancel} dishType="beverage"/>
                 )}
@@ -170,7 +169,7 @@ const DishesPage: React.FC = () => {
             <BeDialog
                 onClose={() => setDishToDelete(undefined)}
                 open={!!dishToDelete}
-                icon={faWarning}
+                icon={TriangleAlert}
                 iconClassName="text-danger"
                 className="border border-danger"
                 actions={<>

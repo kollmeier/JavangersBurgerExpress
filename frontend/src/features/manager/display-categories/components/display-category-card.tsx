@@ -1,10 +1,4 @@
 import type {DisplayCategoryOutputDTO} from "@/types/DisplayCategoryOutputDTO.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {
-    faEdit, faFileCirclePlus,
-    faGripLines,
-    faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
 
 import {useNavigate} from "react-router-dom";
 import React from "react";
@@ -12,6 +6,7 @@ import Card from "@/components/shared/card.tsx";
 import BeButton from "@/components/ui/be-button.tsx";
 import {colorMapCards} from "@/data";
 import {cn, getIconElement} from "@/util";
+import {FileEdit, FilePlus, Trash, Grip} from "lucide-react";
 
 type CardProps = {
     displayCategory: DisplayCategoryOutputDTO;
@@ -47,12 +42,12 @@ const DisplayCategoryCard = ({
             image={displayCategory.imageUrl && <img src={displayCategory.imageUrl + '?size=148'} alt={displayCategory.name} className="object-contain drop-shadow-lg max-h-22"/>}
             imageClassName={cn("row-head_foot place-self-end")}
             actions={<>
-                <BeButton onClick={onAddDisplayItemClicked}><FontAwesomeIcon icon={faFileCirclePlus}/> Element hinzufügen</BeButton>
-                <BeButton variant="primary" onClick={handleEdit}><FontAwesomeIcon icon={faEdit}/> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><FontAwesomeIcon icon={faTrashCan}/></BeButton>
+                <BeButton onClick={onAddDisplayItemClicked}><FilePlus /> Element hinzufügen</BeButton>
+                <BeButton variant="primary" onClick={handleEdit}><FileEdit /> Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
             </>}
             typeCircle={getIconElement("displayCategory")}
-            topRight={isDraggable && <span ref={handleRef} className="displayCategory-type" ><FontAwesomeIcon icon={faGripLines} className="text-xl cursor-move" /></span>}
+            topRight={isDraggable && <span ref={handleRef} className="displayCategory-type" ><Grip className="text-xl cursor-move" /></span>}
             className={cn(
                 "gap-y-1 gap-x-2",
                 isDragging && "shadow-xl scale-102 z-10"

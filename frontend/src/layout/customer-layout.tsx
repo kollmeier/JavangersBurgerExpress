@@ -7,7 +7,7 @@ import CustomerCheckoutLayout from "@/features/customer/layouts/customer-checkou
 import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
 import {useEffect} from "react";
 import BeDialog from "@/components/shared/be-dialog.tsx";
-import {faBurger, faClock} from "@fortawesome/free-solid-svg-icons";
+import {ClockFading, Hamburger} from "lucide-react";
 
 function CustomerLayout() {
     const {customerSession, renewCustomerSession, createCustomerSession, removeCustomerSession, setRefreshInterval} = useCustomerSessionContext();
@@ -42,7 +42,7 @@ function CustomerLayout() {
                 <Route path="/checkout/*" element={<CustomerCheckoutLayout />} />
             </Routes>
             <BeDialog
-                icon={faBurger}
+                icon={Hamburger}
                 className="text-xl"
                 title="Jetzt bestellen!"
                 onClick={() => createCustomerSession()}
@@ -52,7 +52,7 @@ function CustomerLayout() {
                 Bestellen Sie jetzt! Berühren Sie den Bildschirm, um den Bestellvorgang zu starten.
             </BeDialog>
             <BeDialog
-                icon={faClock}
+                icon={ClockFading}
                 className="text-xl"
                 title="Sind Sie noch da?"
                 onClick={() => renewCustomerSession()}

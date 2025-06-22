@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate, useParams} from 'react-router-dom';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import MenuAdd from "../components/menu-add.tsx";
 import {toast} from "react-toastify";
 import {usePageLayoutContext} from "@/context/page-layout-context.ts";
@@ -11,7 +10,6 @@ import {BeCircleLink} from "@/components/ui/be-circle-link.tsx";
 import MinimalCard from "@/components/shared/minimal-card.tsx";
 import {isAxiosError} from "axios";
 import BeButton from "@/components/ui/be-button.tsx";
-import {faWarning} from "@fortawesome/free-solid-svg-icons";
 import {useMenus} from "@/util";
 import {useMenuMutations} from "@/hooks/use-menu-mutations.ts";
 import BeDialog from "@/components/shared/be-dialog.tsx";
@@ -19,6 +17,7 @@ import {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
 import {colorMapCards} from "@/data";
 import {DragDropProvider} from "@dnd-kit/react";
 import {move} from "@dnd-kit/helpers";
+import {ClipboardPlus, TriangleAlert} from "lucide-react";
 
 const MenusPage: React.FC = () => {
     const menus = useMenus();
@@ -142,7 +141,7 @@ const MenusPage: React.FC = () => {
             <div className="grid grid-cols-1 auto-rows-fr sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 <MinimalCard className={"min-h-64"} colorVariant={colorMapCards.menu}>
                     {menuId !== 'add-main' ? (
-                        <BeCircleLink icon={faPlus} to="/manage/menus/add-main">Menü hinzufügen</BeCircleLink>
+                        <BeCircleLink icon={ClipboardPlus} to="/manage/menus/add-main">Menü hinzufügen</BeCircleLink>
                     ) : (
                         <MenuAdd onSubmit={handleSubmitAddMenu} onCancel={handleCancel}/>
                     )}
@@ -157,7 +156,7 @@ const MenusPage: React.FC = () => {
             <BeDialog
                 onClose={() => setMenuToDelete(undefined)}
                 open={!!menuToDelete}
-                icon={faWarning}
+                icon={TriangleAlert}
                 iconClassName="text-danger"
                 className="border border-danger"
                 actions={<>

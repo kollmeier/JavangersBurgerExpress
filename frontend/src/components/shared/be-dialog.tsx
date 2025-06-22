@@ -1,12 +1,11 @@
 import {PropsWithChildren, ReactNode} from "react";
 import {CloseButton, Dialog, DialogBackdrop, DialogPanel, DialogProps} from "@headlessui/react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {IconProp} from "@fortawesome/fontawesome-svg-core";
 import {ClassValue} from "clsx";
 import {cn} from "@/util";
+import {LucideIcon} from "lucide-react";
 
 type BeDialogProps = DialogProps & PropsWithChildren<{
-    icon?: IconProp
+    icon?: LucideIcon
     iconClassName?: ClassValue;
     actions?: ReactNode;
     className?: ClassValue;
@@ -19,14 +18,15 @@ type DialogPanelProps = PropsWithChildren<{
 }>
 
 type DialogPanelWithIconProps = DialogPanelProps & {
-    icon: IconProp;
+    icon: LucideIcon;
     iconClassName?: ClassValue;
 }
 
 const DialogPanelWithIcon = ({icon, iconClassName, children, actions, className}: DialogPanelWithIconProps) => {
+    const Icon = icon;
     return (
         <DialogPanel className={cn("grid gap-6 min-w-0", actions && "grid-rows-2", className)}>
-            <FontAwesomeIcon icon={icon} className={cn("w-14 text-6xl", iconClassName)}/>
+            <Icon className={cn("w-14 text-6xl", iconClassName)}/>
             <div className="col-start-2 min-w-0 w-auto">{children}</div>
             {actions && <div className="flex min-w-0 justify-end gap-2 row-start-2 col-span-2 place-self-end">
                 {actions}
