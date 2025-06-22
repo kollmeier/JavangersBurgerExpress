@@ -56,12 +56,12 @@ const DisplayItemCard = ({
             data-dragging={isDragging}
             className={cn(dragClassName,
                 className,
-                "min-h-0 scale-y-100 transition-[transform,height,margin, opacity] duration-300 ease-in-out]",
+                "min-h-0 scale-y-100 transition-[transform, height, margin] duration-300 ease-in-out]",
                 !isDraggable && "scale-y-0 h-0 m-0 p-0")}
             colorVariant={colorMapCards['displayItem']}
             actions={<>
-                <BeButton variant="primary" onClick={handleEdit}><Pen /> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
+                <BeButton variant="primary" onClick={handleEdit} icon={Pen}>Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete} icon={Trash}></BeButton>
             </>}
             image={<DishImages
                 className="w-full h-full top-0 object-contain scale-70"

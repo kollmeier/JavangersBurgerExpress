@@ -8,7 +8,7 @@ import DishImages from "@/components/ui/dish-images.tsx";
 import {OrderInputDTO} from "@/types/OrderInputDTO.ts";
 import {OrderItemInputDTO} from "@/types/OrderItemInputDTO.ts";
 import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
-import {CircleMinus, CirclePlus} from "lucide-react";
+import {CircleMinus, CirclePlus, Flame} from "lucide-react";
 
 type CustomerDisplayItemProps = {
   displayItem: DisplayItemOutputDTO;
@@ -88,10 +88,10 @@ const CustomerDisplayItem: React.FC<CustomerDisplayItemProps> = ({
       }
       actions={
         <div className="flex flex-wrap gap-2">
-            <BeButton onClick={decreaseAmount}><CircleMinus /></BeButton>
+            <BeButton onClick={decreaseAmount} className="bg-transparent !shadow-none !px-0 drop-shadow-sm hover:drop-shadow-xs text-xl" icon={CircleMinus}></BeButton>
             <span className="pt-1">{amount}</span>
-            <BeButton onClick={increaseAmount}><CirclePlus /></BeButton>
-            <BeButton variant="primary" onClick={addToOrder}>Bestellen</BeButton>
+            <BeButton onClick={increaseAmount} className="bg-transparent !shadow-none !px-0 drop-shadow-sm hover:drop-shadow-xs text-xl" icon={CirclePlus}></BeButton>
+            <BeButton variant="primary" onClick={addToOrder} icon={Flame}>Bestellen</BeButton>
         </div>
       }
       {...props}

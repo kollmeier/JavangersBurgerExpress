@@ -3,6 +3,9 @@
 @config "../tailwind.config.ts";
 
 @theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   --spacing-circle-lg: calc(var(--spacing) * 24);
   --spacing-circle-md: calc(var(--spacing) * 16);
   --spacing-circle-offset-lg: calc(var(--spacing) * 0);
@@ -64,7 +67,8 @@
 
 @layer base {
   :root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    @apply font-sans;
+    @apply antialiased;
     line-height: 1.5;
     font-weight: 400;
 
@@ -95,6 +99,12 @@
     width: 100%;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
   h1, h2 {
     font-size: 3.2em;
     font-weight: 700;
@@ -117,18 +127,42 @@
 
   button, a {
     cursor: pointer;
+    @apply font-semibold;
+  }
+
+
+  code, pre, input[type=number] {
+    @apply font-mono;
+    font-size: 0.9rem;
+    background-color: #f9f9f9;
+    color: #1a1a1a;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  label {
+    @apply font-sans font-semibold;
   }
 }
 
 @layer utilities {
   .lucide {
     @apply inline-block;
-    @apply h-[1em] w-auto -mt-1
+    @apply h-[1em] w-auto
   }
 
   .btn {
     @apply rounded-sm h-7 px-2 shadow-sm hover:shadow-xs hover:translate-[1px] active:translate-0.5 transition-[transform,box-shadow]
   }
+  .btn .lucide {
+    @apply stroke-2;
+    @apply -mt-1 pe-1;
+  }
+
+  .btn .lucide:last-child {
+    @apply pr-0;
+  }
+
   .btn-primary {
     @apply bg-primary text-primary-text
   }
@@ -161,6 +195,10 @@
   .pill {
     @apply relative rounded-full px-2 py-0 text-xs whitespace-nowrap
   }
+  .pill .lucide {
+    @apply -mt-0.5
+  }
+
   .pill-primary {
     @apply bg-primary text-primary-text
   }

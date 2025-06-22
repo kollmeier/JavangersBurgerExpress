@@ -8,6 +8,7 @@ import {
     ListboxOptions,
 } from "@headlessui/react";
 import {cn, useImages} from "@/util";
+import {CircleX} from "lucide-react";
 
 interface ImagePickerDialogProps {
     open: boolean;
@@ -82,7 +83,7 @@ const ImagePickerDialog: React.FC<ImagePickerDialogProps> = ({
             onClose={handleClose}
             className="w-xl"
             actions={<>
-                <BeButton variant="neutral" onClick={onClose}>Abbrechen</BeButton>
+                <BeButton variant="neutral" onClick={onClose} icon={CircleX}>Abbrechen</BeButton>
                 <BeButton
                     variant="primary"
                     onClick={handleConfirm}

@@ -186,8 +186,8 @@ const DisplayItemForm = ({ displayItem, categoryId, onSubmit, onCancel }: Props)
                 )}
             />
             <div className="row-actions col-start-1 -col-end-1 flex gap-2 justify-end border-t pt-2 w-full">
-                <BeButton type="submit" variant="primary"><ArrowDownToLine /> Speichern</BeButton>
-                <BeButton type="button" onClick={handleCancel}><CircleX /> Abbrechen</BeButton>
+                <BeButton type="submit" variant="primary" icon={ArrowDownToLine}>Speichern</BeButton>
+                <BeButton type="button" onClick={handleCancel} icon={CircleX}>Abbrechen</BeButton>
             </div>
         </form>
     )};

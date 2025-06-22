@@ -17,7 +17,7 @@ import {MenuOutputDTO} from "@/types/MenuOutputDTO.ts";
 import {colorMapCards} from "@/data";
 import {DragDropProvider} from "@dnd-kit/react";
 import {move} from "@dnd-kit/helpers";
-import {ClipboardPlus, TriangleAlert} from "lucide-react";
+import {CircleX, ClipboardPlus, Trash, TriangleAlert} from "lucide-react";
 
 const MenusPage: React.FC = () => {
     const menus = useMenus();
@@ -160,8 +160,8 @@ const MenusPage: React.FC = () => {
                 iconClassName="text-danger"
                 className="border border-danger"
                 actions={<>
-                    <BeButton onClick={() => setMenuToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
-                    <BeButton onClick={() => handleDeleteMenu(menuToDelete)} className="btn btn-danger">Löschen</BeButton>
+                    <BeButton onClick={() => setMenuToDelete(undefined)} className="btn btn-neutral"><CircleX />Abbrechen</BeButton>
+                    <BeButton onClick={() => handleDeleteMenu(menuToDelete)} className="btn btn-danger"><Trash />Löschen</BeButton>
                 </>}>
                 Sind Sie sicher, dass Sie das Menü löschen möchten?
             </BeDialog>

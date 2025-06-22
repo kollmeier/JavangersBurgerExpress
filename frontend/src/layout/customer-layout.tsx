@@ -7,7 +7,7 @@ import CustomerCheckoutLayout from "@/features/customer/layouts/customer-checkou
 import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
 import {useEffect} from "react";
 import BeDialog from "@/components/shared/be-dialog.tsx";
-import {ClockFading, Hamburger} from "lucide-react";
+import {ClockFading, Pointer} from "lucide-react";
 
 function CustomerLayout() {
     const {customerSession, renewCustomerSession, createCustomerSession, removeCustomerSession, setRefreshInterval} = useCustomerSessionContext();
@@ -30,6 +30,16 @@ function CustomerLayout() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customerSession]);
 
+    const handleCreateCustomerSession = () => {
+        createCustomerSession();
+        setRefreshInterval(30);
+    }
+
+    const handleRenewCustomerSession = () => {
+        renewCustomerSession();
+        setRefreshInterval(30);
+    }
+
     return (
         <PageLayoutContextProvider
             header={<CustomerHeader />}
@@ -42,23 +52,25 @@ function CustomerLayout() {
                 <Route path="/checkout/*" element={<CustomerCheckoutLayout />} />
             </Routes>
             <BeDialog
-                icon={Hamburger}
+                icon={Pointer}
+                iconClassName="animate-pulse ease-in-out"
                 className="text-xl"
                 title="Jetzt bestellen!"
-                onClick={() => createCustomerSession()}
+                onClick={handleCreateCustomerSession}
                 clickToClose
                 open={!customerSession || customerSession.expired}
-                onClose={() => createCustomerSession()}>
+                onClose={handleCreateCustomerSession}>
                 Bestellen Sie jetzt! Berühren Sie den Bildschirm, um den Bestellvorgang zu starten.
             </BeDialog>
             <BeDialog
                 icon={ClockFading}
+                iconClassName="animate-pulse ease-in-out"
                 className="text-xl"
                 title="Sind Sie noch da?"
-                onClick={() => renewCustomerSession()}
+                onClick={handleRenewCustomerSession}
                 clickToClose
                 open={!!customerSession && customerSession.expiresInSeconds <= 30}
-                onClose={() => renewCustomerSession()}>
+                onClose={handleRenewCustomerSession}>
                 <div>Sind Sie noch da? Berühren Sie den Bildschirm zum fortfahren!</div>
                 {customerSession && <div className="text-red-500 text-3xl">Automatisches Abmelden in {customerSession.expiresInSeconds} Sekunden</div>}
             </BeDialog>

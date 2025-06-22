@@ -100,7 +100,7 @@ public class CustomerSessionService {
 
     public Optional<CustomerSessionDTO> storeOrder(final HttpSession session, final Order order) {
         Optional<CustomerSession> customerSession = getRawCustomerSession(session)
-                .map(cs -> cs.withOrder(order));
+                .map(cs -> cs.withOrder(order).withExpiresAt(Instant.now().plusSeconds(EXPIRATION_TIME_IN_SECONDS)));
 
         session.setAttribute(SESSION_ATTRIBUTE_NAME, customerSession.orElse(null));
 

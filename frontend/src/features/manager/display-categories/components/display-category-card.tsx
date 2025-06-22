@@ -42,9 +42,9 @@ const DisplayCategoryCard = ({
             image={displayCategory.imageUrl && <img src={displayCategory.imageUrl + '?size=148'} alt={displayCategory.name} className="object-contain drop-shadow-lg max-h-22"/>}
             imageClassName={cn("row-head_foot place-self-end")}
             actions={<>
-                <BeButton onClick={onAddDisplayItemClicked}><FilePlus /> Element hinzufügen</BeButton>
-                <BeButton variant="primary" onClick={handleEdit}><FileEdit /> Bearbeiten</BeButton>
-                <BeButton variant="danger" onClick={onDelete}><Trash /></BeButton>
+                <BeButton onClick={onAddDisplayItemClicked} icon={FilePlus}>Element hinzufügen</BeButton>
+                <BeButton variant="primary" onClick={handleEdit} icon={FileEdit}>Bearbeiten</BeButton>
+                <BeButton variant="danger" onClick={onDelete} icon={Trash}></BeButton>
             </>}
             typeCircle={getIconElement("displayCategory")}
             topRight={isDraggable && <span ref={handleRef} className="displayCategory-type" ><Grip className="text-xl cursor-move" /></span>}

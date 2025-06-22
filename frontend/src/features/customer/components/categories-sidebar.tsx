@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import {cn, useDisplayCategories} from '@/util';
 import BeButton from "@/components/ui/be-button.tsx";
 import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
+import {Ban, CreditCard} from "lucide-react";
+import BeButtonLink from "@/components/ui/be-button-link.tsx";
 
 type CategoriesSidebarProps = {
   selectedCategoryId?: string;
@@ -63,20 +65,20 @@ const CategoriesSidebar: React.FC<CategoriesSidebarProps> = ({
                 customerSession.order.items.map(item => (
                     <dl key={item.id} className="text-sm border-t-1 mt-1 pt-1 border-gray-200 grid grid-rows-2 grid-cols-2 gap-0">
                       <dt className="row-span-2">{item.item?.name}</dt>
-                      <dd className="text-xs text-gray-400 text-right">{item.amount} x {item.item?.price}€</dd>
-                      <dd className="text-right"><span className="text-xs text-gray-400">=</span> {item.price}€</dd>
+                      <dd className="text-xs text-gray-400 text-right font-mono">{item.amount} x {item.item?.price}€</dd>
+                      <dd className="text-right font-mono"><span className="text-xs text-gray-400 ">=</span> {item.price}€</dd>
                     </dl>
                 )) :
                 <>{customerSession.order.items.reduce((acc, item) => acc + (item.amount ?? 0), 0)} Gerichte</>
             }
             <dl className="text-sm font-bold border-t-3 border-double mt-1 pt-1 border-gray-800 grid grid-rows-2 grid-cols-2 gap-0">
               <dt>Gesamt</dt>
-              <dd className="text-right">{customerSession.order.totalPrice}€</dd>
+              <dd className="text-right font-mono">{customerSession.order.totalPrice}€</dd>
             </dl>
-            <Link to="/checkout" className="btn btn-primary block text-center w-full mt-2" >Bestellung bezahlen</Link>
+            <BeButtonLink to="/checkout" className="btn btn-primary flex items-center justify-between w-full mt-2" icon={CreditCard} iconClassName="!mt-0 !h-6">Bestellung bezahlen</BeButtonLink>
           </div>
         </div>}
-        <BeButton className="w-full" onClick={() => removeCustomerSession()}>Bestellung abbrechen</BeButton>
+        <BeButton className="w-full flex items-center justify-between" onClick={() => removeCustomerSession()} icon={Ban} iconClassName="!mt-0 !h-5">Bestellung abbrechen</BeButton>
       </div>
   );
 };

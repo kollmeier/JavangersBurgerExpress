@@ -100,7 +100,7 @@ function DisplayCategoryItem({
                     onSubmit={props.onDisplayItemSubmit}
                     onDelete={props.onDisplayItemDelete}
                     isDraggable={!isDraggable}
-                    className="w-full h-full"
+                    className={cn("w-full h-full max-h-80 opacity-100 transition-discrete transition-[opacity,display,max-height] duration-300", {"opacity-0 max-h-0 hidden": isDraggable})}
                 />
             ))}
         </div>

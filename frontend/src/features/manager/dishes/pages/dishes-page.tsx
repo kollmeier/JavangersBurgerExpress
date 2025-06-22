@@ -16,7 +16,7 @@ import BeDialog from "@/components/shared/be-dialog.tsx";
 import {DishOutputDTO} from "@/types/DishOutputDTO.ts";
 import {DragDropProvider} from "@dnd-kit/react";
 import {move} from "@dnd-kit/helpers";
-import {CirclePlus, TriangleAlert} from "lucide-react";
+import {CirclePlus, CircleX, Trash, TriangleAlert} from "lucide-react";
 
 const DishesPage: React.FC = () => {
     const dishes = useDishes();
@@ -173,8 +173,8 @@ const DishesPage: React.FC = () => {
                 iconClassName="text-danger"
                 className="border border-danger"
                 actions={<>
-                    <BeButton onClick={() => setDishToDelete(undefined)} className="btn btn-neutral">Abbrechen</BeButton>
-                    <BeButton onClick={() => handleDeleteDish(dishToDelete)} className="btn btn-danger">Löschen</BeButton>
+                    <BeButton onClick={() => setDishToDelete(undefined)} className="btn btn-neutral"><CircleX />Abbrechen</BeButton>
+                    <BeButton onClick={() => handleDeleteDish(dishToDelete)} className="btn btn-danger"><Trash />Löschen</BeButton>
                 </>}>
                     Sind Sie sicher, dass Sie das Gericht löschen möchten?
             </BeDialog>

@@ -22,12 +22,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({order}) => {
                 className="row-span-1 col-span-1 text-sm border-t-1 mt-1 pt-1 border-gray-200 grid grid-rows-2 grid-cols-3 gap-0">
                 <dt className="row-span-2 col-start-1">{item.item?.name}</dt>
                 <dd className="row-span-2 col-start-2 italic">{item.item?.descriptionForCart}</dd>
-                <dd className="text-xs text-gray-400 text-right">{item.amount} x {item.item?.price}€</dd>
-                <dd className="text-right"><span className="text-xs text-gray-400">=</span> {item.price}€</dd>
+                <dd className="text-xs text-gray-400 text-right font-mono">{item.amount} x {item.item?.price}€</dd>
+                <dd className="text-right font-mono"><span className="text-xs text-gray-400">=</span> {item.price}€</dd>
             </dl>)}
         <dl className="row-span-1 col-span-1 md:col-span-2 lg:col-span-3 -row-start-0 self-end text-sm font-bold border-t-3 border-double mt-1 pt-1 border-gray-800 grid grid-rows-2 grid-cols-2 gap-0">
             <dt>Gesamt</dt>
-            <dd className="text-right">{order.totalPrice}€</dd>
+            <dd className="text-right font-mono">{order.totalPrice}€</dd>
         </dl>
     </MinimalCard>;
 }
@@ -38,7 +38,7 @@ const CustomerCheckoutLayout = () => {
     const [buttons, setButtons] = useState<React.JSX.Element>();
     const [provider, setProvider] = useState<string>("provider");
 
-    const {provider: providerParam} = useParams<{ provider?: string }>();
+    const {provider: providerParam} = useParams();
 
     const {customerSession} = useCustomerSessionContext();
 
@@ -71,6 +71,7 @@ const CustomerCheckoutLayout = () => {
                 "/checkout/" + provider + "/payment/process/",
                 "/checkout/" + provider + "/payment/process/success"
             ]}
+
         />
         <Routes>
             <Route index element={<Navigate to="summary/" replace />} />
