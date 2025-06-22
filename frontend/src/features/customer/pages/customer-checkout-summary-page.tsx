@@ -5,6 +5,7 @@ import BeButton from "@/components/ui/be-button.tsx";
 import BeButtonLink from "@/components/ui/be-button-link";
 import GooglePayButton from "@google-pay/button-react";
 import {cn, useCustomerSession} from "@/util";
+import {CircleArrowLeft} from "lucide-react";
 
 export type CustomerCheckoutSummaryPageProps = {
     setError: (error: string | null) => void;
@@ -149,7 +150,7 @@ export const CustomerCheckoutSummaryPage: React.FC<CustomerCheckoutSummaryPagePr
                 }}
                 onLoadPaymentData={paymentRequest => paymentRequest}
             />
-            <BeButtonLink to="/" className="text-center w-full">Zurück und Bestellung
+            <BeButtonLink to="/" className="text-center w-full" icon={CircleArrowLeft}>Zurück und Bestellung
                 fortsetzen</BeButtonLink>
         </>);
     // eslint-disable-next-line react-hooks/exhaustive-deps

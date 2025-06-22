@@ -4,7 +4,7 @@ import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
 import axios from "axios";
 import BeButton from "@/components/ui/be-button.tsx";
 import BeButtonLink from "@/components/ui/be-button-link.tsx";
-import {CircleX} from "lucide-react";
+import {Ban, CircleArrowLeft} from "lucide-react";
 
 interface StripePaymentQrCodeResponse {
     stripePaymentOrderId: string;
@@ -38,8 +38,8 @@ export const CustomerCheckoutPaymentPage: React.FC<CustomerCheckoutPaymentPagePr
             return;
         }
         setButtons(<>
-            <BeButtonLink to="/checkout" className="text-center w-full">Zurück und Bestellung ändern</BeButtonLink>
-            <BeButton className="text-center w-full" onClick={() => removeCustomerSession()}><CircleX />Bestellung abbrechen</BeButton>
+            <BeButtonLink to="/checkout" className="text-center w-full" icon={CircleArrowLeft}>Zurück und Bestellung ändern</BeButtonLink>
+            <BeButton className="text-center w-full" onClick={() => removeCustomerSession()} icon={Ban}>Bestellung abbrechen</BeButton>
         </>)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [process, navigate]);

@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import {cn, useDisplayCategories} from '@/util';
 import BeButton from "@/components/ui/be-button.tsx";
 import {useCustomerSessionContext} from "@/context/customer-session-context.ts";
-import {CircleX} from "lucide-react";
+import {Ban, CreditCard} from "lucide-react";
+import BeButtonLink from "@/components/ui/be-button-link.tsx";
 
 type CategoriesSidebarProps = {
   selectedCategoryId?: string;
@@ -74,10 +75,10 @@ const CategoriesSidebar: React.FC<CategoriesSidebarProps> = ({
               <dt>Gesamt</dt>
               <dd className="text-right font-mono">{customerSession.order.totalPrice}€</dd>
             </dl>
-            <Link to="/checkout" className="btn btn-primary block text-center w-full mt-2" >Bestellung bezahlen</Link>
+            <BeButtonLink to="/checkout" className="btn btn-primary flex items-center justify-between w-full mt-2" icon={CreditCard} iconClassName="!mt-0 !h-6">Bestellung bezahlen</BeButtonLink>
           </div>
         </div>}
-        <BeButton className="w-full" onClick={() => removeCustomerSession()}><CircleX />Bestellung abbrechen</BeButton>
+        <BeButton className="w-full flex items-center justify-between" onClick={() => removeCustomerSession()} icon={Ban} iconClassName="!mt-0 !h-5">Bestellung abbrechen</BeButton>
       </div>
   );
 };

@@ -3,6 +3,8 @@ import CustomerSessionApi from '@/services/customer-session-api';
 import { CustomerSessionDTO } from '@/types/CustomerSessionDTO';
 import { OrderInputDTO } from '@/types/OrderInputDTO';
 import {OrderApi} from "@/services/order-api.ts";
+import axios from "axios";
+import {isErrorDTO} from "@/util/errors.ts";
 
 export type CustomerSessionApi = ReturnType<typeof useCustomerSession>;
 
@@ -21,6 +23,19 @@ export function useCustomerSession(interValInSeconds?:number) {
     refetchInterval: interValInSeconds === undefined ? undefined : interValInSeconds * 1000,
   });
 
+  const handleError = (error: Error) => {
+    if (axios.isAxiosError(error)
+        && error.response?.status === 400
+        && isErrorDTO(error.response.data)
+        && error.response.data.error === "IllegalStateException"
+        && error.response.data.message === "No customer session found"
+    ) {
+      queryClient.setQueryData(['customerSession'], null);
+      return queryClient.invalidateQueries({ queryKey: ['customerSession'] });
+    }
+    throw error;
+  }
+
   // Mutation for creating a new customer session
   const createCustomerSession = useMutation({
     mutationFn: CustomerSessionApi.createCustomerSession,
@@ -38,6 +53,7 @@ export function useCustomerSession(interValInSeconds?:number) {
         }
         queryClient.setQueryData(['customerSession'], data);
     },
+    onError: handleError
   });
 
   // Mutation for removing the customer session
@@ -57,6 +73,7 @@ export function useCustomerSession(interValInSeconds?:number) {
         queryClient.setQueryData(['customerSession'], data);
       }
     },
+    onError: handleError
   });
 
   // Mutation for placing an order in the database
@@ -67,6 +84,7 @@ export function useCustomerSession(interValInSeconds?:number) {
         queryClient.setQueryData(['customerSession'], data);
       }
     },
+    onError: handleError
   });
 
   // Mutation for removing an order from the database
@@ -77,6 +95,7 @@ export function useCustomerSession(interValInSeconds?:number) {
         queryClient.setQueryData(['customerSession'], data);
       }
     },
+    onError: handleError
   });
 
 

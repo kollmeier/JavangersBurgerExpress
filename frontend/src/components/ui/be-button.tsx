@@ -8,12 +8,14 @@ import {LucideIcon} from "lucide-react";
 export type BeButtonProps = ButtonProps & {
     variant?: ButtonVariantsType,
     icon?: LucideIcon,
+    iconClassName?: string,
 };
 
 const BeButton: React.FC<BeButtonProps> = ({
   className,
   variant,
   icon,
+  iconClassName,
   children,
   ...props
 }: BeButtonProps) => {
@@ -23,10 +25,10 @@ const BeButton: React.FC<BeButtonProps> = ({
     const childrenWithIcon = typeof children === "function" ?
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (bag: any) => <>
-            {icon && <Icon className={cn({"mr-1": !!children})}/>}
+            {icon && <Icon className={cn({"mr-1": !!children}, iconClassName)}/>}
             {children(bag)}
         </> : <>
-            {icon && <Icon className={cn({"mr-1": !!children})}/>}
+            {icon && <Icon className={cn({"mr-1": !!children}, iconClassName)}/>}
             {children}
         </>
     ;
