@@ -31,6 +31,9 @@ public class Order implements Serializable {
     private final Instant updatedAt;
     @Builder.Default
     private final OrderStatus status = OrderStatus.PENDING;
+    private final Integer orderNumber;
+    @Builder.Default
+    private final BigDecimal totalPrice = BigDecimal.ZERO;
     private final String paypalOrderId;
     private final String stripePaymentOrderId;
     @Setter
