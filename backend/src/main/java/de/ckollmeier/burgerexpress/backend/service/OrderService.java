@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +65,9 @@ public class OrderService {
         log.info("Order {} removed with ID: {}", order.getOrderNumber(), order.getId());
 
         return order.withStatus(OrderStatus.PENDING);
+    }
+
+    public List<Order> getTodaysOrdersForKitchen() {
+        return orderRepository.findAllByStatusIsInAndUpdatedAtAfter(OrderStatus.getKitchenStatuses(), Instant.now().minus(1, ChronoUnit.DAYS));
     }
 }

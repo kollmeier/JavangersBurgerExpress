@@ -1,6 +1,8 @@
 package de.ckollmeier.burgerexpress.backend.controller;
 
+import de.ckollmeier.burgerexpress.backend.converter.OrderOutputDTOConverter;
 import de.ckollmeier.burgerexpress.backend.dto.CustomerSessionDTO;
+import de.ckollmeier.burgerexpress.backend.dto.OrderOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 import de.ckollmeier.burgerexpress.backend.service.CustomerSessionService;
 import de.ckollmeier.burgerexpress.backend.service.OrderService;
@@ -10,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Controller for managing orders.
@@ -46,5 +50,10 @@ public class OrderController {
                 .body(customerSessionService.storeOrder(session, removedOrder)
                         .orElseThrow(() -> new IllegalStateException("No customer session found"))
                 );
+    }
+
+    @GetMapping("/kitchen")
+    public List<OrderOutputDTO> getKitchenOrders() {
+        return OrderOutputDTOConverter.convert(orderService.getTodaysOrdersForKitchen());
     }
 }
