@@ -45,7 +45,7 @@ const AuthActions: React.FC = () => {
       ) : (
         <LoginForm 
           onLoginSuccess={handleLoginSuccess} 
-          onLoginError={handleLoginError} 
+          onLoginError={handleLoginError}
         />
       )}
     </div>

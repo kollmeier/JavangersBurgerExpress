@@ -10,6 +10,8 @@ import DisplayItemsPage from "@/features/manager/display-items/pages/display-ite
 import { AuthProvider } from "./context/auth-context-provider.tsx";
 import CustomerSessionProvider from "@/context/customer-session-context-provider.tsx";
 import CustomerCheckoutLayout from "@/features/customer/layouts/customer-checkout-layout.tsx";
+import KitchenLayout from "@/layout/kitchen-layout.tsx";
+import KitchenPage from "@/features/kitchen/pages/kitchen-page.tsx";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,9 @@ function App() {
                           <Route path="displayItems//*" element={<DisplayItemsPage />} />
                           <Route path="displayItems/:displayItemId/*" element={<DisplayItemsPage />} />
                           <Route path="displayItems/category/:displayCategoryId/*" element={<DisplayItemsPage />} />
+                      </Route>
+                      <Route path="kitchen//*" element={<KitchenLayout />}>
+                          <Route path="*" element={<KitchenPage />} />
                       </Route>
                   </Routes>
                 </BrowserRouter>

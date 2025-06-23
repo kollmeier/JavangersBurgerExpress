@@ -75,8 +75,8 @@ class OrderNumberingTest {
         when(customerSessionService.getOrderFromCustomerSession(httpSession))
                 .thenReturn(Optional.of(order));
 
-        when(orderRepository.getMaximumOrderNumberByUpdatedAtAfter(any(Instant.class)))
-                .thenReturn(testCase.maxOrderNumber());
+        when(orderRepository.findTopByUpdatedAtAfterOrderByOrderNumberDesc(any(Instant.class)))
+                .thenReturn(Optional.of(order.withOrderNumber(testCase.maxOrderNumber())));
 
         Order savedOrder = order.withStatus(OrderStatus.CHECKOUT)
                 .withUpdatedAt(Instant.now())
@@ -88,6 +88,6 @@ class OrderNumberingTest {
 
         // Then
         assertThat(result.getOrderNumber()).isEqualTo(testCase.expectedOrderNumber());
-        verify(orderRepository).getMaximumOrderNumberByUpdatedAtAfter(any(Instant.class));
+        verify(orderRepository).findTopByUpdatedAtAfterOrderByOrderNumberDesc(any(Instant.class));
     }
 }

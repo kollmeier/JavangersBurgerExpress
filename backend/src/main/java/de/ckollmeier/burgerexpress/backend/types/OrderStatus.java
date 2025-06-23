@@ -25,6 +25,10 @@ public enum OrderStatus {
         return List.of(APPROVED, PAID, DELIVERED, CANCELLED);
     }
 
+    public static List<OrderStatus> getKitchenStatuses() {
+        return List.of(PAID, IN_PROGRESS);
+    }
+
     public static List<OrderStatus> getImmutableStatuses() {
         return List.of(APPROVED, PAID, IN_PROGRESS, READY, DELIVERED, CANCELLED);
     }

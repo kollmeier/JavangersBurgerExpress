@@ -4,6 +4,7 @@ import de.ckollmeier.burgerexpress.backend.dto.OrderOutputDTO;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,5 +40,9 @@ public class OrderOutputDTOConverter {
                 order.getUpdatedAt() != null ? DATE_TIME_FORMATTER.format(order.getUpdatedAt()) : null,
                 order.getStatus().name()
         );
+    }
+
+    public static List<OrderOutputDTO> convert(final List<Order> orders) {
+        return orders.stream().map(OrderOutputDTOConverter::convert).toList();
     }
 }

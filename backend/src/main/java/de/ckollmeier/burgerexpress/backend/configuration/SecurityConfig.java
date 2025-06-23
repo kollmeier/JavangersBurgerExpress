@@ -77,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/dishes/**").authenticated()
                         .requestMatchers("/api/menus/**").authenticated()
                         .requestMatchers("/api/files/upload").authenticated()
+                        .requestMatchers("/api/orders/kitchen").authenticated()
                         // Any other request is permitted for SPA application
                         .anyRequest().permitAll()
                 )

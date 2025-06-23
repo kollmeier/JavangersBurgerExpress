@@ -32,7 +32,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onLoginError }) =
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-row gap-2">
+    <form onSubmit={handleSubmit} autoComplete="off" className="flex flex-row gap-2">
         <InputWithLabel
             label="Benutzername"
             name="username"

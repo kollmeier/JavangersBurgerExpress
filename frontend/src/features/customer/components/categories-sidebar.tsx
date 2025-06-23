@@ -74,7 +74,7 @@ const CategoriesSidebar: React.FC<CategoriesSidebarProps> = ({
                 <Link
                     to={`/category/${category.id}`}
                     className={cn(
-                        "block w-full text-left px-4 py-2 rounded-md transition-colors",
+                        "w-full text-left px-4 py-2 rounded-md transition-colors flex justify-between items-center gap-2",
                         selectedCategoryId === category.id ? "bg-[#292c36] text-white" : "hover:bg-gray-100"
                     )}
                     onClick={(e) => {
@@ -82,7 +82,7 @@ const CategoriesSidebar: React.FC<CategoriesSidebarProps> = ({
                       onCategorySelect(category.id);
                     }}
                 >
-                  {category.name}
+                  {category.name}<img alt={category.name} src={category.imageUrl + "?size=48"}/>
                 </Link>
               </li>
           ))}
