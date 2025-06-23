@@ -4,6 +4,7 @@ import de.ckollmeier.burgerexpress.backend.dto.DisplayItemInputDTO;
 import de.ckollmeier.burgerexpress.backend.interfaces.BaseAdditionalInformation;
 import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.DisplayItem;
+import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,8 @@ class DisplayItemConverterTest {
         @Override public Map<String, List<String>> getImageUrls() { return Collections.emptyMap(); }
         @Override public BigDecimal getPrice() { return price; }
         @Override public BigDecimal getOldPrice() { return null; }
-        @Override public de.ckollmeier.burgerexpress.backend.types.OrderableItemType getOrderableItemType() { return null; }
+        @Override public OrderableItemType getOrderableItemType() { return null; }
+        @Override public List<? extends OrderableItem> getSubItems() { return Collections.emptyList(); }
     }
 
     @Test

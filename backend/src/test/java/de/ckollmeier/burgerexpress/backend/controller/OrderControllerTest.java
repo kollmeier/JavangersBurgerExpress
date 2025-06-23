@@ -484,6 +484,300 @@ class OrderControllerTest {
     }
 
     @Nested
+    @DisplayName("GET /api/orders/cashier")
+    class GetCashierOrders {
+
+        @Test
+        @DisplayName("should return cashier orders with CASHIER role")
+        @WithMockUser(roles = {"CASHIER"})
+        void shouldReturnCashierOrdersWithCashierRole() throws Exception {
+            // Given
+            // Create and save orders with different statuses
+            Instant now = Instant.now();
+            Order readyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order deliveredOrder = Order.builder()
+                    .status(OrderStatus.DELIVERED)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order inProgressOrder = Order.builder()
+                    .status(OrderStatus.IN_PROGRESS)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+
+            orderRepository.saveAll(List.of(readyOrder, deliveredOrder, inProgressOrder));
+
+            // When & Then
+            mockMvc.perform(get("/api/orders/cashier"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$[?(@.status=='READY')]").exists())
+                    .andExpect(jsonPath("$[?(@.status=='DELIVERED')]").exists())
+                    .andExpect(jsonPath("$[?(@.status=='IN_PROGRESS')]").doesNotExist());
+        }
+
+        @Test
+        @DisplayName("should not return yesterday's orders")
+        @WithMockUser(roles = {"CASHIER"})
+        void shouldNotReturnYesterdaysOrders() throws Exception {
+            // Given
+            // Create and save orders with yesterday's date
+            Instant yesterday = Instant.now().minus(1, java.time.temporal.ChronoUnit.DAYS).minus(1, java.time.temporal.ChronoUnit.HOURS);
+            Instant today = Instant.now();
+
+            // Yesterday's orders with cashier statuses
+            Order yesterdayReadyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(yesterday)
+                    .updatedAt(yesterday)
+                    .build();
+            Order yesterdayDeliveredOrder = Order.builder()
+                    .status(OrderStatus.DELIVERED)
+                    .createdAt(yesterday)
+                    .updatedAt(yesterday)
+                    .build();
+
+            // Today's orders with cashier statuses
+            Order todayReadyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(today)
+                    .updatedAt(today)
+                    .build();
+            Order todayDeliveredOrder = Order.builder()
+                    .status(OrderStatus.DELIVERED)
+                    .createdAt(today)
+                    .updatedAt(today)
+                    .build();
+
+            // Save orders and get the saved instances with IDs
+            List<Order> savedOrders = orderRepository.saveAll(List.of(
+                    yesterdayReadyOrder, 
+                    yesterdayDeliveredOrder, 
+                    todayReadyOrder, 
+                    todayDeliveredOrder
+            ));
+
+            // Extract the saved orders with their IDs
+            Order savedYesterdayReadyOrder = savedOrders.get(0);
+            Order savedYesterdayDeliveredOrder = savedOrders.get(1);
+            Order savedTodayReadyOrder = savedOrders.get(2);
+            Order savedTodayDeliveredOrder = savedOrders.get(3);
+
+            // When & Then
+            mockMvc.perform(get("/api/orders/cashier"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    // Verify that today's orders are returned
+                    .andExpect(jsonPath("$[?(@.id=='" + savedTodayReadyOrder.getId() + "')]").exists())
+                    .andExpect(jsonPath("$[?(@.id=='" + savedTodayDeliveredOrder.getId() + "')]").exists())
+                    // Verify that yesterday's orders are not returned
+                    .andExpect(jsonPath("$[?(@.id=='" + savedYesterdayReadyOrder.getId() + "')]").doesNotExist())
+                    .andExpect(jsonPath("$[?(@.id=='" + savedYesterdayDeliveredOrder.getId() + "')]").doesNotExist());
+        }
+
+        @Test
+        @DisplayName("should not return cashier orders without CASHIER role")
+        @WithMockUser(roles = {"MANAGER"})
+        void shouldNotReturnCashierOrdersWithoutCashierRole() throws Exception {
+            // When & Then
+            mockMvc.perform(get("/api/orders/cashier"))
+                    .andExpect(status().isForbidden());
+        }
+
+    }
+
+    @Nested
+    @DisplayName("PATCH /api/orders/cashier/{orderId}")
+    class AdvanceCashierOrder {
+
+        @Test
+        @DisplayName("should advance a READY order to DELIVERED with CASHIER role")
+        @WithMockUser(roles = {"CASHIER"})
+        void shouldAdvanceReadyOrderToDelivered() throws Exception {
+            // Given
+            // Create and save a READY order
+            Instant now = Instant.now();
+            Order readyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order savedOrder = orderRepository.save(readyOrder);
+
+            // When
+            mockMvc.perform(patch("/api/orders/cashier/" + savedOrder.getId()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status").value("DELIVERED"))
+                    .andReturn();
+
+            // Then
+            // Verify that the order status was updated in the database
+            Optional<Order> updatedOrderOptional = orderRepository.findById(savedOrder.getId());
+            assertThat(updatedOrderOptional).isPresent();
+            assertThat(updatedOrderOptional.get().getStatus()).isEqualTo(OrderStatus.DELIVERED);
+        }
+
+        @Test
+        @DisplayName("should return 400 when trying to advance a non-cashier order")
+        @WithMockUser(roles = {"CASHIER"})
+        void shouldReturn400WhenTryingToAdvanceNonCashierOrder() throws Exception {
+            // Given
+            // Create and save an IN_PROGRESS order (not a cashier status)
+            Instant now = Instant.now();
+            Order inProgressOrder = Order.builder()
+                    .status(OrderStatus.IN_PROGRESS)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order savedOrder = orderRepository.save(inProgressOrder);
+
+            // When & Then
+            mockMvc.perform(patch("/api/orders/cashier/" + savedOrder.getId()))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").exists());
+
+            // Verify that the order status was not changed
+            Optional<Order> orderOptional = orderRepository.findById(savedOrder.getId());
+            assertThat(orderOptional).isPresent();
+            assertThat(orderOptional.get().getStatus()).isEqualTo(OrderStatus.IN_PROGRESS);
+        }
+
+        @Test
+        @DisplayName("should return 404 when order is not found")
+        @WithMockUser(roles = {"CASHIER"})
+        void shouldReturn404WhenOrderNotFound() throws Exception {
+            // When & Then
+            mockMvc.perform(patch("/api/orders/cashier/non-existent-id"))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("should not advance cashier order without CASHIER role")
+        @WithMockUser(roles = {"MANAGER"})
+        void shouldNotAdvanceCashierOrderWithoutCashierRole() throws Exception {
+            // Given
+            // Create and save a READY order
+            Instant now = Instant.now();
+            Order readyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order savedOrder = orderRepository.save(readyOrder);
+
+            // When & Then
+            mockMvc.perform(patch("/api/orders/cashier/" + savedOrder.getId()))
+                    .andExpect(status().isForbidden());
+
+            // Verify that the order status was not changed
+            Optional<Order> orderOptional = orderRepository.findById(savedOrder.getId());
+            assertThat(orderOptional).isPresent();
+            assertThat(orderOptional.get().getStatus()).isEqualTo(OrderStatus.READY);
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/orders/customer")
+    class GetCustomerOrders {
+
+        @Test
+        @DisplayName("should return customer orders for all users")
+        void shouldReturnCustomerOrdersForAllUsers() throws Exception {
+            // Given
+            // Create and save orders with different statuses
+            Instant now = Instant.now();
+            Order inProgressOrder = Order.builder()
+                    .status(OrderStatus.IN_PROGRESS)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order readyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order deliveredOrder = Order.builder()
+                    .status(OrderStatus.DELIVERED)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+
+            orderRepository.saveAll(List.of(inProgressOrder, readyOrder, deliveredOrder));
+
+            // When & Then
+            mockMvc.perform(get("/api/orders/customer"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    .andExpect(jsonPath("$[?(@.status=='IN_PROGRESS')]").exists())
+                    .andExpect(jsonPath("$[?(@.status=='READY')]").exists())
+                    .andExpect(jsonPath("$[?(@.status=='DELIVERED')]").doesNotExist());
+        }
+
+        @Test
+        @DisplayName("should not return yesterday's orders")
+        void shouldNotReturnYesterdaysOrders() throws Exception {
+            // Given
+            // Create and save orders with yesterday's date
+            Instant yesterday = Instant.now().minus(1, java.time.temporal.ChronoUnit.DAYS).minus(1, java.time.temporal.ChronoUnit.HOURS);
+            Instant today = Instant.now();
+
+            // Yesterday's orders with customer statuses
+            Order yesterdayInProgressOrder = Order.builder()
+                    .status(OrderStatus.IN_PROGRESS)
+                    .createdAt(yesterday)
+                    .updatedAt(yesterday)
+                    .build();
+            Order yesterdayReadyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(yesterday)
+                    .updatedAt(yesterday)
+                    .build();
+
+            // Today's orders with customer statuses
+            Order todayInProgressOrder = Order.builder()
+                    .status(OrderStatus.IN_PROGRESS)
+                    .createdAt(today)
+                    .updatedAt(today)
+                    .build();
+            Order todayReadyOrder = Order.builder()
+                    .status(OrderStatus.READY)
+                    .createdAt(today)
+                    .updatedAt(today)
+                    .build();
+
+            // Save orders and get the saved instances with IDs
+            List<Order> savedOrders = orderRepository.saveAll(List.of(
+                    yesterdayInProgressOrder, 
+                    yesterdayReadyOrder, 
+                    todayInProgressOrder, 
+                    todayReadyOrder
+            ));
+
+            // Extract the saved orders with their IDs
+            Order savedYesterdayInProgressOrder = savedOrders.get(0);
+            Order savedYesterdayReadyOrder = savedOrders.get(1);
+            Order savedTodayInProgressOrder = savedOrders.get(2);
+            Order savedTodayReadyOrder = savedOrders.get(3);
+
+            // When & Then
+            mockMvc.perform(get("/api/orders/customer"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray())
+                    // Verify that today's orders are returned
+                    .andExpect(jsonPath("$[?(@.id=='" + savedTodayInProgressOrder.getId() + "')]").exists())
+                    .andExpect(jsonPath("$[?(@.id=='" + savedTodayReadyOrder.getId() + "')]").exists())
+                    // Verify that yesterday's orders are not returned
+                    .andExpect(jsonPath("$[?(@.id=='" + savedYesterdayInProgressOrder.getId() + "')]").doesNotExist())
+                    .andExpect(jsonPath("$[?(@.id=='" + savedYesterdayReadyOrder.getId() + "')]").doesNotExist());
+        }
+    }
+
+    @Nested
     @DisplayName("PATCH /api/orders/kitchen/{orderId}")
     class AdvanceKitchenOrder {
 

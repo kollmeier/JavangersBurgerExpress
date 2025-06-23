@@ -159,5 +159,10 @@ class OrderableItemOutputDTOConverterTest {
 
         @Override
         public Map<String, List<String>> getImageUrls() { return imageUrls; }
+
+        @Override
+        public List<? extends OrderableItem> getSubItems() {
+            return Collections.emptyList(); // Keine Subitems für Tests
+        }
     }
 }

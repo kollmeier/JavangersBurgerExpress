@@ -1,9 +1,13 @@
 package de.ckollmeier.burgerexpress.backend.converter;
 
 import de.ckollmeier.burgerexpress.backend.dto.OrderItemOutputDTO;
+import de.ckollmeier.burgerexpress.backend.interfaces.OrderableItem;
 import de.ckollmeier.burgerexpress.backend.model.OrderItem;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for converting OrderItem objects to OrderItemDTO objects.
@@ -43,5 +47,35 @@ public class OrderItemOutputDTOConverter {
      */
     public static List<OrderItemOutputDTO> convert(final List<OrderItem> orderItems) {
         return orderItems.stream().map(OrderItemOutputDTOConverter::convert).toList();
+    }
+
+    public static List<OrderItemOutputDTO> convertFlattened(final List<OrderItem> orderItems) {
+        return orderItems.stream()
+                .flatMap(orderItem ->
+                        Collections.nCopies(orderItem.getAmount(), orderItem.getItem()).stream()
+                )
+                .flatMap(item -> item.getSubItems().isEmpty()
+                        ? Stream.of(item)
+                        : item.getSubItems().stream())
+                // Gruppiere nach ID, summiere die "Anzahl"
+                .collect(Collectors.groupingBy(
+                        OrderableItem::getId,
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                itemList -> {
+                                    // Jede Gruppe: gleiche ID, gleiche Item-Infos
+                                    var first = itemList.getFirst();
+                                    int amount = itemList.size();
+                                    return new OrderItemOutputDTO(
+                                            first.getId(),
+                                            OrderableItemOutputDTOConverter.convert(first),
+                                            amount,
+                                            first.getPrice().toPlainString().replace(".", ",")
+                                    );
+                                }
+                        )
+                ))
+                .values().stream()
+                .toList();
     }
 }

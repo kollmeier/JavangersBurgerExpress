@@ -30,11 +30,11 @@ public class OrderOutputDTOConverter {
      * @param order the Order to convert
      * @return the converted OrderDTO
      */
-    public static OrderOutputDTO convert(final Order order) {
+    public static OrderOutputDTO convert(final Order order, boolean flattened) {
         return new OrderOutputDTO(
                 order.getId() == null ? UUID.randomUUID().toString() : order.getId(),
                 order.getOrderNumber() != null ? order.getOrderNumber() : 0,
-                OrderItemOutputDTOConverter.convert(order.getItems()),
+                flattened ? OrderItemOutputDTOConverter.convertFlattened(order.getItems()) : OrderItemOutputDTOConverter.convert(order.getItems()),
                 order.getTotalPrice().toPlainString().replace(".", ",") ,
                 order.getCreatedAt() != null ? DATE_TIME_FORMATTER.format(order.getCreatedAt()) : null,
                 order.getUpdatedAt() != null ? DATE_TIME_FORMATTER.format(order.getUpdatedAt()) : null,
@@ -42,7 +42,19 @@ public class OrderOutputDTOConverter {
         );
     }
 
+    public static OrderOutputDTO convert(final Order order) {
+        return convert(order, false);
+    }
+
+    public static OrderOutputDTO convertFlattened(final Order order) {
+        return convert(order, true);
+    }
+
     public static List<OrderOutputDTO> convert(final List<Order> orders) {
         return orders.stream().map(OrderOutputDTOConverter::convert).toList();
+    }
+
+    public static List<OrderOutputDTO> convertFlattened(List<Order> orders) {
+        return orders.stream().map(OrderOutputDTOConverter::convertFlattened).toList();
     }
 }

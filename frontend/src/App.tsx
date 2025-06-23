@@ -12,6 +12,10 @@ import CustomerSessionProvider from "@/context/customer-session-context-provider
 import CustomerCheckoutLayout from "@/features/customer/layouts/customer-checkout-layout.tsx";
 import KitchenLayout from "@/layout/kitchen-layout.tsx";
 import KitchenPage from "@/features/kitchen/pages/kitchen-page.tsx";
+import CashierLayout from "@/layout/cashier-layout.tsx";
+import CashierPage from "@/features/cashier/pages/cashier-page.tsx";
+import CustomerOrderPage from "@/features/customer/pages/customer-order-page.tsx";
+import CustomerNoSessionLayout from "@/layout/customer-nosession-layout.tsx";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +41,12 @@ function App() {
                       </Route>
                       <Route path="kitchen//*" element={<KitchenLayout />}>
                           <Route path="*" element={<KitchenPage />} />
+                      </Route>
+                      <Route path="cashier//*" element={<CashierLayout />}>
+                          <Route path="*" element={<CashierPage />} />
+                      </Route>
+                      <Route path="customer//*" element={<CustomerNoSessionLayout />}>
+                          <Route path="*" element={<CustomerOrderPage />} />
                       </Route>
                   </Routes>
                 </BrowserRouter>
