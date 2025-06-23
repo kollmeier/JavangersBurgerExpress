@@ -30,14 +30,19 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalStateException("No customer session found"));
 
         // Save the order to the database with status CHECKOUT
+        int maxOrderNumber;
+        try {
+            maxOrderNumber = orderRepository.getMaximumOrderNumberByUpdatedAtAfter(Instant.now().minus(1, ChronoUnit.DAYS));
+        } catch (Exception e) {
+            // If there's an error getting the maximum order number, default to 0
+            maxOrderNumber = 0;
+        }
+
         Order savedOrder = saveOrder(
                 order
                 .withStatus(OrderStatus.CHECKOUT)
                 .withUpdatedAt(Instant.now())
-                        .withOrderNumber(Math.max(
-                                101,
-                                orderRepository.getMaximumOrderNumberByUpdatedAtAfter(Instant.now().minus(1, ChronoUnit.DAYS)) + 1)
-                        )
+                        .withOrderNumber(Math.max(101, maxOrderNumber + 1))
         );
 
         log.info("Order {} placed with ID: {} and status {}", savedOrder.getOrderNumber(), savedOrder.getId(), savedOrder.getStatus());
