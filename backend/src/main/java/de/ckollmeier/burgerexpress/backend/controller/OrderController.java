@@ -20,7 +20,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/orders")
-@PreAuthorize("permitAll()")
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
@@ -30,6 +29,7 @@ public class OrderController {
      * @param session the HTTP session
      * @return the session with created order
      */
+    @PreAuthorize("permitAll()")
     @PostMapping
     public ResponseEntity<CustomerSessionDTO> placeOrder(HttpSession session) {
         Order savedOrder = orderService.placeOrder(session);
@@ -41,6 +41,7 @@ public class OrderController {
             );
     }
 
+    @PreAuthorize("permitAll()")
     @DeleteMapping
     public ResponseEntity<CustomerSessionDTO> removeOrder(HttpSession session) {
         Order removedOrder = orderService.removeOrder(session);
@@ -52,6 +53,7 @@ public class OrderController {
                 );
     }
 
+    @PreAuthorize("hasRole('KITCHEN')")
     @GetMapping("/kitchen")
     public List<OrderOutputDTO> getKitchenOrders() {
         return OrderOutputDTOConverter.convert(orderService.getTodaysOrdersForKitchen());
