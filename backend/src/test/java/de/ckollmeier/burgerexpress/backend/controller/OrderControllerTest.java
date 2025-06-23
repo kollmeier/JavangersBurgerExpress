@@ -92,14 +92,18 @@ class OrderControllerTest {
                     .cookie(cookie)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(orderInputDTO))
-            ).andReturn();
+            ).andExpect(status().isOk())
+              .andReturn();
 
             String orderId = objectMapper.readTree(orderInSessionResult.getResponse().getContentAsString()).get("order").get("id").asText();
 
             // When
+            System.out.println("[DEBUG_LOG] testDish ID: " + testDish.getId());
+            System.out.println("[DEBUG_LOG] Order ID: " + orderId);
             MvcResult result = mockMvc.perform(post("/api/orders")
                             .cookie(cookie)
                             .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(mvcResult -> System.out.println("[DEBUG_LOG] Response: " + mvcResult.getResponse().getContentAsString()))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.order").exists())
                     .andReturn();
@@ -122,7 +126,111 @@ class OrderControllerTest {
                     .extracting("item.id", "item.name", "item.price", "amount", "price")
                     .containsExactlyInAnyOrder(tuple(testDish.getId(), testDish.getName(), testDish.getPrice(), 2, testDish.getPrice().multiply(BigDecimal.valueOf(2))));
             assertThat(order.getStatus()).isEqualTo(OrderStatus.CHECKOUT);
+        }
 
+        @Test
+        @DisplayName("should include orderNumber in the response when placing an order")
+        void shouldIncludeOrderNumberInResponse() throws Exception {
+            // Given
+            OrderInputDTO orderInputDTO = new OrderInputDTO(
+                    null,
+                    List.of(new OrderItemInputDTO(null, testDish.getId(), 2))
+            );
+            MvcResult initialResult = mockMvc.perform(post("/api/customer-sessions")).andReturn();
+            String sessionCookie = initialResult.getResponse().getHeader("Set-Cookie");
+            Assertions.assertNotNull(sessionCookie);
+            Cookie cookie = new Cookie("SESSION", sessionCookie.substring(8, sessionCookie.indexOf(";")));
+
+            mockMvc.perform(patch("/api/customer-sessions")
+                    .cookie(cookie)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(orderInputDTO))
+            ).andExpect(status().isOk())
+              .andReturn();
+
+            // When
+            MvcResult result = mockMvc.perform(post("/api/orders")
+                            .cookie(cookie)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.order").exists())
+                    .andReturn();
+
+            // Then
+            String responseBody = result.getResponse().getContentAsString();
+            int orderNumber = objectMapper.readTree(responseBody).get("order").get("orderNumber").asInt();
+
+            // Verify that the orderNumber is at least 101 (minimum value)
+            assertThat(orderNumber).isGreaterThanOrEqualTo(101);
+
+            // Verify that the orderNumber is also set in the database
+            String orderId = objectMapper.readTree(responseBody).get("order").get("id").asText();
+            Optional<Order> orderOptional = orderRepository.findById(orderId);
+            assertThat(orderOptional).isPresent();
+            assertThat(orderOptional.get().getOrderNumber()).isEqualTo(orderNumber);
+        }
+
+        @Test
+        @DisplayName("should have valid orderNumber for multiple orders placed in the same day")
+        void shouldHaveValidOrderNumberForMultipleOrders() throws Exception {
+            // Given - Place first order
+            OrderInputDTO orderInputDTO = new OrderInputDTO(
+                    null,
+                    List.of(new OrderItemInputDTO(null, testDish.getId(), 2))
+            );
+
+            // Create first session and place first order
+            MvcResult initialResult1 = mockMvc.perform(post("/api/customer-sessions")).andReturn();
+            String sessionCookie1 = initialResult1.getResponse().getHeader("Set-Cookie");
+            Assertions.assertNotNull(sessionCookie1);
+            Cookie cookie1 = new Cookie("SESSION", sessionCookie1.substring(8, sessionCookie1.indexOf(";")));
+
+            mockMvc.perform(patch("/api/customer-sessions")
+                    .cookie(cookie1)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(orderInputDTO))
+            ).andExpect(status().isOk())
+              .andReturn();
+
+            MvcResult result1 = mockMvc.perform(post("/api/orders")
+                            .cookie(cookie1)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated())
+                    .andReturn();
+
+            // Get first order number
+            String responseBody1 = result1.getResponse().getContentAsString();
+            int orderNumber1 = objectMapper.readTree(responseBody1).get("order").get("orderNumber").asInt();
+
+            // Verify that the first order number is at least 101
+            assertThat(orderNumber1).isGreaterThanOrEqualTo(101);
+
+            // Create second session and place second order
+            MvcResult initialResult2 = mockMvc.perform(post("/api/customer-sessions")).andReturn();
+            String sessionCookie2 = initialResult2.getResponse().getHeader("Set-Cookie");
+            Assertions.assertNotNull(sessionCookie2);
+            Cookie cookie2 = new Cookie("SESSION", sessionCookie2.substring(8, sessionCookie2.indexOf(";")));
+
+            mockMvc.perform(patch("/api/customer-sessions")
+                    .cookie(cookie2)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(orderInputDTO))
+            ).andExpect(status().isOk())
+              .andReturn();
+
+            // When - Place second order
+            MvcResult result2 = mockMvc.perform(post("/api/orders")
+                            .cookie(cookie2)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated())
+                    .andReturn();
+
+            // Then - Get second order number and verify it's valid
+            String responseBody2 = result2.getResponse().getContentAsString();
+            int orderNumber2 = objectMapper.readTree(responseBody2).get("order").get("orderNumber").asInt();
+
+            // Verify that the second order number is at least 101
+            assertThat(orderNumber2).isGreaterThanOrEqualTo(101);
         }
 
         @Test
@@ -223,7 +331,8 @@ class OrderControllerTest {
                     .cookie(cookie)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(orderInputDTO))
-            ).andReturn();
+            ).andExpect(status().isOk())
+              .andReturn();
 
             // Place the order to change its status to CHECKOUT
             mockMvc.perform(post("/api/orders")

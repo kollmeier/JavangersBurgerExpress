@@ -10,6 +10,12 @@ export interface OrderOutputDTO {
   id?: string;
 
   /**
+   * Represents the unique identifier for an order,
+   * readable by the customer to track its order.
+   */
+  orderNumber: number;
+
+  /**
    * The items in the order.
    */
   items?: Array<OrderItemOutputDTO>;
@@ -44,6 +50,7 @@ export function isOrderOutputDTO(item: unknown): item is OrderOutputDTO {
   return item !== null
     && typeof item === 'object'
     && (!('id' in item) || item.id === undefined || typeof item.id === 'string')
+    && ('orderNumber' in item && typeof item.orderNumber === 'number')
     && (!('items' in item) || item.items === undefined || 
         (Array.isArray(item.items) && item.items.every(isOrderItemOutputDTO)))
     && (!('totalPrice' in item) || item.totalPrice === undefined || typeof item.totalPrice === 'string')

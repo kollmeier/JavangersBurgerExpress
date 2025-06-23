@@ -32,6 +32,7 @@ public class OrderOutputDTOConverter {
     public static OrderOutputDTO convert(final Order order) {
         return new OrderOutputDTO(
                 order.getId() == null ? UUID.randomUUID().toString() : order.getId(),
+                order.getOrderNumber() != null ? order.getOrderNumber() : 0,
                 OrderItemOutputDTOConverter.convert(order.getItems()),
                 order.getTotalPrice().toPlainString().replace(".", ",") ,
                 order.getCreatedAt() != null ? DATE_TIME_FORMATTER.format(order.getCreatedAt()) : null,

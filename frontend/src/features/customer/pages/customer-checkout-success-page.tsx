@@ -8,7 +8,7 @@ export type CustomerCheckoutSuccessPageProps = {
 }
 
 const CustomerCheckoutSuccessPage: React.FC<CustomerCheckoutSuccessPageProps> = ({setButtons})=>  {
-    const {setRefreshInterval, removeCustomerSession} = useCustomerSessionContext();
+    const {customerSession, setRefreshInterval, removeCustomerSession} = useCustomerSessionContext();
 
     useEffect(() => {
         setButtons(<BeButton onClick={() => removeCustomerSession()}>Bestellung schließen</BeButton>);
@@ -20,7 +20,7 @@ const CustomerCheckoutSuccessPage: React.FC<CustomerCheckoutSuccessPageProps> = 
         <output
             className="flex flex-col items-center justify-center w-full h-64 bg-transparent">
             <Check className="text-green-600 text-3xl -rotate-45 scale-50 animate-zoom-in drop-shadow-sm"/>
-            <div className="text-3xl font-bold">236</div>
+            <div className="text-3xl font-bold">{customerSession?.order?.orderNumber}</div>
             <span className="sr-only">Success!</span>
         </output>
         <div className="my-4 p-3 bg-green-100 text-green-800 rounded-md w-fit">

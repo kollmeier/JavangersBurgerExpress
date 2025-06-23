@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class OrderService {
 
     public Order saveOrder(Order order) {
         Order savedOrder = orderRepository.save(order.withUpdatedAt(Instant.now()));
-        log.info("Order saved with ID: {} and status {}", savedOrder.getId(), savedOrder.getStatus());
+        log.info("Order {} saved with ID: {} and status {}", savedOrder.getOrderNumber(), savedOrder.getId(), savedOrder.getStatus());
         return savedOrder;
     }
 
@@ -29,9 +30,22 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalStateException("No customer session found"));
 
         // Save the order to the database with status CHECKOUT
-        Order savedOrder = saveOrder(order.withStatus(OrderStatus.CHECKOUT));
+        int maxOrderNumber;
+        try {
+            maxOrderNumber = orderRepository.getMaximumOrderNumberByUpdatedAtAfter(Instant.now().minus(1, ChronoUnit.DAYS));
+        } catch (Exception e) {
+            // If there's an error getting the maximum order number, default to 0
+            maxOrderNumber = 0;
+        }
 
-        log.info("Order placed with ID: {} and status {}", savedOrder.getId(), savedOrder.getStatus());
+        Order savedOrder = saveOrder(
+                order
+                .withStatus(OrderStatus.CHECKOUT)
+                .withUpdatedAt(Instant.now())
+                        .withOrderNumber(Math.max(101, maxOrderNumber + 1))
+        );
+
+        log.info("Order {} placed with ID: {} and status {}", savedOrder.getOrderNumber(), savedOrder.getId(), savedOrder.getStatus());
         return savedOrder;
     }
 
@@ -47,7 +61,7 @@ public class OrderService {
 
         orderRepository.delete(order);
 
-        log.info("Order removed with ID: {}", order.getId());
+        log.info("Order {} removed with ID: {}", order.getOrderNumber(), order.getId());
 
         return order.withStatus(OrderStatus.PENDING);
     }
