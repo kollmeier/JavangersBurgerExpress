@@ -25,12 +25,28 @@ public enum OrderStatus {
         return getKitchenStatuses().contains(this);
     }
 
+    public boolean isCashier() {
+        return getCashierStatuses().contains(this);
+    }
+
+    public boolean isCustomer() {
+        return getCustomerStatuses().contains(this);
+    }
+
     public static List<OrderStatus> getFinalStatuses() {
         return List.of(APPROVED, PAID, DELIVERED, CANCELLED);
     }
 
     public static List<OrderStatus> getKitchenStatuses() {
         return List.of(PAID, IN_PROGRESS);
+    }
+
+    public static List<OrderStatus> getCustomerStatuses() {
+        return List.of(IN_PROGRESS, READY);
+    }
+
+    public static List<OrderStatus> getCashierStatuses() {
+        return List.of(READY, DELIVERED);
     }
 
     public static List<OrderStatus> getImmutableStatuses() {

@@ -56,12 +56,30 @@ public class OrderController {
     @PreAuthorize("hasRole('KITCHEN')")
     @GetMapping("/kitchen")
     public List<OrderOutputDTO> getKitchenOrders() {
-        return OrderOutputDTOConverter.convert(orderService.getTodaysOrdersForKitchen());
+        return OrderOutputDTOConverter.convertFlattened(orderService.getTodaysOrdersForKitchen());
     }
 
     @PreAuthorize("hasRole('KITCHEN')")
     @PatchMapping("/kitchen/{orderId}")
     public OrderOutputDTO advanceKitchenOrder(@PathVariable String orderId) {
         return OrderOutputDTOConverter.convert(orderService.advanceKitchenOrder(orderId));
+    }
+
+    @PreAuthorize("hasRole('CASHIER')")
+    @GetMapping("/cashier")
+    public List<OrderOutputDTO> getCashierOrders() {
+        return OrderOutputDTOConverter.convert(orderService.getTodaysOrdersForCashier());
+    }
+
+    @PreAuthorize("hasRole('CASHIER')")
+    @PatchMapping("/cashier/{orderId}")
+    public OrderOutputDTO advanceCashierOrder(@PathVariable String orderId) {
+        return OrderOutputDTOConverter.convert(orderService.advanceCashierOrder(orderId));
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/customer")
+    public List<OrderOutputDTO> getCustomerOrders() {
+        return OrderOutputDTOConverter.convert(orderService.getTodaysOrdersForCustomer());
     }
 }

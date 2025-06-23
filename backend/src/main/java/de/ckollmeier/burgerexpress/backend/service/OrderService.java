@@ -78,4 +78,23 @@ public class OrderService {
 
         return orderRepository.save(order.withStatus(order.getStatus().advancedStatus()));
     }
+
+    public List<Order> getTodaysOrdersForCashier() {
+        return orderRepository.findAllByStatusIsInAndUpdatedAtAfter(OrderStatus.getCashierStatuses(), Instant.now().minus(1, ChronoUnit.DAYS));
+    }
+
+    public Order advanceCashierOrder(String orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+
+        if (!order.getStatus().isCashier()) {
+            log.warn("Cannot advance order ID: {} with status {}", order.getId(), order.getStatus());
+            throw new IllegalStateException("Cannot advance order with status " + order.getStatus());
+        }
+
+        return orderRepository.save(order.withStatus(order.getStatus().advancedStatus()));
+    }
+
+    public List<Order> getTodaysOrdersForCustomer() {
+        return orderRepository.findAllByStatusIsInAndUpdatedAtAfter(OrderStatus.getCustomerStatuses(), Instant.now().minus(1, ChronoUnit.DAYS));
+    }
 }

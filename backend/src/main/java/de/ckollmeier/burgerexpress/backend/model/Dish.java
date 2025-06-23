@@ -4,9 +4,7 @@ import de.ckollmeier.burgerexpress.backend.interfaces.*;
 import de.ckollmeier.burgerexpress.backend.types.DishType;
 import de.ckollmeier.burgerexpress.backend.types.OrderableItemType;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -92,5 +90,10 @@ public final class Dish implements Sortable, FindableItem, PricedItem, NamedItem
     @Override
     public int compareWith(final Sortable other) {
         return this.getPosition() - other.getPosition();
+    }
+
+    @Override
+    public List<OrderableItem> getSubItems() {
+        return List.of();
     }
 }

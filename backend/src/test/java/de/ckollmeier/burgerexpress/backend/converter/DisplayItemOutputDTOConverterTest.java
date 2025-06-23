@@ -70,6 +70,11 @@ class DisplayItemOutputDTOConverterTest {
         public OrderableItemType getOrderableItemType() {
             return type;
         }
+
+        @Override
+        public List<? extends OrderableItem> getSubItems() {
+            return Collections.emptyList();
+        }
     }
 
     @Test

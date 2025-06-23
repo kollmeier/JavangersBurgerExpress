@@ -104,4 +104,9 @@ public final class Menu implements Sortable, FindableItem, PricedItem, NamedItem
     public int compareWith(final Sortable other) {
         return this.getPosition() - other.getPosition();
     }
+
+    @Override
+    public List<Dish> getSubItems() {
+        return dishes;
+    }
 }

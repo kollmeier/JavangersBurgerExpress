@@ -15,4 +15,5 @@ public interface OrderableItem extends FindableItem, Serializable {
     BigDecimal getPrice();
     BigDecimal getOldPrice();
     OrderableItemType getOrderableItemType();
+    List<? extends OrderableItem> getSubItems();
 }
