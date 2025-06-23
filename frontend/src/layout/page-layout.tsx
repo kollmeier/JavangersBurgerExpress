@@ -53,7 +53,7 @@ export const PageLayout: React.FC<PropsWithChildren<PageLayoutProps>> = ({
         <div className={cn("flex-1 flex flex-wrap justify-center items-stretch bg-[#f7f7f9] pb-16", mainNav && mainNav.length > 0 ? "pt-36" : "pt-20")}>
             <div className="flex flex-row max-w-[1378px] flex-1">
                 {sidebar && (
-                    <aside className={cn("w-64 mt-4 ml-4 p-4 text-black fixed top-20 h-[calc(100%_-_var(--spacing)*42)] overflow-y-auto bg-white rounded-xl shadow-[0_2px_8px_rgba(80,90,110,0.04)] z-10",
+                    <aside className={cn("w-64 mt-4 ml-4 p-4 text-black fixed top-20 h-[calc(100%_-_var(--spacing)*42)] overflow-y-hidden bg-white rounded-xl shadow-[0_2px_8px_rgba(80,90,110,0.04)] z-10",
                                             mainNav && mainNav.length > 0 && "h-[calc(100%_-_var(--spacing)*58)]")}>
                         {sidebar}
                     </aside>
