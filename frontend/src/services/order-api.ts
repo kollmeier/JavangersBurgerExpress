@@ -5,6 +5,7 @@ import {isOrderOutputDTO} from "@/types/OrderOutputDTO.ts";
 export const OrderApi = {
     baseUrl: '/api/orders',
     cancelableGetOrdersForKitchen: null as AbortController | null,
+    cancelableAdvanceOrdersForKitchen: null as AbortController | null,
     cancelablePlaceOrder: null as AbortController | null,
     cancelableDeleteOrder: null as AbortController | null,
 
@@ -52,6 +53,22 @@ export const OrderApi = {
             }
         )
         if (Array.isArray(response.data) && response.data.every(isOrderOutputDTO)) {
+            return response.data;
+        }
+        throw new TypeError("Ungültige Antwort beim Laden der Bestellungen");
+    },
+
+    async advanceKitchenOrder(orderId: string) {
+        OrderApi.cancelableAdvanceOrdersForKitchen?.abort();
+        OrderApi.cancelableAdvanceOrdersForKitchen = new AbortController();
+
+        const response = await axios.patch(
+            OrderApi.baseUrl + "/kitchen/" + orderId,
+            {
+                signal: OrderApi.cancelableAdvanceOrdersForKitchen.signal,
+            }
+        )
+        if (isOrderOutputDTO(response.data)) {
             return response.data;
         }
         throw new TypeError("Ungültige Antwort beim Laden der Bestellungen");

@@ -33,7 +33,7 @@ const AuthActions: React.FC = () => {
   return (
     <div className="flex items-start">
       {error && (
-        <div className="text-sm text-red-600 mr-4">{error}</div>
+        <div className="text-red-600 mr-4">{error}</div>
       )}
 
       {isAuthenticated && username ? (

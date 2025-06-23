@@ -482,4 +482,121 @@ class OrderControllerTest {
             assertThat(orderOptional.get().getStatus()).isEqualTo(OrderStatus.PAID);
         }
     }
+
+    @Nested
+    @DisplayName("PATCH /api/orders/kitchen/{orderId}")
+    class AdvanceKitchenOrder {
+
+        @Test
+        @DisplayName("should advance a PAID order to IN_PROGRESS with KITCHEN role")
+        @WithMockUser(roles = {"KITCHEN"})
+        void shouldAdvancePaidOrderToInProgress() throws Exception {
+            // Given
+            // Create and save a PAID order
+            Instant now = Instant.now();
+            Order paidOrder = Order.builder()
+                    .status(OrderStatus.PAID)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order savedOrder = orderRepository.save(paidOrder);
+
+            // When
+            mockMvc.perform(patch("/api/orders/kitchen/" + savedOrder.getId()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+                    .andReturn();
+
+            // Then
+            // Verify that the order status was updated in the database
+            Optional<Order> updatedOrderOptional = orderRepository.findById(savedOrder.getId());
+            assertThat(updatedOrderOptional).isPresent();
+            assertThat(updatedOrderOptional.get().getStatus()).isEqualTo(OrderStatus.IN_PROGRESS);
+        }
+
+        @Test
+        @DisplayName("should advance an IN_PROGRESS order to READY with KITCHEN role")
+        @WithMockUser(roles = {"KITCHEN"})
+        void shouldAdvanceInProgressOrderToReady() throws Exception {
+            // Given
+            // Create and save an IN_PROGRESS order
+            Instant now = Instant.now();
+            Order inProgressOrder = Order.builder()
+                    .status(OrderStatus.IN_PROGRESS)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order savedOrder = orderRepository.save(inProgressOrder);
+
+            // When
+            mockMvc.perform(patch("/api/orders/kitchen/" + savedOrder.getId()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status").value("READY"))
+                    .andReturn();
+
+            // Then
+            // Verify that the order status was updated in the database
+            Optional<Order> updatedOrderOptional = orderRepository.findById(savedOrder.getId());
+            assertThat(updatedOrderOptional).isPresent();
+            assertThat(updatedOrderOptional.get().getStatus()).isEqualTo(OrderStatus.READY);
+        }
+
+        @Test
+        @DisplayName("should return 400 when trying to advance a non-kitchen order")
+        @WithMockUser(roles = {"KITCHEN"})
+        void shouldReturn400WhenTryingToAdvanceNonKitchenOrder() throws Exception {
+            // Given
+            // Create and save a CHECKOUT order (not a kitchen status)
+            Instant now = Instant.now();
+            Order checkoutOrder = Order.builder()
+                    .status(OrderStatus.CHECKOUT)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order savedOrder = orderRepository.save(checkoutOrder);
+
+            // When & Then
+            mockMvc.perform(patch("/api/orders/kitchen/" + savedOrder.getId()))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").exists());
+
+            // Verify that the order status was not changed
+            Optional<Order> orderOptional = orderRepository.findById(savedOrder.getId());
+            assertThat(orderOptional).isPresent();
+            assertThat(orderOptional.get().getStatus()).isEqualTo(OrderStatus.CHECKOUT);
+        }
+
+        @Test
+        @DisplayName("should return 404 when order is not found")
+        @WithMockUser(roles = {"KITCHEN"})
+        void shouldReturn404WhenOrderNotFound() throws Exception {
+            // When & Then
+            mockMvc.perform(patch("/api/orders/kitchen/non-existent-id"))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("should not advance kitchen order without KITCHEN role")
+        @WithMockUser(roles = {"MANAGER"})
+        void shouldNotAdvanceKitchenOrderWithoutKitchenRole() throws Exception {
+            // Given
+            // Create and save a PAID order
+            Instant now = Instant.now();
+            Order paidOrder = Order.builder()
+                    .status(OrderStatus.PAID)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            Order savedOrder = orderRepository.save(paidOrder);
+
+            // When & Then
+            mockMvc.perform(patch("/api/orders/kitchen/" + savedOrder.getId()))
+                    .andExpect(status().isForbidden());
+
+            // Verify that the order status was not changed
+            Optional<Order> orderOptional = orderRepository.findById(savedOrder.getId());
+            assertThat(orderOptional).isPresent();
+            assertThat(orderOptional.get().getStatus()).isEqualTo(OrderStatus.PAID);
+        }
+    }
 }

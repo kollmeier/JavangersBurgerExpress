@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {OrderApi} from "@/services/order-api.ts";
 import {OrderOutputDTO} from "@/types/OrderOutputDTO.ts";
 
@@ -8,6 +8,7 @@ export type OrdersApi = ReturnType<typeof useOrders>;
  * Hook for managing customer sessions.
  */
 export function useOrders(interValInSeconds?:number) {
+    const queryClient = useQueryClient();
 
     // Query for getting the current customer session
     const kitchenOrders = useQuery<OrderOutputDTO[]>({
@@ -18,7 +19,18 @@ export function useOrders(interValInSeconds?:number) {
         refetchInterval: interValInSeconds === undefined ? undefined : interValInSeconds * 1000,
     });
 
+    // Mutation for storing an order in the customer session
+    const advanceKitchenOrder = useMutation({
+        mutationFn: (orderId: string) => OrderApi.advanceKitchenOrder(orderId),
+        onSuccess: (data) => {
+            if (data) {
+                queryClient.invalidateQueries({ queryKey: ['orders'] });
+            }
+        },
+    });
+
     return {
         kitchenOrders,
+        advanceKitchenOrder,
     };
 }
