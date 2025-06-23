@@ -65,6 +65,7 @@ class CustomerSessionServiceTest {
                     false,
                     new OrderOutputDTO(
                             "order-1",
+                            0,
                             List.of(),
                             "0.00",
                             "2023-01-01 12:00:00",
@@ -111,6 +112,7 @@ class CustomerSessionServiceTest {
                     false,
                     new OrderOutputDTO(
                             "order-1",
+                            0,
                             List.of(),
                             "0.00",
                             "2023-01-01 12:00:00",
@@ -174,6 +176,7 @@ class CustomerSessionServiceTest {
                     false,
                     new OrderOutputDTO(
                             "order-1",
+                            0,
                             List.of(),
                             "0.00",
                             "2023-01-01 12:00:00",
@@ -334,6 +337,7 @@ class CustomerSessionServiceTest {
                     false,
                     new OrderOutputDTO(
                             "order-1",
+                            0,
                             List.of(),
                             "0.00",
                             "2023-01-01 12:00:00",
@@ -390,6 +394,7 @@ class CustomerSessionServiceTest {
                     false,
                     new OrderOutputDTO(
                             "order-1",
+                            0,
                             List.of(),
                             "0.00",
                             "2023-01-01 12:00:00",
@@ -445,6 +450,7 @@ class CustomerSessionServiceTest {
                     false,
                     new OrderOutputDTO(
                             "order-1",
+                            0,
                             List.of(),
                             "0.00",
                             "2023-01-01 12:00:00",
