@@ -230,8 +230,8 @@ class OrderControllerTest {
             String responseBody2 = result2.getResponse().getContentAsString();
             int orderNumber2 = objectMapper.readTree(responseBody2).get("order").get("orderNumber").asInt();
 
-            // Verify that the second order number is at least 101
-            assertThat(orderNumber2).isGreaterThanOrEqualTo(101);
+            // Verify that the second order number is at least 102
+            assertThat(orderNumber2).isGreaterThanOrEqualTo(orderNumber1 + 1);
         }
 
         @Test

@@ -15,5 +15,5 @@ public interface OrderRepository extends MongoRepository<Order, String> {
     Order findByPaypalOrderId(String paypalOrderId);
     Optional<Order> findByStripePaymentOrderIdHash(String stripePaymentOrderIdHash);
     List<Order> findAllByStatusIsInAndUpdatedAtAfter(Collection<OrderStatus> statuses, Instant updatedAt);
-    int getMaximumOrderNumberByUpdatedAtAfter(Instant updatedAt);
+    Optional<Order> findTopByUpdatedAtAfterOrderByOrderNumberDesc(Instant updatedAt);
 }

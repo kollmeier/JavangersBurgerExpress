@@ -31,13 +31,9 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalStateException("No customer session found"));
 
         // Save the order to the database with status CHECKOUT
-        int maxOrderNumber;
-        try {
-            maxOrderNumber = orderRepository.getMaximumOrderNumberByUpdatedAtAfter(Instant.now().minus(1, ChronoUnit.DAYS));
-        } catch (Exception e) {
-            // If there's an error getting the maximum order number, default to 0
-            maxOrderNumber = 0;
-        }
+        int maxOrderNumber = orderRepository.findTopByUpdatedAtAfterOrderByOrderNumberDesc(Instant.now().minus(1, ChronoUnit.DAYS))
+                .map(Order::getOrderNumber)
+                .orElse(0);
 
         Order savedOrder = saveOrder(
                 order
