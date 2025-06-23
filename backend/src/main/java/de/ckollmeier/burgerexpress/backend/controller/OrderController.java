@@ -58,4 +58,10 @@ public class OrderController {
     public List<OrderOutputDTO> getKitchenOrders() {
         return OrderOutputDTOConverter.convert(orderService.getTodaysOrdersForKitchen());
     }
+
+    @PreAuthorize("hasRole('KITCHEN')")
+    @PatchMapping("/kitchen/{orderId}")
+    public OrderOutputDTO advanceKitchenOrder(@PathVariable String orderId) {
+        return OrderOutputDTOConverter.convert(orderService.advanceKitchenOrder(orderId));
+    }
 }

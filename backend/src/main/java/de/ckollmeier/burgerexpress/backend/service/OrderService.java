@@ -1,5 +1,6 @@
 package de.ckollmeier.burgerexpress.backend.service;
 
+import de.ckollmeier.burgerexpress.backend.exceptions.NotFoundException;
 import de.ckollmeier.burgerexpress.backend.model.Order;
 import de.ckollmeier.burgerexpress.backend.repository.OrderRepository;
 import de.ckollmeier.burgerexpress.backend.types.OrderStatus;
@@ -65,5 +66,16 @@ public class OrderService {
 
     public List<Order> getTodaysOrdersForKitchen() {
         return orderRepository.findAllByStatusIsInAndUpdatedAtAfter(OrderStatus.getKitchenStatuses(), Instant.now().minus(1, ChronoUnit.DAYS));
+    }
+
+    public Order advanceKitchenOrder(String orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+
+        if (!order.getStatus().isKitchen()) {
+            log.warn("Cannot advance order ID: {} with status {}", order.getId(), order.getStatus());
+            throw new IllegalStateException("Cannot advance order with status " + order.getStatus());
+        }
+
+        return orderRepository.save(order.withStatus(order.getStatus().advancedStatus()));
     }
 }
